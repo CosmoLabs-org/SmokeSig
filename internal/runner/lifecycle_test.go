@@ -3,8 +3,6 @@ package runner
 import (
 	"context"
 	"os"
-	"os/exec"
-	"strings"
 	"testing"
 	"time"
 
@@ -298,15 +296,4 @@ func TestLifecycle_EnvPassWithSpaces(t *testing.T) {
 	if val, ok := newEnv["VALUE"]; !ok || val != "hello world" {
 		t.Errorf("expected VALUE='hello world', got %s (ok: %v)", val, ok)
 	}
-}
-
-// Helper to check if a command exists on the system
-func commandExists(cmd string) bool {
-	_, err := exec.LookPath(cmd)
-	return err == nil
-}
-
-// Helper to check if we're on Windows
-func isWindows() bool {
-	return strings.Contains(strings.ToLower(os.Getenv("OS")), "windows")
 }

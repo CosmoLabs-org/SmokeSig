@@ -78,7 +78,10 @@ func (r *Runner) Run(opts RunOptions) (*SuiteResult, error) {
 	// Schedule after_all hooks to run regardless of test outcomes
 	if len(r.Config.Lifecycle.AfterAll) > 0 {
 		defer func() {
-			RunLifecycleHooks(context.Background(), r.Config.Lifecycle.AfterAll, r.lifecycleEnv, r.ConfigDir)
+			_, err := RunLifecycleHooks(context.Background(), r.Config.Lifecycle.AfterAll, r.lifecycleEnv, r.ConfigDir)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "after_all lifecycle hook error: %v\n", err)
+			}
 		}()
 	}
 
@@ -281,9 +284,14 @@ func (r *Runner) runTest(t schema.Test, opts RunOptions) TestResult {
 }
 
 func (r *Runner) runTestWithHooks(t schema.Test, opts RunOptions) TestResult {
+	env := make(map[string]string, len(r.lifecycleEnv))
+	for k, v := range r.lifecycleEnv {
+		env[k] = v
+	}
+
 	if len(r.Config.Lifecycle.BeforeEach) > 0 {
-		env, err := RunLifecycleHooks(context.Background(), r.Config.Lifecycle.BeforeEach, r.lifecycleEnv, r.ConfigDir)
-		r.lifecycleEnv = env
+		var err error
+		env, err = RunLifecycleHooks(context.Background(), r.Config.Lifecycle.BeforeEach, env, r.ConfigDir)
 		if err != nil {
 			return TestResult{
 				Name:  t.Name,
@@ -292,10 +300,20 @@ func (r *Runner) runTestWithHooks(t schema.Test, opts RunOptions) TestResult {
 		}
 	}
 
+	// Propagate lifecycle env into Vars so test commands can use them
+	for k, v := range env {
+		r.Vars.Set(k, v)
+	}
+	r.lifecycleEnv = env
+
 	result := r.runTest(t, opts)
 
 	if len(r.Config.Lifecycle.AfterEach) > 0 {
-		env, _ := RunLifecycleHooks(context.Background(), r.Config.Lifecycle.AfterEach, r.lifecycleEnv, r.ConfigDir)
+		var err error
+		env, err = RunLifecycleHooks(context.Background(), r.Config.Lifecycle.AfterEach, env, r.ConfigDir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "after_each lifecycle hook error for %s: %v\n", t.Name, err)
+		}
 		r.lifecycleEnv = env
 	}
 
