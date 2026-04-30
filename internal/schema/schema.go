@@ -13,14 +13,16 @@ import (
 
 // SmokeConfig is the top-level configuration parsed from .smoke.yaml.
 type SmokeConfig struct {
-	Version     int            `yaml:"version"`
-	Project     string         `yaml:"project"`
-	Description string         `yaml:"description,omitempty"`
-	Includes    []string       `yaml:"includes,omitempty"`
-	Settings    Settings       `yaml:"settings,omitempty"`
-	OTel        OTelConfig     `yaml:"otel,omitempty"`
-	Prereqs     []Prerequisite `yaml:"prerequisites,omitempty"`
-	Tests       []Test         `yaml:"tests"`
+	Version     int             `yaml:"version"`
+	Project     string          `yaml:"project"`
+	Description string          `yaml:"description,omitempty"`
+	Extends     string          `yaml:"extends,omitempty"`
+	Includes    []string        `yaml:"includes,omitempty"`
+	Settings    Settings        `yaml:"settings,omitempty"`
+	OTel        OTelConfig      `yaml:"otel,omitempty"`
+	Prereqs     []Prerequisite  `yaml:"prerequisites,omitempty"`
+	Lifecycle   LifecycleConfig `yaml:"lifecycle,omitempty"`
+	Tests       []Test          `yaml:"tests"`
 }
 
 // Settings controls global test behavior.
@@ -47,6 +49,22 @@ type Prerequisite struct {
 	Name  string `yaml:"name"`
 	Check string `yaml:"check"`
 	Hint  string `yaml:"hint,omitempty"`
+}
+
+// LifecycleConfig defines setup/teardown hooks for the test suite.
+type LifecycleConfig struct {
+	BeforeAll  []LifecycleHook `yaml:"before_all,omitempty"`
+	AfterAll   []LifecycleHook `yaml:"after_all,omitempty"`
+	BeforeEach []LifecycleHook `yaml:"before_each,omitempty"`
+	AfterEach  []LifecycleHook `yaml:"after_each,omitempty"`
+}
+
+// LifecycleHook is a command that runs at a specific lifecycle point.
+type LifecycleHook struct {
+	Command   string        `yaml:"command"`
+	Timeout   Duration      `yaml:"timeout,omitempty"`
+	AlwaysRun bool          `yaml:"always_run,omitempty"`
+	EnvPass   bool          `yaml:"env_pass,omitempty"`
 }
 
 // RetryPolicy configures automatic retry for flaky tests.

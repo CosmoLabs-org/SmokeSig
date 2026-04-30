@@ -188,6 +188,27 @@ func Validate(cfg *SmokeConfig) error {
 		errs = append(errs, "otel.jaeger_url must start with http:// or https://")
 	}
 
+	for i, h := range cfg.Lifecycle.BeforeAll {
+		if h.Command == "" {
+			errs = append(errs, fmt.Sprintf("lifecycle.before_all[%d]: command is required", i))
+		}
+	}
+	for i, h := range cfg.Lifecycle.AfterAll {
+		if h.Command == "" {
+			errs = append(errs, fmt.Sprintf("lifecycle.after_all[%d]: command is required", i))
+		}
+	}
+	for i, h := range cfg.Lifecycle.BeforeEach {
+		if h.Command == "" {
+			errs = append(errs, fmt.Sprintf("lifecycle.before_each[%d]: command is required", i))
+		}
+	}
+	for i, h := range cfg.Lifecycle.AfterEach {
+		if h.Command == "" {
+			errs = append(errs, fmt.Sprintf("lifecycle.after_each[%d]: command is required", i))
+		}
+	}
+
 	if len(errs) > 0 {
 		return &ValidationError{Errors: errs}
 	}

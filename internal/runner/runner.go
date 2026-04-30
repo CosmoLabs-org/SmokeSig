@@ -51,18 +51,36 @@ type TestResult struct {
 
 // Runner executes smoke tests from a config.
 type Runner struct {
-	Config      *schema.SmokeConfig
-	Reporter    reporter.Reporter
-	ConfigDir   string
-	trace       *TraceContext
-	TraceHealth *TraceHealthTracker
-	Vars        *VarStore
+	Config        *schema.SmokeConfig
+	Reporter      reporter.Reporter
+	ConfigDir     string
+	trace         *TraceContext
+	TraceHealth   *TraceHealthTracker
+	Vars          *VarStore
+	lifecycleEnv  map[string]string
 }
 
 // Run executes all tests per the options and returns the suite result.
 func (r *Runner) Run(opts RunOptions) (*SuiteResult, error) {
 	start := time.Now()
 	r.Vars = NewVarStore()
+	r.lifecycleEnv = make(map[string]string)
+
+	// Run before_all lifecycle hooks
+	if len(r.Config.Lifecycle.BeforeAll) > 0 {
+		env, err := RunLifecycleHooks(context.Background(), r.Config.Lifecycle.BeforeAll, r.lifecycleEnv, r.ConfigDir)
+		r.lifecycleEnv = env
+		if err != nil {
+			return nil, fmt.Errorf("before_all lifecycle hook failed: %w", err)
+		}
+	}
+
+	// Schedule after_all hooks to run regardless of test outcomes
+	if len(r.Config.Lifecycle.AfterAll) > 0 {
+		defer func() {
+			RunLifecycleHooks(context.Background(), r.Config.Lifecycle.AfterAll, r.lifecycleEnv, r.ConfigDir)
+		}()
+	}
 
 	// Run prerequisites
 	if len(r.Config.Prereqs) > 0 {
@@ -189,7 +207,7 @@ func (r *Runner) runSequential(tests []schema.Test, opts RunOptions, suite *Suit
 			continue
 		}
 
-		tr := r.runTest(t, opts)
+		tr := r.runTestWithHooks(t, opts)
 		suite.Tests = append(suite.Tests, tr)
 		if tr.Passed {
 			suite.Passed++
@@ -214,7 +232,7 @@ func (r *Runner) runParallel(tests []schema.Test, opts RunOptions, suite *SuiteR
 		wg.Add(1)
 		go func(idx int, test schema.Test) {
 			defer wg.Done()
-			results[idx] = r.runTest(test, opts)
+			results[idx] = r.runTestWithHooks(test, opts)
 		}(i, t)
 	}
 	wg.Wait()
@@ -260,6 +278,28 @@ func (r *Runner) runTest(t schema.Test, opts RunOptions) TestResult {
 	}
 	last.Attempts = t.Retry.Count
 	return last
+}
+
+func (r *Runner) runTestWithHooks(t schema.Test, opts RunOptions) TestResult {
+	if len(r.Config.Lifecycle.BeforeEach) > 0 {
+		env, err := RunLifecycleHooks(context.Background(), r.Config.Lifecycle.BeforeEach, r.lifecycleEnv, r.ConfigDir)
+		r.lifecycleEnv = env
+		if err != nil {
+			return TestResult{
+				Name:  t.Name,
+				Error: fmt.Errorf("before_each lifecycle hook failed: %w", err),
+			}
+		}
+	}
+
+	result := r.runTest(t, opts)
+
+	if len(r.Config.Lifecycle.AfterEach) > 0 {
+		env, _ := RunLifecycleHooks(context.Background(), r.Config.Lifecycle.AfterEach, r.lifecycleEnv, r.ConfigDir)
+		r.lifecycleEnv = env
+	}
+
+	return result
 }
 
 func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
