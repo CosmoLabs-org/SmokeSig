@@ -1,32 +1,18 @@
 {
   "version": "1.0.0",
-<<<<<<< HEAD
-  "id": "agent-abe5a065",
-  "name": "agent-abe5a065",
-=======
-  "id": "agent-a90fc8e9",
-  "name": "agent-a90fc8e9",
->>>>>>> agent-a90fc8e9
+  "id": "agent-a577e66986b1a4267",
+  "name": "agent-a577e66986b1a4267",
   "dependencies": [],
   "dependents": [],
   "status": "working",
   "timestamps": {
-<<<<<<< HEAD
-    "created": "2026-04-16T16:18:17.424356-03:00",
-    "lastActivity": "2026-04-16T16:18:17.424363-03:00"
-=======
-    "created": "2026-04-16T16:17:58.264794-03:00",
-    "lastActivity": "2026-04-16T16:17:58.264808-03:00"
->>>>>>> agent-a90fc8e9
+    "created": "2026-04-30T16:06:34.485553-03:00",
+    "lastActivity": "2026-04-30T16:06:34.485562-03:00"
   },
   "merge": {
     "order": 0,
     "readyToMerge": false,
     "baseBranch": "master"
   },
-<<<<<<< HEAD
-  "branch": "agent-abe5a065"
-=======
-  "branch": "agent-a90fc8e9"
->>>>>>> agent-a90fc8e9
+  "branch": "agent-a577e66986b1a4267"
 }

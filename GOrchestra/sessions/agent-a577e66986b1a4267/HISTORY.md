@@ -4,10 +4,10 @@ base: master
 status: conflict
 created: 2026-04-30
 archived: 2026-04-30
-commits: 4
-files_changed: 21
-lines_added: 1017
-lines_removed: 878
+commits: 5
+files_changed: 25
+lines_added: 1037
+lines_removed: 992
 review_status: passed
 ---
 
@@ -16,10 +16,11 @@ review_status: passed
 ## Summary
 
 Branch merged via `ccs merg` on 2026-04-30.
-4 commits, 21 files changed (+1017/-878).
+5 commits, 25 files changed (+1037/-992).
 
 ## Commits
 
+- `7a4b919` chore: add .review-cache to gitignore
 - `4e3b47b` fix(schema): template processing for remote configs, rename url param
 - `9ffda38` fix(schema): use direct assignment for boolean merge fields
 - `58f8b19` fix(schema): address review issues in remote config inheritance
@@ -29,10 +30,14 @@ Branch merged via `ccs merg` on 2026-04-30.
 
 ```
 .ccsession.json                                    |  24 +-
- .gitignore                                         |   1 -
+ .gitignore                                         |   2 +-
  .review.json                                       |  54 +-
  .version-registry.json                             |   6 +-
+ GOrchestra/intel/architecture.json                 |  32 +-
+ GOrchestra/intel/status.json                       |   6 +-
+ .../sessions/agent-a577e66986b1a4267/HISTORY.md    |  53 --
  .../sessions/agent-a577e66986b1a4267/bypass.json   |   8 -
+ .../sessions/agent-a577e66986b1a4267/session.json  |  42 --
  GOrchestra/worktree-history.yaml                   |  12 -
  .../worktrees/agent-a577e66986b1a4267/session.json |  11 -
  .../worktrees/agent-a71a40f4b3b8e367f/session.json |  11 -
@@ -49,5 +54,5 @@ Branch merged via `ccs merg` on 2026-04-30.
  internal/schema/remote_test.go                     | 606 +++++++++++++++++++++
  internal/schema/schema.go                          |  82 +--
  internal/schema/validate.go                        |  21 -
- 21 files changed, 1017 insertions(+), 878 deletions(-)
+ 25 files changed, 1037 insertions(+), 992 deletions(-)
 ```

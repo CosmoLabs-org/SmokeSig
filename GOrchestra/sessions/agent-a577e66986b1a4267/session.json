@@ -3,8 +3,14 @@
   "base_branch": "master",
   "status": "conflict",
   "created": "2026-04-30T16:18:19-03:00",
-  "archived": "2026-04-30T16:32:00.628766-03:00",
+  "archived": "2026-04-30T16:32:56.837201-03:00",
   "commits": [
+    {
+      "hash": "7a4b919",
+      "author": "GΛB",
+      "message": "chore: add .review-cache to gitignore",
+      "date": 1777577535
+    },
     {
       "hash": "4e3b47b",
       "author": "GΛB",
@@ -30,11 +36,11 @@
       "date": 1777576699
     }
   ],
-  "total_commits": 4,
-  "files_changed": 21,
-  "lines_added": 1017,
-  "lines_removed": 878,
-  "diff_stat": ".ccsession.json                                    |  24 +-\n .gitignore                                         |   1 -\n .review.json                                       |  54 +-\n .version-registry.json                             |   6 +-\n .../sessions/agent-a577e66986b1a4267/bypass.json   |   8 -\n GOrchestra/worktree-history.yaml                   |  12 -\n .../worktrees/agent-a577e66986b1a4267/session.json |  11 -\n .../worktrees/agent-a71a40f4b3b8e367f/session.json |  11 -\n docs/issues.yaml                                   |   4 +-\n docs/issues/FEAT-039.yaml                          |   7 +-\n .../2026-04-30-phase1-github-actions-reporter.md   |  31 +-\n .../2026-04-30-gemini-phase1-continuation.md       |   2 -\n internal/runner/lifecycle.go                       |  84 ---\n internal/runner/lifecycle_integration_test.go      | 101 ----\n internal/runner/lifecycle_test.go                  | 312 -----------\n internal/runner/runner.go                          |  56 +-\n internal/schema/lifecycle_validate_test.go         | 141 -----\n internal/schema/remote.go                          | 321 +++++++++++\n internal/schema/remote_test.go                     | 606 +++++++++++++++++++++\n internal/schema/schema.go                          |  82 +--\n internal/schema/validate.go                        |  21 -\n 21 files changed, 1017 insertions(+), 878 deletions(-)",
+  "total_commits": 5,
+  "files_changed": 25,
+  "lines_added": 1037,
+  "lines_removed": 992,
+  "diff_stat": ".ccsession.json                                    |  24 +-\n .gitignore                                         |   2 +-\n .review.json                                       |  54 +-\n .version-registry.json                             |   6 +-\n GOrchestra/intel/architecture.json                 |  32 +-\n GOrchestra/intel/status.json                       |   6 +-\n .../sessions/agent-a577e66986b1a4267/HISTORY.md    |  53 --\n .../sessions/agent-a577e66986b1a4267/bypass.json   |   8 -\n .../sessions/agent-a577e66986b1a4267/session.json  |  42 --\n GOrchestra/worktree-history.yaml                   |  12 -\n .../worktrees/agent-a577e66986b1a4267/session.json |  11 -\n .../worktrees/agent-a71a40f4b3b8e367f/session.json |  11 -\n docs/issues.yaml                                   |   4 +-\n docs/issues/FEAT-039.yaml                          |   7 +-\n .../2026-04-30-phase1-github-actions-reporter.md   |  31 +-\n .../2026-04-30-gemini-phase1-continuation.md       |   2 -\n internal/runner/lifecycle.go                       |  84 ---\n internal/runner/lifecycle_integration_test.go      | 101 ----\n internal/runner/lifecycle_test.go                  | 312 -----------\n internal/runner/runner.go                          |  56 +-\n internal/schema/lifecycle_validate_test.go         | 141 -----\n internal/schema/remote.go                          | 321 +++++++++++\n internal/schema/remote_test.go                     | 606 +++++++++++++++++++++\n internal/schema/schema.go                          |  82 +--\n internal/schema/validate.go                        |  21 -\n 25 files changed, 1037 insertions(+), 992 deletions(-)",
   "review_status": "passed",
   "merge_type": "unknown",
   "iterations_at_merge": 3,
