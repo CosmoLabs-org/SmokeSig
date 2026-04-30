@@ -4,7 +4,19 @@
 
 version: pending
 entries:
-    added: []
+    added:
+        - description: |-
+            # FEAT-040: Setup/teardown lifecycle hooks (BR-10)
+
+            **Type**: feature
+            **Status**: closed
+            **Created**: 2026-04-30
+
+            ## Description
+
+            Extend prerequisites: with after_all (guaranteed execution on failure/SIGINT), before_each/after_each per-test hooks, always_run flag, environment passing (capture KEY=VALUE from stdout). Context-based timeouts. Signal interception. ~500 lines extending prereq.go.
+          source: manual
+          date: 2026-04-30T17:01:49.930991-03:00
     fixed: []
     changed: []
     deprecated: []

@@ -1,11 +1,14 @@
 id: FEAT-042
 type: feature
 created_at: 2026-04-30T02:51:30.532773-03:00
-updated_at: 2026-04-30T02:52:03.880653-03:00
+updated_at: 2026-04-30T17:02:02.763321-03:00
 source: local
-status: open
+status: done
 origin:
     session: 2027
 title: Remote config inheritance via URL (BR-03)
 description: 'Allow .smoke.yaml to inherit from remote URL via extends: field. HTTP GET with etag caching. Deep merge: remote base + local overrides. High value for 95-project portfolio. ~400 lines.'
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+revisions:
+    - date: "2026-04-30"
+      action: closed
