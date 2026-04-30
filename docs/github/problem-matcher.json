@@ -1,0 +1,13 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "cosmo-smoke",
+      "pattern": [
+        {
+          "regexp": "^::error title=Smoke Test Failed::(.+)$",
+          "message": 1
+        }
+      ]
+    }
+  ]
+}

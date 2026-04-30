@@ -22,7 +22,7 @@ internal/
 ├── schema/          # SmokeConfig structs, YAML parsing, validation
 ├── baseline/        # Performance baseline storage and comparison
 ├── runner/          # Assertion engine (39 types), prereq runner, test execution
-├── reporter/        # Terminal (Lipgloss) + JSON + Push reporters
+├── reporter/        # Terminal (Lipgloss) + JSON + GHA + Push reporters
 ├── monorepo/        # Sub-config discovery for monorepo projects
 ├── dashboard/       # Portfolio dashboard (SQLite storage, API handlers, embedded UI)
 └── detector/        # Project type detection + template generation
@@ -54,7 +54,7 @@ go build -ldflags "-s -w -X github.com/CosmoLabs-org/cosmo-smoke/cmd.Version=X.Y
 ## Commands
 
 ```bash
-smoke run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--baseline] [--baseline-threshold 50]
+smoke run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--baseline] [--baseline-threshold 50]
 smoke validate [-f path]
 smoke schema
 smoke serve [--port 8080] [--dashboard] [--api-key KEY] [--db-path PATH]
@@ -124,7 +124,7 @@ Smoke test results are also exported as OTLP telemetry when `export_url` is conf
 
 ## Output Formats
 
-`smoke run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`. Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files (`smoke-results.json`, `smoke-junit.xml`, `smoke-metrics.prom`, `smoke-tap.txt`).
+`smoke run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`. Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files (`smoke-results.json`, `smoke-junit.xml`, `smoke-metrics.prom`, `smoke-tap.txt`). The `gha` format writes markdown to `$GITHUB_STEP_SUMMARY` and emits `::error`/`::warning` workflow commands for CI annotations.
 
 ## Detected Project Types
 

@@ -18,6 +18,7 @@ var formats = map[string]formatEntry{
 	"junit":      {"smoke-junit.xml", func(w io.Writer) Reporter { return NewJUnit(w) }},
 	"tap":        {"smoke-tap.txt", func(w io.Writer) Reporter { return NewTAP(w) }},
 	"prometheus": {"smoke-metrics.prom", func(w io.Writer) Reporter { return NewPrometheus(w) }},
+	"gha":       {"", func(w io.Writer) Reporter { return NewGitHubActions(w) }},
 }
 
 // Chain parses a comma-separated format string, creates reporters for each
@@ -33,7 +34,7 @@ func Chain(format string, stdout io.Writer) (Reporter, []io.Closer, error) {
 
 	for _, n := range names {
 		if _, ok := formats[n]; !ok {
-			return nil, nil, fmt.Errorf("unknown format %q (valid: terminal, json, junit, tap, prometheus)", n)
+			return nil, nil, fmt.Errorf("unknown format %q (valid: terminal, json, junit, tap, prometheus, gha)", n)
 		}
 	}
 
