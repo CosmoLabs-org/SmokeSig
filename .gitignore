@@ -118,3 +118,4 @@ GOrchestra/intel/
 .docs/git-time-machine-pointer.txt
 .review.json
 .review-cache/
+.ccs-verify-cache.json
