@@ -15,6 +15,8 @@ requires_reading:
 schema_version: 1
 status: PENDING
 title: "Gemini Feedback Phase 1 — FEAT-039 GHA Reporter + Commits"
+implemented_commits:
+    - d60e4ebabd798337890ac7ac92ade7af27081fae  # G-02: FEAT-039 GHA reporter
 ---
 
 # Gemini Feedback Phase 1 — FEAT-039 GHA Reporter + Commits

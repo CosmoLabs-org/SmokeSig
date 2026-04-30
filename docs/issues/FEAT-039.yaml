@@ -1,12 +1,15 @@
 id: FEAT-039
 type: feature
 created_at: 2026-04-30T02:51:30.529225-03:00
-updated_at: 2026-04-30T02:54:15.390642-03:00
+updated_at: 2026-04-30T15:40:06.838297-03:00
 source: local
-status: open
+status: done
 origin:
     session: 2027
 title: GitHub Actions native output reporter (BR-01)
 description: Add --format gha that writes markdown to $GITHUB_STEP_SUMMARY and emits ::error/::warning annotations for failed tests. Includes problem matcher JSON. ~200 lines.
 plan_ref: docs/planning-mode/2026-04-30-phase1-github-actions-reporter.md
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+revisions:
+    - date: "2026-04-30"
+      action: closed

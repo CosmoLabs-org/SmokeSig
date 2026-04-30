@@ -1,17 +1,26 @@
 ---
-date: 2026-04-30
-status: plan
-issue: FEAT-039
 brainstorm: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+completed: "2026-04-30"
+created: "2026-04-30"
+date: 2026-04-30T00:00:00Z
 deliverables:
-  - id: P-01
-    title: "GitHub Actions reporter implementation"
-  - id: P-02
-    title: "Problem matcher JSON definition"
-  - id: P-03
-    title: "Reporter registration and format flag integration"
-  - id: P-04
-    title: "Tests for GHA output format"
+    - id: P-01
+      title: GitHub Actions reporter implementation
+    - id: P-02
+      title: Problem matcher JSON definition
+    - id: P-03
+      title: Reporter registration and format flag integration
+    - id: P-04
+      title: Tests for GHA output format
+goals_completed: 0
+goals_total: 0
+issue: FEAT-039
+related_prompts: []
+requires_reading: []
+schema_version: 1
+status: COMPLETED
+tags: []
+title: 'Phase 1: GitHub Actions Native Output (BR-01 / FEAT-039)'
 ---
 
 # Phase 1: GitHub Actions Native Output (BR-01 / FEAT-039)
