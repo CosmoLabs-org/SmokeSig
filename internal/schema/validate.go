@@ -172,6 +172,14 @@ func Validate(cfg *SmokeConfig) error {
 				errs = append(errs, fmt.Sprintf("%s: k8s_resource.name is required", prefix))
 			}
 		}
+			if e := t.Expect.FileSize; e != nil {
+				if e.Path == "" {
+					errs = append(errs, fmt.Sprintf("%s: file_size.path is required", prefix))
+				}
+				if e.MinBytes != nil && e.MaxBytes != nil && *e.MinBytes > *e.MaxBytes {
+					errs = append(errs, fmt.Sprintf("%s: file_size.min_bytes must be <= max_bytes", prefix))
+				}
+			}
 	}
 	if cfg.OTel.Enabled && cfg.OTel.JaegerURL == "" {
 		errs = append(errs, "otel.jaeger_url is required when otel is enabled")
@@ -217,5 +225,6 @@ func hasStandaloneAssertions(e Expect) bool {
 		e.LDAP != nil ||
 		e.MQTT != nil ||
 		e.NTP != nil ||
-		e.K8sResource != nil
+		e.K8sResource != nil ||
+		e.FileSize != nil
 }

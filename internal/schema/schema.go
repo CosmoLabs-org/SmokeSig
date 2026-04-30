@@ -90,6 +90,7 @@ type Expect struct {
 	StderrContains string          `yaml:"stderr_contains,omitempty"`
 	StderrMatches  string          `yaml:"stderr_matches,omitempty"`
 	FileExists     string          `yaml:"file_exists,omitempty"`
+	FileSize       *FileSizeCheck  `yaml:"file_size,omitempty"`
 	EnvExists      string          `yaml:"env_exists,omitempty"`
 	PortListening  *PortCheck      `yaml:"port_listening,omitempty"`
 	ProcessRunning string          `yaml:"process_running,omitempty"`
@@ -123,6 +124,14 @@ type Expect struct {
 	MQTT             *MQTTCheck             `yaml:"mqtt_ping,omitempty"`
 	NTP              *NTPCheck              `yaml:"ntp_check,omitempty"`
 	K8sResource      *K8sResourceCheck      `yaml:"k8s_resource,omitempty"`
+	Extract          string                 `yaml:"extract,omitempty"` // Variable name to capture from stdout_matches
+}
+
+// FileSizeCheck verifies a file exists and optionally checks its size thresholds.
+type FileSizeCheck struct {
+	Path     string `yaml:"path"`
+	MinBytes *int64 `yaml:"min_bytes,omitempty"`
+	MaxBytes *int64 `yaml:"max_bytes,omitempty"`
 }
 
 // PortCheck defines parameters for checking if a port is open and listening.
@@ -203,6 +212,7 @@ type JSONFieldCheck struct {
 	Equals   string `yaml:"equals,omitempty"`
 	Contains string `yaml:"contains,omitempty"`
 	Matches  string `yaml:"matches,omitempty"`
+	Extract  string `yaml:"extract,omitempty"` // Variable name to capture the matched value
 }
 
 // URLReachableCheck verifies an HTTP/HTTPS endpoint is accessible.

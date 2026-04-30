@@ -368,3 +368,82 @@ func TestValidate_OTelTrace_TempoValidWithJaegerURL(t *testing.T) {
 		t.Errorf("unexpected error for valid tempo config: %v", err)
 	}
 }
+
+func TestValidate_FileSize(t *testing.T) {
+	t.Run("valid file_size with both thresholds", func(t *testing.T) {
+		min := int64(100)
+		max := int64(5000)
+		cfg := &SmokeConfig{
+			Version: 1,
+			Project: "myapp",
+			Tests: []Test{
+				{
+					Name:   "check-size",
+					Expect: Expect{FileSize: &FileSizeCheck{Path: "dist/bundle.js", MinBytes: &min, MaxBytes: &max}},
+				},
+			},
+		}
+		if err := Validate(cfg); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("missing path", func(t *testing.T) {
+		cfg := &SmokeConfig{
+			Version: 1,
+			Project: "myapp",
+			Tests: []Test{
+				{
+					Name:   "check-size",
+					Expect: Expect{FileSize: &FileSizeCheck{Path: ""}},
+				},
+			},
+		}
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for missing path")
+		}
+		if !strings.Contains(err.Error(), "file_size.path is required") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("min_bytes greater than max_bytes", func(t *testing.T) {
+		min := int64(5000)
+		max := int64(100)
+		cfg := &SmokeConfig{
+			Version: 1,
+			Project: "myapp",
+			Tests: []Test{
+				{
+					Name:   "check-size",
+					Expect: Expect{FileSize: &FileSizeCheck{Path: "dist/bundle.js", MinBytes: &min, MaxBytes: &max}},
+				},
+			},
+		}
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for min > max")
+		}
+		if !strings.Contains(err.Error(), "min_bytes must be <= max_bytes") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("standalone assertion works without run command", func(t *testing.T) {
+		max := int64(5000)
+		cfg := &SmokeConfig{
+			Version: 1,
+			Project: "myapp",
+			Tests: []Test{
+				{
+					Name:   "check-size",
+					Expect: Expect{FileSize: &FileSizeCheck{Path: "dist/bundle.js", MaxBytes: &max}},
+				},
+			},
+		}
+		if err := Validate(cfg); err != nil {
+			t.Errorf("file_size should be a standalone assertion: %v", err)
+		}
+	})
+}

@@ -56,11 +56,13 @@ type Runner struct {
 	ConfigDir   string
 	trace       *TraceContext
 	TraceHealth *TraceHealthTracker
+	Vars        *VarStore
 }
 
 // Run executes all tests per the options and returns the suite result.
 func (r *Runner) Run(opts RunOptions) (*SuiteResult, error) {
 	start := time.Now()
+	r.Vars = NewVarStore()
 
 	// Run prerequisites
 	if len(r.Config.Prereqs) > 0 {
@@ -310,10 +312,17 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 	var stdout, stderr bytes.Buffer
 	exitCode := 0
 	if t.Run != "" {
+		runCmd := t.Run
+		if r.Vars != nil {
+			resolved, err := r.Vars.ResolveTemplate(t.Run)
+			if err == nil {
+				runCmd = resolved
+			}
+		}
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
-		cmd := exec.CommandContext(ctx, "sh", "-c", t.Run)
+		cmd := exec.CommandContext(ctx, "sh", "-c", runCmd)
 		cmd.Dir = r.ConfigDir
 		cmd.Stdout = &stdout
 		cmd.Stderr = &stderr
@@ -388,6 +397,13 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 			allPassed = false
 		}
 	}
+		if t.Expect.FileSize != nil {
+			a := CheckFileSize(t.Expect.FileSize, r.ConfigDir)
+			assertions = append(assertions, a)
+			if !a.Passed {
+				allPassed = false
+			}
+		}
 	if t.Expect.PortListening != nil {
 		p := t.Expect.PortListening
 		a := CheckPortListening(p.Port, p.Protocol, p.Host)
@@ -673,6 +689,11 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 		if !a.Passed {
 			allPassed = false
 		}
+	}
+
+	// Process extracts: store captured values for chained tests
+	if allPassed && r.Vars != nil {
+		processExtracts(&t.Expect, stdout.String(), r.Vars)
 	}
 
 	tr := TestResult{
