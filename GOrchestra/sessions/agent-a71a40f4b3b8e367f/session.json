@@ -1,0 +1,36 @@
+{
+  "branch": "agent-a71a40f4b3b8e367f",
+  "base_branch": "master",
+  "status": "conflict",
+  "created": "2026-04-30T16:23:18-03:00",
+  "archived": "2026-04-30T16:50:46.949984-03:00",
+  "commits": [
+    {
+      "hash": "ea67eef",
+      "author": "GΛB",
+      "message": "fix(runner): propagate lifecycle env to Vars, log hook errors",
+      "date": 1777578544
+    },
+    {
+      "hash": "c7c65de",
+      "author": "GΛB",
+      "message": "fix(runner): address review issues in lifecycle hooks",
+      "date": 1777578165
+    },
+    {
+      "hash": "ac4bb9c",
+      "author": "GΛB",
+      "message": "feat(runner): add setup/teardown lifecycle hooks",
+      "date": 1777576998
+    }
+  ],
+  "total_commits": 3,
+  "files_changed": 23,
+  "lines_added": 123,
+  "lines_removed": 1184,
+  "diff_stat": ".ccsession.json                                    |  10 +-\n .gitignore                                         |   2 -\n .gorchestra/fingerprint-cache.json                 |   4 +-\n .review.json                                       |  39 +-\n .version-registry.json                             |   6 +-\n GOrchestra/intel/architecture.json                 |  33 +-\n GOrchestra/intel/status.json                       |   4 +-\n .../sessions/agent-a577e66986b1a4267/HISTORY.md    |  58 --\n .../sessions/agent-a577e66986b1a4267/bypass.json   |   8 -\n .../sessions/agent-a577e66986b1a4267/session.json  |  48 --\n GOrchestra/worktree-history.yaml                   |  12 -\n .../worktrees/agent-a577e66986b1a4267/session.json |  11 -\n .../worktrees/agent-a71a40f4b3b8e367f/session.json |  11 -\n docs/issues.yaml                                   |   4 +-\n docs/issues/FEAT-039.yaml                          |   7 +-\n .../2026-04-30-phase1-github-actions-reporter.md   |  31 +-\n .../2026-04-30-gemini-phase1-continuation.md       |   2 -\n internal/runner/lifecycle.go                       |   4 +-\n internal/runner/lifecycle_test.go                  |  13 -\n internal/runner/runner.go                          |  26 +-\n internal/schema/remote.go                          | 321 -----------\n internal/schema/remote_test.go                     | 606 ---------------------\n internal/schema/schema.go                          |  47 +-\n 23 files changed, 123 insertions(+), 1184 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "unknown",
+  "iterations_at_merge": 2,
+  "persistent_issues_at_merge": 2
+}
