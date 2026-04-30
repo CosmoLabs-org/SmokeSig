@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-04-30
+
+### Added
+- # FEAT-040: Setup/teardown lifecycle hooks (BR-10)
+
+**Type**: feature
+**Status**: closed
+**Created**: 2026-04-30
+
+## Description
+
+Extend prerequisites: with after_all (guaranteed execution on failure/SIGINT), before_each/after_each per-test hooks, always_run flag, environment passing (capture KEY=VALUE from stdout). Context-based timeouts. Signal interception. ~500 lines extending prereq.go.
+- GitHub Actions native output reporter (--format gha)
+- Setup/teardown lifecycle hooks (before_all, after_all, before_each, after_each, env_pass)
+- Remote config inheritance via extends URL with HTTP caching
+- add setup/teardown lifecycle hooks (commit:8a601564)
+- add GitHub Actions native output reporter (commit:d60e4eba)
+
 ## [0.16.0] - 2026-04-30
 
 ### Added
