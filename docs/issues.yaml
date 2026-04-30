@@ -1,16 +1,11 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-04-22T03:20:12.436106-03:00
+last_updated: 2026-04-30T11:23:37.450123-03:00
 next_bug_id: 2
-next_feat_id: 37
+next_feat_id: 52
 next_task_id: 2
 next_imp_id: 1
 issues:
-    - id: FEAT-036
-      type: feature
-      status: open
-      title: v1.0 Release Readiness
-      created_at: 2026-04-22T03:20:12.435512-03:00
     - id: ""
       type: ""
       status: ""
@@ -201,3 +196,84 @@ issues:
       status: done
       title: Lua project detection (ROAD-066)
       created_at: 2026-04-21T18:04:24.420814-03:00
+    - id: FEAT-036
+      type: feature
+      status: open
+      title: v1.0 Release Readiness
+      priority: 70
+      created_at: 2026-04-22T03:20:12.435512-03:00
+    - id: FEAT-037
+      type: feature
+      status: open
+      title: File size assertion type (BR-11)
+      created_at: 2026-04-30T02:51:30.525722-03:00
+    - id: FEAT-038
+      type: feature
+      status: open
+      title: Test chaining with data extraction (BR-08)
+      created_at: 2026-04-30T02:51:30.528009-03:00
+    - id: FEAT-039
+      type: feature
+      status: open
+      title: GitHub Actions native output reporter (BR-01)
+      created_at: 2026-04-30T02:51:30.529225-03:00
+    - id: FEAT-040
+      type: feature
+      status: open
+      title: Setup/teardown lifecycle hooks (BR-10)
+      created_at: 2026-04-30T02:51:30.530829-03:00
+    - id: FEAT-041
+      type: feature
+      status: open
+      title: Background commands with wait_for_port (BR-14)
+      created_at: 2026-04-30T02:51:30.531877-03:00
+    - id: FEAT-042
+      type: feature
+      status: open
+      title: Remote config inheritance via URL (BR-03)
+      created_at: 2026-04-30T02:51:30.532773-03:00
+    - id: FEAT-043
+      type: feature
+      status: open
+      title: Official GitHub Action wrapper (BR-06)
+      created_at: 2026-04-30T02:51:30.533671-03:00
+    - id: FEAT-044
+      type: feature
+      status: open
+      title: Flakiness detector — smoke stress command (BR-02)
+      created_at: 2026-04-30T02:51:30.535278-03:00
+    - id: FEAT-045
+      type: feature
+      status: open
+      title: Auto-Add Generator — smoke observe command (BR-13)
+      created_at: 2026-04-30T02:51:30.536276-03:00
+    - id: FEAT-046
+      type: feature
+      status: open
+      title: Detector-observer integration (BR-15)
+      created_at: 2026-04-30T02:51:30.537901-03:00
+    - id: FEAT-047
+      type: feature
+      status: open
+      title: Simulator/emulator health assertions (BR-12)
+      created_at: 2026-04-30T02:51:30.539845-03:00
+    - id: FEAT-048
+      type: feature
+      status: open
+      title: Wasm plugin system for custom assertions (BR-07)
+      created_at: 2026-04-30T02:51:30.541223-03:00
+    - id: FEAT-049
+      type: feature
+      status: open
+      title: OIDC integration for cloud role assumption (BR-04)
+      created_at: 2026-04-30T02:51:30.546948-03:00
+    - id: FEAT-050
+      type: feature
+      status: open
+      title: Backstage.io schema output reporter (BR-05)
+      created_at: 2026-04-30T02:51:30.548221-03:00
+    - id: FEAT-051
+      type: feature
+      status: open
+      title: Interactive TUI test runner (BR-09)
+      created_at: 2026-04-30T02:51:30.550114-03:00

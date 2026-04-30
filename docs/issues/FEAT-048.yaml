@@ -1,0 +1,11 @@
+id: FEAT-048
+type: feature
+created_at: 2026-04-30T02:51:30.541223-03:00
+updated_at: 2026-04-30T02:52:04.288604-03:00
+source: local
+status: open
+origin:
+    session: 2027
+title: Wasm plugin system for custom assertions (BR-07)
+description: 'Embed wazero runtime for user-authored assertions in Rust/TS/Go compiled to Wasm. JSON-over-memory ABI. Plugin caching. Registered in plugins: YAML section, usable as assertion types. ~800 lines. Blue ocean feature.'
+brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md

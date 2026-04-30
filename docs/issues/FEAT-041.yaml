@@ -1,0 +1,11 @@
+id: FEAT-041
+type: feature
+created_at: 2026-04-30T02:51:30.531877-03:00
+updated_at: 2026-04-30T02:52:03.800632-03:00
+source: local
+status: open
+origin:
+    session: 2027
+title: Background commands with wait_for_port (BR-14)
+description: 'Support background: true on lifecycle commands with wait_for_port polling (exponential backoff TCP). Stores PID for cleanup. Critical for Tauri (1420), React Native Metro (8081), Next.js (3000). ~200 lines.'
+brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md

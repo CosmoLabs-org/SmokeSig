@@ -1,0 +1,18 @@
+id: ROAD-079
+created_at: 2026-04-30T02:49:19.68491-03:00
+updated_at: 2026-04-30T02:51:53.219855-03:00
+title: 'Gemini Ecosystem Feedback — Phase 3: Quality Tooling'
+description: Flakiness detector (smoke stress) with worker pools, error deduplication, reliability scoring. ~730 lines.
+status: captured
+priority: 60
+tags:
+    - area:quality
+    - area:testing
+    - phase:3
+    - source:gemini-feedback
+    - issues:FEAT-044
+refs:
+    - type: brainstorm
+      path: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+origin:
+    session: 2027

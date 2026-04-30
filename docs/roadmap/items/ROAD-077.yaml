@@ -1,0 +1,18 @@
+id: ROAD-077
+created_at: 2026-04-30T02:49:19.251599-03:00
+updated_at: 2026-04-30T02:51:52.904167-03:00
+title: 'Gemini Ecosystem Feedback — Phase 1: Quick Wins'
+description: File size assertions, test chaining + data extraction, GitHub Actions native output. ~750 lines.
+status: exploring
+priority: 90
+tags:
+    - area:assertions
+    - area:ci
+    - phase:1
+    - source:gemini-feedback
+    - issues:FEAT-037,FEAT-038,FEAT-039
+refs:
+    - type: brainstorm
+      path: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+origin:
+    session: 2027

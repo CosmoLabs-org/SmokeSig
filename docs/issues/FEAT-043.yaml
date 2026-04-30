@@ -1,0 +1,11 @@
+id: FEAT-043
+type: feature
+created_at: 2026-04-30T02:51:30.533671-03:00
+updated_at: 2026-04-30T02:52:03.926119-03:00
+source: local
+status: open
+origin:
+    session: 2027
+title: Official GitHub Action wrapper (BR-06)
+description: Publish cosmolabs-org/cosmo-smoke-action as reusable GitHub Action. Wraps smoke run with binary download, output handling, summary generation. ~100 lines in separate repo. Depends on BR-01.
+brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md

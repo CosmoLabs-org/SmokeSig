@@ -1,0 +1,11 @@
+id: FEAT-047
+type: feature
+created_at: 2026-04-30T02:51:30.539845-03:00
+updated_at: 2026-04-30T02:52:04.24352-03:00
+source: local
+status: open
+origin:
+    session: 2027
+title: Simulator/emulator health assertions (BR-12)
+description: Add simulator assertion for iOS (xcrun simctl list devices) and Android (adb shell getprop sys.boot_completed) readiness checks. ~200 lines.
+brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md

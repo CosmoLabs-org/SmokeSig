@@ -1,0 +1,19 @@
+id: ROAD-078
+created_at: 2026-04-30T02:49:19.438118-03:00
+updated_at: 2026-04-30T02:51:53.016289-03:00
+title: 'Gemini Ecosystem Feedback — Phase 2: Lifecycle & Orchestration'
+description: Setup/teardown lifecycle hooks, background commands with wait_for_port, remote config inheritance, official GitHub Action. ~1,200 lines.
+status: captured
+priority: 75
+tags:
+    - area:lifecycle
+    - area:ci
+    - area:config
+    - phase:2
+    - source:gemini-feedback
+    - issues:FEAT-040,FEAT-041,FEAT-042,FEAT-043
+refs:
+    - type: brainstorm
+      path: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+origin:
+    session: 2027

@@ -1,0 +1,12 @@
+id: FEAT-038
+type: feature
+created_at: 2026-04-30T02:51:30.528009-03:00
+updated_at: 2026-04-30T02:54:15.318301-03:00
+source: local
+status: open
+origin:
+    session: 2027
+title: Test chaining with data extraction (BR-08)
+description: 'Enable extracting values from one test (extract: field on json_field, stdout_matches) and injecting into subsequent tests via {{ .Vars.name }} templating. Sensitive vars masked. Chained tests run sequentially. ~500 lines. Biggest functional gap for API testing workflows.'
+plan_ref: docs/planning-mode/2026-04-30-phase1-test-chaining.md
+brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md

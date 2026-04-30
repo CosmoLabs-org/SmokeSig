@@ -10,7 +10,7 @@ from_path: /Users/gab/PROJECTS/cosmo-smoke
 to_project: ClaudeCodeSetup
 to_target: project
 created: "2026-04-21T19:23:58.120669-03:00"
-updated: "2026-04-21T19:23:58.120669-03:00"
+updated: "2026-04-22T13:57:03.771472-03:00"
 suggested_conversion: feature
 converted_to: null
 related_issues: []
@@ -75,3 +75,26 @@ Two options:
 
 Option A is simpler and doesn't depend on CCS. The workcheck skill could add a Step 0: \"read .claude/task-log.jsonl if it exists, merge with TaskList.\"
 
+
+---
+
+**Update (2026-04-22):**
+
+
+
+## Session 301 Recurrence (2026-04-22)
+
+Same symptom observed in a fresh session with the current binary (v1.200.1, build 4981 — rebuilt mid-session).
+
+**Fresh evidence:**
+- Created 11 tasks (`TaskCreate`) during session: BUG-213/214/215, FEAT-385, FEAT-231, FEAT-254, FEAT-300, FEAT-230, plus P-01/02/03 for FEAT-341.
+- Marked tasks in_progress → completed as work finished (e.g. TaskUpdate taskId=7 status=completed after FEAT-385 shipped).
+- At /workcheck time late in session: `TaskList` returned `No tasks found`.
+- `ccs workcheck --json` .tasks[] showed only historical tasks from sessions 281 and 295/296, not the current session 301 tasks.
+
+**Why this matters (new data point):**
+The `/workcheck` Step 5 ("Verify Tasks: Cross-reference TaskList against commits. Flag tasks marked completed without evidence") is structurally blind when TaskList is empty. The report I produced this session skipped Step 5 entirely and just listed stale pending tasks from older sessions as if they were mine.
+
+Status on FB-627 was marked `implemented` but the underlying issue persists — either the implementation didn't land in the binary version I was running, or the .claude/task-log.jsonl write path isn't being triggered by TaskCreate/TaskUpdate. Needs re-investigation.
+
+**Suggested next step:** write a trivial test: `TaskCreate` → read `.claude/task-log.jsonl` → assert line present. If the file isn't being written, the append logic was never actually wired into TaskCreate. This is a 30-minute debug session.

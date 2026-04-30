@@ -1,8 +1,28 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-04-22T01:26:38.440099-03:00
-next_id: 77
+last_updated: 2026-04-30T02:51:53.366105-03:00
+next_id: 82
 items:
+    - id: ROAD-081
+      title: 'Gemini Ecosystem Feedback — Phase 5: Ecosystem & Enterprise'
+      status: captured
+      created_at: 2026-04-30T02:49:20.233662-03:00
+    - id: ROAD-080
+      title: 'Gemini Ecosystem Feedback — Phase 4: DX Features'
+      status: captured
+      created_at: 2026-04-30T02:49:19.959804-03:00
+    - id: ROAD-079
+      title: 'Gemini Ecosystem Feedback — Phase 3: Quality Tooling'
+      status: captured
+      created_at: 2026-04-30T02:49:19.68491-03:00
+    - id: ROAD-078
+      title: 'Gemini Ecosystem Feedback — Phase 2: Lifecycle & Orchestration'
+      status: captured
+      created_at: 2026-04-30T02:49:19.438118-03:00
+    - id: ROAD-077
+      title: 'Gemini Ecosystem Feedback — Phase 1: Quick Wins'
+      status: exploring
+      created_at: 2026-04-30T02:49:19.251599-03:00
     - id: ROAD-076
       title: Kubernetes resource assertion
       status: completed

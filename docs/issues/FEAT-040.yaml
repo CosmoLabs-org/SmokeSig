@@ -1,0 +1,11 @@
+id: FEAT-040
+type: feature
+created_at: 2026-04-30T02:51:30.530829-03:00
+updated_at: 2026-04-30T02:52:03.749093-03:00
+source: local
+status: open
+origin:
+    session: 2027
+title: Setup/teardown lifecycle hooks (BR-10)
+description: 'Extend prerequisites: with after_all (guaranteed execution on failure/SIGINT), before_each/after_each per-test hooks, always_run flag, environment passing (capture KEY=VALUE from stdout). Context-based timeouts. Signal interception. ~500 lines extending prereq.go.'
+brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
