@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"path/filepath"
 	"text/template"
 	"time"
 
@@ -414,51 +413,9 @@ func (d Duration) MarshalYAML() (interface{}, error) {
 }
 
 // Load reads and parses a .smoke.yaml file from the given path.
-// Supports Go templates ({{ .Env.FOO }}) and includes.
+// Supports Go templates ({{ .Env.FOO }}), extends, and includes.
 func Load(path string) (*SmokeConfig, error) {
-	return loadWithDepth(path, 0)
-}
-
-func loadWithDepth(path string, depth int) (*SmokeConfig, error) {
-	if depth > 10 {
-		return nil, fmt.Errorf("include depth exceeded (max 10): circular includes?")
-	}
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("reading config: %w", err)
-	}
-
-	// Process Go templates
-	processed, err := processTemplate(data)
-	if err != nil {
-		return nil, fmt.Errorf("processing template: %w", err)
-	}
-
-	cfg, err := Parse(processed)
-	if err != nil {
-		return nil, err
-	}
-
-	// Process includes
-	configDir := filepath.Dir(path)
-	for _, inc := range cfg.Includes {
-		incPath := inc
-		if !filepath.IsAbs(inc) {
-			incPath = filepath.Join(configDir, inc)
-		}
-
-		incCfg, err := loadWithDepth(incPath, depth+1)
-		if err != nil {
-			return nil, fmt.Errorf("loading include %q: %w", inc, err)
-		}
-
-		// Merge: included tests and prereqs are prepended
-		cfg.Prereqs = append(incCfg.Prereqs, cfg.Prereqs...)
-		cfg.Tests = append(incCfg.Tests, cfg.Tests...)
-	}
-
-	return cfg, nil
+	return LoadWithResolver(path, nil)
 }
 
 // processTemplate expands Go templates in the config.
