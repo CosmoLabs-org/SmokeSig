@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-04-30
+
+### Added
+- file_size assertion with byte thresholds (min/max, human-readable formatting)
+- test chaining with variable extraction (VarStore, {{ .Vars.X }} templates, extract from json_field/stdout_matches, secret masking)
+- add test chaining with variable extraction (commit:b08e78f3)
+- add file_size assertion with byte thresholds (commit:909d8bc1)
+
 ## [0.15.0] - 2026-04-22
 
 ### Added
