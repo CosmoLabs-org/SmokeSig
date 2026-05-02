@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-02T17:11:05.63338-03:00",
+  "generated_at": "2026-05-02T18:42:58.486838-03:00",
   "generated_by": "GLM-4.7",
-  "expires_at": "2026-05-03T17:11:05.63338-03:00",
-  "last_analyzed_commit": "f452663540733a4cf276f832e814241f0ad009a4",
-  "summary": "A Go-based monolithic CLI tool featuring an MCP integration layer, a schema validation engine, and a test runner, heavily utilizing automated agent-driven test generation.",
+  "expires_at": "2026-05-03T18:42:58.486838-03:00",
+  "last_analyzed_commit": "29928baf92726a3e4bb703261c411920b3fbe9fd",
+  "summary": "A Go-based orchestration tool leveraging MCP for agent coordination with a heavy emphasis on assertion validation and extensive extra testing.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,22 +15,19 @@
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
-    "Test-Driven Development (TDD)",
+    "test-driven development",
     "MCP (Model Context Protocol) handler pattern",
-    "Dependency Injection (wire)",
-    "Schema Validation",
-    "Monorepo agent-based task generation"
+    "assertion-based validation",
+    "agent worktree orchestration"
   ],
   "concerns": [
-    "High volume of auto-generated extra tests (GOrchestra/glm-agents) may bloat the codebase",
-    "Untracked and unstaged files in git status suggest incomplete commits or workflow issues",
-    "Stale handoff prompts being marked completed indicates possible process lag in agent orchestration",
-    "Heavy reliance on test files for core logic understanding suggests a need for better documentation"
+    "high volume of agent-generated extra test patches suggests unstable test coverage",
+    "stale worktree recovery patches indicate flaky orchestration logic",
+    "many handoff prompts marked completed implies coordination overhead"
   ],
   "suggestions": [
-    "Consolidate or archive the GOrchestra agent-generated test directories to reduce clutter",
-    "Resolve the current git status (2 modified, 1 staged, 3 untracked) before adding new features",
-    "Add inline documentation or architectural diagrams to reduce dependency on reading test files",
-    "Review the nopReporter and distribution tooling (goreleaser) for production readiness"
+    "consolidate extra test patches into the main test suite to reduce maintenance burden",
+    "stabilize the runner and MCP handler logic before adding more agent-generated tests",
+    "investigate root cause of stale worktree recoveries to prevent future cleanup chores"
   ]
 }
