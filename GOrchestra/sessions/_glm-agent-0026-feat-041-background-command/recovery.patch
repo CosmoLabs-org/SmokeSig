@@ -1,0 +1,109 @@
+From 7e739dfd03d69faadcb51175fb97e9e236209fb4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Thu, 30 Apr 2026 18:14:17 -0300
+Subject: [PATCH] feat(.gorchestra): fEAT-041: Add background command execution
+ with wait_for_port to life...
+
+Auto-committed uncommitted work from GLM agent.
+
+Task: FEAT-041: Add background command execution with wait_for_port to lifecycle hooks
+
+Refs: FEAT-462
+---
+ .gorchestra/fingerprint-cache.json |  7 +++----
+ .version-registry.json             |  4 ++--
+ GOrchestra/intel/status.json       |  8 ++++----
+ internal/schema/schema.go          | 11 +++++++----
+ 4 files changed, 16 insertions(+), 14 deletions(-)
+
+diff --git a/.gorchestra/fingerprint-cache.json b/.gorchestra/fingerprint-cache.json
+index 4cedcfd..30a4e71 100644
+--- a/.gorchestra/fingerprint-cache.json
++++ b/.gorchestra/fingerprint-cache.json
+@@ -1,13 +1,12 @@
+ {
+-  "hash": "72964943aa8972d89b6ac7414f964c9e86c691330eb5914e0af37ef27aeef585",
+-  "project_name": "cosmo-smoke",
++  "hash": "262b783191af18fb4450e434ec5b7f43bf25017b856cbdbeb82d1adc04d98193",
++  "project_name": "_glm-agent-0026-feat-041-background-command",
+   "language": "go",
+   "framework": "cli",
+   "directories": [
+     "ClaudeDesktop",
+     "GOrchestra",
+     "GeminiAI",
+-    "bin",
+     "cmd",
+     "docs",
+     "examples",
+@@ -28,5 +27,5 @@
+   ],
+   "has_tests": true,
+   "has_ci": true,
+-  "generated_at": "2026-04-30T15:39:38.076655-03:00"
++  "generated_at": "2026-04-30T18:00:58.885534-03:00"
+ }
+\ No newline at end of file
+diff --git a/.version-registry.json b/.version-registry.json
+index bfc9f86..450b8bc 100644
+--- a/.version-registry.json
++++ b/.version-registry.json
+@@ -1,13 +1,13 @@
+ {
+   "repository": {
+     "version": "0.17.0",
+-    "build": 395,
++    "build": 396,
+     "name": "cosmo-smoke",
+     "lastUpdated": "2026-04-30T20:46:11Z",
+     "derived_from": "git tag"
+   },
+   "metadata": {
+-    "last_synced": "2026-04-30T19:36:53Z",
++    "last_synced": "2026-04-30T21:01:50Z",
+     "sync_method": "git_history_analysis"
+   },
+   "releaseContext": {
+diff --git a/GOrchestra/intel/status.json b/GOrchestra/intel/status.json
+index 2651dbe..d2e8c8c 100644
+--- a/GOrchestra/intel/status.json
++++ b/GOrchestra/intel/status.json
+@@ -1,8 +1,8 @@
+ {
+   "version": "1.0",
+-  "updated_at": "2026-04-30T16:36:52.095479-03:00",
+-  "expires_at": "2026-04-30T17:36:52.095479-03:00",
+-  "project_path": "/Users/gab/PROJECTS/cosmo-smoke",
++  "updated_at": "2026-04-30T18:01:16.601709-03:00",
++  "expires_at": "2026-04-30T19:01:16.601709-03:00",
++  "project_path": "/Users/gab/PROJECTS/cosmo-smoke-worktrees/_glm-agent-0026-feat-041-background-command",
+   "context": "",
+-  "glm_enhanced": true
++  "glm_enhanced": false
+ }
+\ No newline at end of file
+diff --git a/internal/schema/schema.go b/internal/schema/schema.go
+index 389d59e..865aeec 100644
+--- a/internal/schema/schema.go
++++ b/internal/schema/schema.go
+@@ -60,10 +60,13 @@ type LifecycleConfig struct {
+ 
+ // LifecycleHook is a command that runs at a specific lifecycle point.
+ type LifecycleHook struct {
+-	Command   string        `yaml:"command"`
+-	Timeout   Duration      `yaml:"timeout,omitempty"`
+-	AlwaysRun bool          `yaml:"always_run,omitempty"`
+-	EnvPass   bool          `yaml:"env_pass,omitempty"`
++	Command        string   `yaml:"command"`
++	Timeout        Duration `yaml:"timeout,omitempty"`
++	AlwaysRun      bool     `yaml:"always_run,omitempty"`
++	EnvPass        bool     `yaml:"env_pass,omitempty"`
++	Background     bool     `yaml:"background,omitempty"`
++	WaitForPort    int      `yaml:"wait_for_port,omitempty"`
++	StartupTimeout Duration `yaml:"startup_timeout,omitempty"`
+ }
+ 
+ // RetryPolicy configures automatic retry for flaky tests.
+-- 
+2.53.0
+

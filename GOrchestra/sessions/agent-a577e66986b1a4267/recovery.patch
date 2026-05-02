@@ -1,0 +1,1421 @@
+From 7728e908abc4cc4cbcb55ef378ccec74cf36a0ef Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Thu, 30 Apr 2026 16:18:19 -0300
+Subject: [PATCH 1/5] feat(schema): add remote config inheritance via extends
+ URL
+
+New `extends:` field in .smoke.yaml fetches a remote base config
+(HTTPS, HTTP with warning, file://) and merges it with local config.
+Remote provides defaults, local overrides settings and appends tests.
+HTTP caching with ETag/Last-Modified headers, cached to
+$XDG_CACHE_HOME/cosmo-smoke/. 16 tests covering all schemes,
+caching, merge behavior, and error handling.
+---
+ internal/schema/remote.go      | 322 ++++++++++++++++++
+ internal/schema/remote_test.go | 606 +++++++++++++++++++++++++++++++++
+ internal/schema/schema.go      |   5 +-
+ 3 files changed, 931 insertions(+), 2 deletions(-)
+ create mode 100644 internal/schema/remote.go
+ create mode 100644 internal/schema/remote_test.go
+
+diff --git a/internal/schema/remote.go b/internal/schema/remote.go
+new file mode 100644
+index 0000000..123b520
+--- /dev/null
++++ b/internal/schema/remote.go
+@@ -0,0 +1,322 @@
++package schema
++
++import (
++	"context"
++	"crypto/sha256"
++	"encoding/hex"
++	"fmt"
++	"io"
++	"log"
++	"net/http"
++	"net/url"
++	"os"
++	"path/filepath"
++	"time"
++
++	"gopkg.in/yaml.v3"
++)
++
++type RemoteResolver struct {
++	cacheDir string
++	client   *http.Client
++}
++
++func NewRemoteResolver(cacheDir string) *RemoteResolver {
++	if cacheDir == "" {
++		homeDir, _ := os.UserCacheDir()
++		cacheDir = filepath.Join(homeDir, "cosmo-smoke")
++	}
++	return &RemoteResolver{
++		cacheDir: cacheDir,
++		client: &http.Client{
++			Timeout: 30 * time.Second,
++		},
++	}
++}
++
++func (r *RemoteResolver) Resolve(ctx context.Context, rawURL string) ([]byte, error) {
++	u, err := url.Parse(rawURL)
++	if err != nil {
++		return nil, fmt.Errorf("parsing URL: %w", err)
++	}
++
++	switch u.Scheme {
++	case "http", "https":
++		if u.Scheme == "http" {
++			log.Printf("[WARN] fetching from HTTP (non-HTTPS) URL: %s", rawURL)
++		}
++		return r.fetchHTTP(ctx, rawURL)
++	case "file":
++		return r.fetchFile(u.Path)
++	default:
++		return nil, fmt.Errorf("unsupported URL scheme: %s (supported: http, https, file)", u.Scheme)
++	}
++}
++
++func (r *RemoteResolver) fetchHTTP(ctx context.Context, url string) ([]byte, error) {
++	if err := os.MkdirAll(r.cacheDir, 0755); err != nil {
++		return nil, fmt.Errorf("creating cache dir: %w", err)
++	}
++
++	cacheFile := r.cachePath(url)
++	cachedBody, cachedETag, cachedLastMod, err := r.readCache(cacheFile)
++	if err != nil && !os.IsNotExist(err) {
++		return nil, fmt.Errorf("reading cache: %w", err)
++	}
++
++	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
++	if err != nil {
++		return nil, fmt.Errorf("creating request: %w", err)
++	}
++
++	if cachedETag != "" {
++		req.Header.Set("If-None-Match", cachedETag)
++	}
++	if cachedLastMod != "" {
++		req.Header.Set("If-Modified-Since", cachedLastMod)
++	}
++
++	resp, err := r.client.Do(req)
++	if err != nil {
++		if cachedBody != nil {
++			log.Printf("[INFO] network error, using cached response: %v", err)
++			return cachedBody, nil
++		}
++		return nil, fmt.Errorf("fetching URL: %w", err)
++	}
++	defer resp.Body.Close()
++
++	if resp.StatusCode == http.StatusNotModified {
++		log.Printf("[DEBUG] cache hit for %s (304 Not Modified)", url)
++		return cachedBody, nil
++	}
++
++	if resp.StatusCode != http.StatusOK {
++		if cachedBody != nil {
++			log.Printf("[WARN] HTTP %d for %s, using cached response", resp.StatusCode, url)
++			return cachedBody, nil
++		}
++		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, url)
++	}
++
++	body, err := io.ReadAll(resp.Body)
++	if err != nil {
++		if cachedBody != nil {
++			log.Printf("[WARN] error reading response, using cached: %v", err)
++			return cachedBody, nil
++		}
++		return nil, fmt.Errorf("reading response body: %w", err)
++	}
++
++	if err := r.validateYAML(body); err != nil {
++		return nil, fmt.Errorf("invalid YAML from remote: %w", err)
++	}
++
++	etag := resp.Header.Get("ETag")
++	lastMod := resp.Header.Get("Last-Modified")
++	if err := r.writeCache(cacheFile, body, etag, lastMod); err != nil {
++		log.Printf("[WARN] failed to write cache: %v", err)
++	}
++
++	return body, nil
++}
++
++func (r *RemoteResolver) fetchFile(path string) ([]byte, error) {
++	data, err := os.ReadFile(path)
++	if err != nil {
++		return nil, fmt.Errorf("reading file: %w", err)
++	}
++
++	if err := r.validateYAML(data); err != nil {
++		return nil, fmt.Errorf("invalid YAML in file: %w", err)
++	}
++
++	return data, nil
++}
++
++func (r *RemoteResolver) validateYAML(data []byte) error {
++	var cfg map[string]any
++	if err := yaml.Unmarshal(data, &cfg); err != nil {
++		return fmt.Errorf("invalid YAML: %w", err)
++	}
++	return nil
++}
++
++func (r *RemoteResolver) cachePath(url string) string {
++	h := sha256.Sum256([]byte(url))
++	filename := hex.EncodeToString(h[:]) + ".yaml"
++	return filepath.Join(r.cacheDir, filename)
++}
++
++type cacheEntry struct {
++	ETag         string `yaml:"etag"`
++	LastModified string `yaml:"last_modified"`
++	Body         string `yaml:"body"`
++}
++
++func (r *RemoteResolver) readCache(path string) (body []byte, etag string, lastMod string, err error) {
++	data, err := os.ReadFile(path)
++	if err != nil {
++		return nil, "", "", err
++	}
++
++	var entry cacheEntry
++	if err := yaml.Unmarshal(data, &entry); err != nil {
++		return nil, "", "", fmt.Errorf("unmarshaling cache entry: %w", err)
++	}
++
++	return []byte(entry.Body), entry.ETag, entry.LastModified, nil
++}
++
++func (r *RemoteResolver) writeCache(path string, body []byte, etag, lastMod string) error {
++	entry := cacheEntry{
++		ETag:         etag,
++		LastModified: lastMod,
++		Body:         string(body),
++	}
++
++	data, err := yaml.Marshal(entry)
++	if err != nil {
++		return fmt.Errorf("marshaling cache entry: %w", err)
++	}
++
++	if err := os.WriteFile(path, data, 0644); err != nil {
++		return fmt.Errorf("writing cache file: %w", err)
++	}
++
++	return nil
++}
++
++func MergeConfigs(base, overlay SmokeConfig) SmokeConfig {
++	merged := base
++
++	if overlay.Project != "" {
++		merged.Project = overlay.Project
++	}
++
++	if overlay.Description != "" {
++		merged.Description = overlay.Description
++	}
++
++	if overlay.Settings.Timeout.Duration > 0 {
++		merged.Settings.Timeout = overlay.Settings.Timeout
++	}
++
++	if overlay.Settings.FailFast {
++		merged.Settings.FailFast = true
++	}
++
++	if overlay.Settings.Parallel {
++		merged.Settings.Parallel = true
++	}
++
++	if overlay.Settings.Monorepo {
++		merged.Settings.Monorepo = true
++	}
++
++	if len(overlay.Settings.MonorepoExclude) > 0 {
++		merged.Settings.MonorepoExclude = overlay.Settings.MonorepoExclude
++	}
++
++	if overlay.OTel.Enabled {
++		merged.OTel.Enabled = true
++	}
++
++	if overlay.OTel.JaegerURL != "" {
++		merged.OTel.JaegerURL = overlay.OTel.JaegerURL
++	}
++
++	if overlay.OTel.ServiceName != "" {
++		merged.OTel.ServiceName = overlay.OTel.ServiceName
++	}
++
++	if overlay.OTel.TracePropagation {
++		merged.OTel.TracePropagation = true
++	}
++
++	if overlay.OTel.ExportURL != "" {
++		merged.OTel.ExportURL = overlay.OTel.ExportURL
++	}
++
++	if len(overlay.OTel.ExportHeaders) > 0 {
++		merged.OTel.ExportHeaders = overlay.OTel.ExportHeaders
++	}
++
++	if len(overlay.Includes) > 0 {
++		merged.Includes = overlay.Includes
++	}
++
++	if len(overlay.Prereqs) > 0 {
++		merged.Prereqs = append(merged.Prereqs, overlay.Prereqs...)
++	}
++
++	if len(overlay.Tests) > 0 {
++		merged.Tests = append(merged.Tests, overlay.Tests...)
++	}
++
++	return merged
++}
++
++func LoadWithResolver(path string, resolver *RemoteResolver) (*SmokeConfig, error) {
++	return loadWithDepthAndResolver(path, 0, resolver)
++}
++
++func loadWithDepthAndResolver(path string, depth int, resolver *RemoteResolver) (*SmokeConfig, error) {
++	if depth > 10 {
++		return nil, fmt.Errorf("include depth exceeded (max 10): circular includes?")
++	}
++
++	data, err := os.ReadFile(path)
++	if err != nil {
++		return nil, fmt.Errorf("reading config: %w", err)
++	}
++
++	processed, err := processTemplate(data)
++	if err != nil {
++		return nil, fmt.Errorf("processing template: %w", err)
++	}
++
++	cfg, err := Parse(processed)
++	if err != nil {
++		return nil, err
++	}
++
++	configDir := filepath.Dir(path)
++
++	for _, inc := range cfg.Includes {
++		incPath := inc
++		if !filepath.IsAbs(inc) {
++			incPath = filepath.Join(configDir, inc)
++		}
++
++		incCfg, err := loadWithDepthAndResolver(incPath, depth+1, resolver)
++		if err != nil {
++			return nil, fmt.Errorf("loading include %q: %w", inc, err)
++		}
++
++		cfg.Prereqs = append(incCfg.Prereqs, cfg.Prereqs...)
++		cfg.Tests = append(incCfg.Tests, cfg.Tests...)
++	}
++
++	if cfg.Extends != "" {
++		if resolver == nil {
++			resolver = NewRemoteResolver("")
++		}
++
++		ctx := context.Background()
++		remoteData, err := resolver.Resolve(ctx, cfg.Extends)
++		if err != nil {
++			return nil, fmt.Errorf("resolving extends %q: %w", cfg.Extends, err)
++		}
++
++		remoteCfg, err := Parse(remoteData)
++		if err != nil {
++			return nil, fmt.Errorf("parsing remote config: %w", err)
++		}
++
++		merged := MergeConfigs(*remoteCfg, *cfg)
++		cfg = &merged
++	}
++
++	return cfg, nil
++}
+diff --git a/internal/schema/remote_test.go b/internal/schema/remote_test.go
+new file mode 100644
+index 0000000..acaac86
+--- /dev/null
++++ b/internal/schema/remote_test.go
+@@ -0,0 +1,606 @@
++package schema
++
++import (
++	"context"
++	"fmt"
++	"net/http"
++	"net/http/httptest"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++)
++
++func TestResolveRemote_HTTPS(t *testing.T) {
++	remoteYAML := `version: 1
++project: base-config
++tests:
++  - name: remote-test
++    run: echo "from remote"
++`
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if r.Method != "GET" {
++			t.Errorf("expected GET request, got %s", r.Method)
++		}
++		w.Header().Set("Content-Type", "text/yaml")
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, remoteYAML)
++	}))
++	defer server.Close()
++
++	resolver := NewRemoteResolver(t.TempDir())
++	ctx := context.Background()
++
++	data, err := resolver.Resolve(ctx, server.URL)
++	if err != nil {
++		t.Fatalf("Resolve failed: %v", err)
++	}
++
++	cfg, err := Parse(data)
++	if err != nil {
++		t.Fatalf("Parse failed: %v", err)
++	}
++
++	if cfg.Project != "base-config" {
++		t.Errorf("expected project 'base-config', got '%s'", cfg.Project)
++	}
++
++	if len(cfg.Tests) != 1 {
++		t.Fatalf("expected 1 test, got %d", len(cfg.Tests))
++	}
++
++	if cfg.Tests[0].Name != "remote-test" {
++		t.Errorf("expected test name 'remote-test', got '%s'", cfg.Tests[0].Name)
++	}
++}
++
++func TestResolveRemote_FileScheme(t *testing.T) {
++	remoteYAML := `version: 1
++project: file-config
++tests:
++  - name: file-test
++    run: echo "from file"
++`
++	tmpDir := t.TempDir()
++	cfgFile := filepath.Join(tmpDir, "config.yaml")
++	if err := os.WriteFile(cfgFile, []byte(remoteYAML), 0644); err != nil {
++		t.Fatalf("failed to write test config: %v", err)
++	}
++
++	resolver := NewRemoteResolver(t.TempDir())
++	ctx := context.Background()
++
++	data, err := resolver.Resolve(ctx, "file://"+cfgFile)
++	if err != nil {
++		t.Fatalf("Resolve failed: %v", err)
++	}
++
++	cfg, err := Parse(data)
++	if err != nil {
++		t.Fatalf("Parse failed: %v", err)
++	}
++
++	if cfg.Project != "file-config" {
++		t.Errorf("expected project 'file-config', got '%s'", cfg.Project)
++	}
++}
++
++func TestResolveRemote_CacheHit(t *testing.T) {
++	remoteYAML := `version: 1
++project: cached-config
++`
++	requestCount := 0
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		requestCount++
++		w.Header().Set("Content-Type", "text/yaml")
++		w.Header().Set("ETag", `"v1"`)
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, remoteYAML)
++	}))
++	defer server.Close()
++
++	cacheDir := t.TempDir()
++	resolver := NewRemoteResolver(cacheDir)
++	ctx := context.Background()
++
++	firstData, err := resolver.Resolve(ctx, server.URL)
++	if err != nil {
++		t.Fatalf("First Resolve failed: %v", err)
++	}
++
++	if requestCount != 1 {
++		t.Errorf("expected 1 request after first resolve, got %d", requestCount)
++	}
++
++	secondData, err := resolver.Resolve(ctx, server.URL)
++	if err != nil {
++		t.Fatalf("Second Resolve failed: %v", err)
++	}
++
++	if requestCount != 2 {
++		t.Errorf("expected 2 requests (one with If-None-Match), got %d", requestCount)
++	}
++
++	if string(firstData) != string(secondData) {
++		t.Error("cached data should match first response")
++	}
++}
++
++func TestResolveRemote_CacheHit_304(t *testing.T) {
++	remoteYAML := `version: 1
++project: cached-304
++`
++	requestCount := 0
++	etagSent := false
++
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		requestCount++
++		if r.Header.Get("If-None-Match") == `"v1"` {
++			etagSent = true
++			w.WriteHeader(http.StatusNotModified)
++			return
++		}
++		w.Header().Set("Content-Type", "text/yaml")
++		w.Header().Set("ETag", `"v1"`)
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, remoteYAML)
++	}))
++	defer server.Close()
++
++	cacheDir := t.TempDir()
++	resolver := NewRemoteResolver(cacheDir)
++	ctx := context.Background()
++
++	firstData, err := resolver.Resolve(ctx, server.URL)
++	if err != nil {
++		t.Fatalf("First Resolve failed: %v", err)
++	}
++
++	if requestCount != 1 {
++		t.Errorf("expected 1 request after first resolve, got %d", requestCount)
++	}
++
++	secondData, err := resolver.Resolve(ctx, server.URL)
++	if err != nil {
++		t.Fatalf("Second Resolve failed: %v", err)
++	}
++
++	if requestCount != 2 {
++		t.Errorf("expected 2 requests, got %d", requestCount)
++	}
++
++	if !etagSent {
++		t.Error("expected second request to send If-None-Match header")
++	}
++
++	if string(firstData) != string(secondData) {
++		t.Error("cached data should match first response")
++	}
++}
++
++func TestResolveRemote_InvalidYAML(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.Header().Set("Content-Type", "text/yaml")
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, "not valid yaml {{{")
++	}))
++	defer server.Close()
++
++	resolver := NewRemoteResolver(t.TempDir())
++	ctx := context.Background()
++
++	_, err := resolver.Resolve(ctx, server.URL)
++	if err == nil {
++		t.Fatal("expected error for invalid YAML")
++	}
++
++	if !strings.Contains(err.Error(), "invalid YAML") {
++		t.Errorf("expected error mentioning invalid YAML, got: %v", err)
++	}
++}
++
++func TestResolveRemote_HTTPWarns(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, "version: 1\nproject: test\n")
++	}))
++	defer server.Close()
++
++	resolver := NewRemoteResolver(t.TempDir())
++	ctx := context.Background()
++
++	_, err := resolver.Resolve(ctx, server.URL)
++	if err != nil {
++		t.Fatalf("Resolve failed: %v", err)
++	}
++}
++
++func TestResolveRemote_ContextCanceled(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		time.Sleep(100 * time.Millisecond)
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, "version: 1\nproject: test\n")
++	}))
++	defer server.Close()
++
++	resolver := NewRemoteResolver(t.TempDir())
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++
++	_, err := resolver.Resolve(ctx, server.URL)
++	if err == nil {
++		t.Fatal("expected error for canceled context")
++	}
++}
++
++func TestMergeConfigs_RemoteBaseLocalOverride(t *testing.T) {
++	exitCode := 0
++	base := SmokeConfig{
++		Version:     1,
++		Project:     "base",
++		Description: "Base description",
++		Settings: Settings{
++			Timeout:  Duration{Duration: 10 * time.Second},
++			FailFast: false,
++		},
++		OTel: OTelConfig{
++			Enabled:   false,
++			JaegerURL: "http://old-jaeger:16686",
++		},
++		Tests: []Test{
++			{Name: "base-test", Run: "echo base", Expect: Expect{ExitCode: &exitCode}},
++		},
++		Prereqs: []Prerequisite{
++			{Name: "base-prereq", Check: "command -v docker"},
++		},
++	}
++
++	overlay := SmokeConfig{
++		Version:     1,
++		Project:     "overlay",
++		Description: "Overlay description",
++		Settings: Settings{
++			Timeout:  Duration{Duration: 30 * time.Second},
++			FailFast: true,
++			Parallel: true,
++		},
++		OTel: OTelConfig{
++			Enabled:   true,
++			JaegerURL: "http://new-jaeger:16686",
++		},
++		Tests: []Test{
++			{Name: "overlay-test", Run: "echo overlay", Expect: Expect{ExitCode: &exitCode}},
++		},
++		Prereqs: []Prerequisite{
++			{Name: "overlay-prereq", Check: "command -v node"},
++		},
++	}
++
++	merged := MergeConfigs(base, overlay)
++
++	if merged.Project != "overlay" {
++		t.Errorf("expected project 'overlay', got '%s'", merged.Project)
++	}
++
++	if merged.Description != "Overlay description" {
++		t.Errorf("expected description 'Overlay description', got '%s'", merged.Description)
++	}
++
++	if merged.Settings.Timeout.Duration != 30*time.Second {
++		t.Errorf("expected timeout 30s, got %v", merged.Settings.Timeout.Duration)
++	}
++
++	if !merged.Settings.FailFast {
++		t.Error("expected fail_fast to be true")
++	}
++
++	if !merged.Settings.Parallel {
++		t.Error("expected parallel to be true")
++	}
++
++	if !merged.OTel.Enabled {
++		t.Error("expected OTel enabled to be true")
++	}
++
++	if merged.OTel.JaegerURL != "http://new-jaeger:16686" {
++		t.Errorf("expected JaegerURL 'http://new-jaeger:16686', got '%s'", merged.OTel.JaegerURL)
++	}
++}
++
++func TestMergeConfigs_TestsAppended(t *testing.T) {
++	exitCode := 0
++	base := SmokeConfig{
++		Version: 1,
++		Project: "base",
++		Tests: []Test{
++			{Name: "test1", Run: "echo 1", Expect: Expect{ExitCode: &exitCode}},
++			{Name: "test2", Run: "echo 2", Expect: Expect{ExitCode: &exitCode}},
++		},
++	}
++
++	overlay := SmokeConfig{
++		Version: 1,
++		Project: "overlay",
++		Tests: []Test{
++			{Name: "test3", Run: "echo 3", Expect: Expect{ExitCode: &exitCode}},
++			{Name: "test4", Run: "echo 4", Expect: Expect{ExitCode: &exitCode}},
++		},
++	}
++
++	merged := MergeConfigs(base, overlay)
++
++	if len(merged.Tests) != 4 {
++		t.Fatalf("expected 4 tests, got %d", len(merged.Tests))
++	}
++
++	if merged.Tests[0].Name != "test1" {
++		t.Errorf("expected first test 'test1', got '%s'", merged.Tests[0].Name)
++	}
++
++	if merged.Tests[3].Name != "test4" {
++		t.Errorf("expected last test 'test4', got '%s'", merged.Tests[3].Name)
++	}
++}
++
++func TestMergeConfigs_PrereqsAppended(t *testing.T) {
++	base := SmokeConfig{
++		Version: 1,
++		Project: "base",
++		Prereqs: []Prerequisite{
++			{Name: "base-prereq", Check: "command -v docker"},
++		},
++	}
++
++	overlay := SmokeConfig{
++		Version: 1,
++		Project: "overlay",
++		Prereqs: []Prerequisite{
++			{Name: "overlay-prereq", Check: "command -v node"},
++		},
++	}
++
++	merged := MergeConfigs(base, overlay)
++
++	if len(merged.Prereqs) != 2 {
++		t.Fatalf("expected 2 prereqs, got %d", len(merged.Prereqs))
++	}
++
++	if merged.Prereqs[0].Name != "base-prereq" {
++		t.Errorf("expected first prereq 'base-prereq', got '%s'", merged.Prereqs[0].Name)
++	}
++
++	if merged.Prereqs[1].Name != "overlay-prereq" {
++		t.Errorf("expected second prereq 'overlay-prereq', got '%s'", merged.Prereqs[1].Name)
++	}
++}
++
++func TestMergeConfigs_EmptyOverlayPreservesBase(t *testing.T) {
++	exitCode := 0
++	base := SmokeConfig{
++		Version:     1,
++		Project:     "base",
++		Description: "Base description",
++		Settings: Settings{
++			Timeout: Duration{Duration: 10 * time.Second},
++		},
++		Tests: []Test{
++			{Name: "base-test", Run: "echo base", Expect: Expect{ExitCode: &exitCode}},
++		},
++	}
++
++	overlay := SmokeConfig{
++		Version: 1,
++		Project: "overlay",
++	}
++
++	merged := MergeConfigs(base, overlay)
++
++	if merged.Project != "overlay" {
++		t.Errorf("expected project 'overlay', got '%s'", merged.Project)
++	}
++
++	if merged.Settings.Timeout.Duration != 10*time.Second {
++		t.Errorf("expected base timeout preserved, got %v", merged.Settings.Timeout.Duration)
++	}
++
++	if len(merged.Tests) != 1 {
++		t.Fatalf("expected 1 base test preserved, got %d", len(merged.Tests))
++	}
++}
++
++func TestLoadConfig_WithExtends(t *testing.T) {
++	remoteYAML := `version: 1
++project: remote-base
++description: "Base config from remote"
++settings:
++  timeout: 5s
++tests:
++  - name: remote-test
++    run: echo "remote"
++`
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.Header().Set("Content-Type", "text/yaml")
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, remoteYAML)
++	}))
++	defer server.Close()
++
++	localYAML := fmt.Sprintf(`extends: %s
++project: local-project
++description: "Local override"
++settings:
++  fail_fast: true
++tests:
++  - name: local-test
++    run: echo "local"
++`, server.URL)
++
++	tmpDir := t.TempDir()
++	localCfgPath := filepath.Join(tmpDir, ".smoke.yaml")
++	if err := os.WriteFile(localCfgPath, []byte(localYAML), 0644); err != nil {
++		t.Fatalf("failed to write local config: %v", err)
++	}
++
++	cfg, err := Load(localCfgPath)
++	if err != nil {
++		t.Fatalf("Load failed: %v", err)
++	}
++
++	if cfg.Project != "local-project" {
++		t.Errorf("expected project 'local-project', got '%s'", cfg.Project)
++	}
++
++	if cfg.Description != "Local override" {
++		t.Errorf("expected description 'Local override', got '%s'", cfg.Description)
++	}
++
++	if cfg.Settings.Timeout.Duration != 5*time.Second {
++		t.Errorf("expected remote timeout preserved, got %v", cfg.Settings.Timeout.Duration)
++	}
++
++	if !cfg.Settings.FailFast {
++		t.Error("expected local fail_fast to be true")
++	}
++
++	if len(cfg.Tests) != 2 {
++		t.Fatalf("expected 2 tests (remote + local), got %d", len(cfg.Tests))
++	}
++
++	if cfg.Tests[0].Name != "remote-test" {
++		t.Errorf("expected first test 'remote-test', got '%s'", cfg.Tests[0].Name)
++	}
++
++	if cfg.Tests[1].Name != "local-test" {
++		t.Errorf("expected second test 'local-test', got '%s'", cfg.Tests[1].Name)
++	}
++}
++
++func TestLoadConfig_WithExtendsAndIncludes(t *testing.T) {
++	remoteYAML := `version: 1
++project: remote-base
++tests:
++  - name: remote-test
++    run: echo "remote"
++`
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.Header().Set("Content-Type", "text/yaml")
++		w.WriteHeader(http.StatusOK)
++		fmt.Fprint(w, remoteYAML)
++	}))
++	defer server.Close()
++
++	includeYAML := `version: 1
++project: include
++tests:
++  - name: include-test
++    run: echo "include"
++`
++
++	localYAML := fmt.Sprintf(`extends: %s
++project: local-project
++includes:
++  - include.yaml
++tests:
++  - name: local-test
++    run: echo "local"
++`, server.URL)
++
++	tmpDir := t.TempDir()
++	localCfgPath := filepath.Join(tmpDir, ".smoke.yaml")
++	includeCfgPath := filepath.Join(tmpDir, "include.yaml")
++
++	if err := os.WriteFile(localCfgPath, []byte(localYAML), 0644); err != nil {
++		t.Fatalf("failed to write local config: %v", err)
++	}
++	if err := os.WriteFile(includeCfgPath, []byte(includeYAML), 0644); err != nil {
++		t.Fatalf("failed to write include config: %v", err)
++	}
++
++	cfg, err := Load(localCfgPath)
++	if err != nil {
++		t.Fatalf("Load failed: %v", err)
++	}
++
++	if len(cfg.Tests) != 3 {
++		t.Fatalf("expected 3 tests (remote + include + local), got %d", len(cfg.Tests))
++	}
++
++	if cfg.Tests[0].Name != "remote-test" {
++		t.Errorf("expected first test 'remote-test', got '%s'", cfg.Tests[0].Name)
++	}
++
++	if cfg.Tests[1].Name != "include-test" {
++		t.Errorf("expected second test 'include-test', got '%s'", cfg.Tests[1].Name)
++	}
++
++	if cfg.Tests[2].Name != "local-test" {
++		t.Errorf("expected third test 'local-test', got '%s'", cfg.Tests[2].Name)
++	}
++}
++
++func TestResolveRemote_HTTPError(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.WriteHeader(http.StatusNotFound)
++		fmt.Fprint(w, "Not found")
++	}))
++	defer server.Close()
++
++	resolver := NewRemoteResolver(t.TempDir())
++	ctx := context.Background()
++
++	_, err := resolver.Resolve(ctx, server.URL)
++	if err == nil {
++		t.Fatal("expected error for 404 response")
++	}
++
++	if !strings.Contains(err.Error(), "404") {
++		t.Errorf("expected error mentioning 404, got: %v", err)
++	}
++}
++
++func TestResolveRemote_InvalidURLScheme(t *testing.T) {
++	resolver := NewRemoteResolver(t.TempDir())
++	ctx := context.Background()
++
++	_, err := resolver.Resolve(ctx, "ftp://example.com/config.yaml")
++	if err == nil {
++		t.Fatal("expected error for unsupported URL scheme")
++	}
++
++	if !strings.Contains(err.Error(), "unsupported URL scheme") {
++		t.Errorf("expected error mentioning unsupported URL scheme, got: %v", err)
++	}
++}
++
++func TestMergeConfigs_ExportHeaders(t *testing.T) {
++	base := SmokeConfig{
++		Version: 1,
++		Project: "base",
++		OTel: OTelConfig{
++			ExportHeaders: map[string]string{
++				"X-Base": "base-value",
++			},
++		},
++	}
++
++	overlay := SmokeConfig{
++		Version: 1,
++		Project: "overlay",
++		OTel: OTelConfig{
++			ExportHeaders: map[string]string{
++				"X-Overlay": "overlay-value",
++			},
++		},
++	}
++
++	merged := MergeConfigs(base, overlay)
++
++	if len(merged.OTel.ExportHeaders) != 1 {
++		t.Errorf("expected 1 export header (overlay replaces base), got %d", len(merged.OTel.ExportHeaders))
++	}
++
++	if merged.OTel.ExportHeaders["X-Overlay"] != "overlay-value" {
++		t.Error("expected overlay export header")
++	}
++}
+diff --git a/internal/schema/schema.go b/internal/schema/schema.go
+index 107016d..0c6c394 100644
+--- a/internal/schema/schema.go
++++ b/internal/schema/schema.go
+@@ -16,6 +16,7 @@ type SmokeConfig struct {
+ 	Version     int            `yaml:"version"`
+ 	Project     string         `yaml:"project"`
+ 	Description string         `yaml:"description,omitempty"`
++	Extends     string         `yaml:"extends,omitempty"`
+ 	Includes    []string       `yaml:"includes,omitempty"`
+ 	Settings    Settings       `yaml:"settings,omitempty"`
+ 	OTel        OTelConfig     `yaml:"otel,omitempty"`
+@@ -396,9 +397,9 @@ func (d Duration) MarshalYAML() (interface{}, error) {
+ }
+ 
+ // Load reads and parses a .smoke.yaml file from the given path.
+-// Supports Go templates ({{ .Env.FOO }}) and includes.
++// Supports Go templates ({{ .Env.FOO }}), extends, and includes.
+ func Load(path string) (*SmokeConfig, error) {
+-	return loadWithDepth(path, 0)
++	return LoadWithResolver(path, nil)
+ }
+ 
+ func loadWithDepth(path string, depth int) (*SmokeConfig, error) {
+-- 
+2.53.0
+
+
+From 58f8b19672317aff55951572debfea9c35a2bf32 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Thu, 30 Apr 2026 16:22:28 -0300
+Subject: [PATCH 2/5] fix(schema): address review issues in remote config
+ inheritance
+
+Handle os.UserCacheDir() failure with os.TempDir() fallback. Deep-copy
+slices in MergeConfigs to prevent shared backing array mutation. Remove
+dead loadWithDepth function after Load redirected to LoadWithResolver.
+Add io.LimitReader cap on HTTP response body.
+---
+ internal/schema/remote.go |  9 ++++++--
+ internal/schema/schema.go | 43 ---------------------------------------
+ 2 files changed, 7 insertions(+), 45 deletions(-)
+
+diff --git a/internal/schema/remote.go b/internal/schema/remote.go
+index 123b520..9d193d8 100644
+--- a/internal/schema/remote.go
++++ b/internal/schema/remote.go
+@@ -23,7 +23,10 @@ type RemoteResolver struct {
+ 
+ func NewRemoteResolver(cacheDir string) *RemoteResolver {
+ 	if cacheDir == "" {
+-		homeDir, _ := os.UserCacheDir()
++		homeDir, err := os.UserCacheDir()
++		if err != nil {
++			homeDir = os.TempDir()
++		}
+ 		cacheDir = filepath.Join(homeDir, "cosmo-smoke")
+ 	}
+ 	return &RemoteResolver{
+@@ -99,7 +102,7 @@ func (r *RemoteResolver) fetchHTTP(ctx context.Context, url string) ([]byte, err
+ 		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, url)
+ 	}
+ 
+-	body, err := io.ReadAll(resp.Body)
++	body, err := io.ReadAll(io.LimitReader(resp.Body, 10<<20)) // 10MB max
+ 	if err != nil {
+ 		if cachedBody != nil {
+ 			log.Printf("[WARN] error reading response, using cached: %v", err)
+@@ -189,6 +192,8 @@ func (r *RemoteResolver) writeCache(path string, body []byte, etag, lastMod stri
+ 
+ func MergeConfigs(base, overlay SmokeConfig) SmokeConfig {
+ 	merged := base
++	merged.Tests = append([]Test{}, base.Tests...)
++	merged.Prereqs = append([]Prerequisite{}, base.Prereqs...)
+ 
+ 	if overlay.Project != "" {
+ 		merged.Project = overlay.Project
+diff --git a/internal/schema/schema.go b/internal/schema/schema.go
+index 0c6c394..c2ff296 100644
+--- a/internal/schema/schema.go
++++ b/internal/schema/schema.go
+@@ -4,7 +4,6 @@ import (
+ 	"bytes"
+ 	"fmt"
+ 	"os"
+-	"path/filepath"
+ 	"text/template"
+ 	"time"
+ 
+@@ -402,48 +401,6 @@ func Load(path string) (*SmokeConfig, error) {
+ 	return LoadWithResolver(path, nil)
+ }
+ 
+-func loadWithDepth(path string, depth int) (*SmokeConfig, error) {
+-	if depth > 10 {
+-		return nil, fmt.Errorf("include depth exceeded (max 10): circular includes?")
+-	}
+-
+-	data, err := os.ReadFile(path)
+-	if err != nil {
+-		return nil, fmt.Errorf("reading config: %w", err)
+-	}
+-
+-	// Process Go templates
+-	processed, err := processTemplate(data)
+-	if err != nil {
+-		return nil, fmt.Errorf("processing template: %w", err)
+-	}
+-
+-	cfg, err := Parse(processed)
+-	if err != nil {
+-		return nil, err
+-	}
+-
+-	// Process includes
+-	configDir := filepath.Dir(path)
+-	for _, inc := range cfg.Includes {
+-		incPath := inc
+-		if !filepath.IsAbs(inc) {
+-			incPath = filepath.Join(configDir, inc)
+-		}
+-
+-		incCfg, err := loadWithDepth(incPath, depth+1)
+-		if err != nil {
+-			return nil, fmt.Errorf("loading include %q: %w", inc, err)
+-		}
+-
+-		// Merge: included tests and prereqs are prepended
+-		cfg.Prereqs = append(incCfg.Prereqs, cfg.Prereqs...)
+-		cfg.Tests = append(incCfg.Tests, cfg.Tests...)
+-	}
+-
+-	return cfg, nil
+-}
+-
+ // processTemplate expands Go templates in the config.
+ // Available: .Env (environment variables map)
+ func processTemplate(data []byte) ([]byte, error) {
+-- 
+2.53.0
+
+
+From 9ffda38469fa5b73df603a6b7124a29382abe1d5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Thu, 30 Apr 2026 16:25:48 -0300
+Subject: [PATCH 3/5] fix(schema): use direct assignment for boolean merge
+ fields
+
+Boolean truthy checks prevented overlay from explicitly disabling
+settings enabled in the base config. Now always copies booleans
+from overlay. Also clear Extends after resolution to prevent
+redundant fetches on reload.
+---
+ .ccsession.json           | 24 +++++-------------------
+ .review.json              | 31 ++++++++++++++++++++++++-------
+ internal/schema/remote.go | 23 ++++++-----------------
+ 3 files changed, 35 insertions(+), 43 deletions(-)
+
+diff --git a/.ccsession.json b/.ccsession.json
+index 7e8a55f..dc5badf 100644
+--- a/.ccsession.json
++++ b/.ccsession.json
+@@ -1,32 +1,18 @@
+ {
+   "version": "1.0.0",
+-<<<<<<< HEAD
+-  "id": "agent-abe5a065",
+-  "name": "agent-abe5a065",
+-=======
+-  "id": "agent-a90fc8e9",
+-  "name": "agent-a90fc8e9",
+->>>>>>> agent-a90fc8e9
++  "id": "agent-a577e66986b1a4267",
++  "name": "agent-a577e66986b1a4267",
+   "dependencies": [],
+   "dependents": [],
+   "status": "working",
+   "timestamps": {
+-<<<<<<< HEAD
+-    "created": "2026-04-16T16:18:17.424356-03:00",
+-    "lastActivity": "2026-04-16T16:18:17.424363-03:00"
+-=======
+-    "created": "2026-04-16T16:17:58.264794-03:00",
+-    "lastActivity": "2026-04-16T16:17:58.264808-03:00"
+->>>>>>> agent-a90fc8e9
++    "created": "2026-04-30T16:06:34.485553-03:00",
++    "lastActivity": "2026-04-30T16:06:34.485562-03:00"
+   },
+   "merge": {
+     "order": 0,
+     "readyToMerge": false,
+     "baseBranch": "master"
+   },
+-<<<<<<< HEAD
+-  "branch": "agent-abe5a065"
+-=======
+-  "branch": "agent-a90fc8e9"
+->>>>>>> agent-a90fc8e9
++  "branch": "agent-a577e66986b1a4267"
+ }
+\ No newline at end of file
+diff --git a/.review.json b/.review.json
+index b4b7ef1..24233d0 100644
+--- a/.review.json
++++ b/.review.json
+@@ -1,12 +1,29 @@
+ {
+   "score": 8,
+   "passed": true,
+-  "reviewed_at": "2026-04-20T17:10:00Z",
++  "reviewed_at": "2026-04-30T19:24:06Z",
++  "reviewed_sha": "58f8b19672317aff55951572debfea9c35a2bf32",
+   "reviewer": "opus",
+-  "origin": "verify-worktree",
+-  "iterations": 5,
+-  "fixes_applied": 4,
+-  "issues_remaining": 3,
+-  "issues_acknowledged": true,
+-  "summary": "Score 8/10, 3 style nit issues acknowledged as false positives (TOCTOU theoretical, os.Chdir vs t.Chdir, JSON null vs []). Tests pass with -race."
++  "origin": "unknown",
++  "iterations": 2,
++  "fixes_applied": 0,
++  "issues_remaining": 1,
++  "summary": "Score 8/10, 1 issues",
++  "schema_version": 1,
++  "prior_issues": [
++    {
++      "severity": "blocking",
++      "file": "",
++      "line": 0,
++      "description": "MergeConfigs uses truthy checks for boolean fields (FailFast, Parallel, Monorepo, TracePropagation, OTel.Enabled). If the base config has fail_fast: true, the overlay cannot explicitly set it to false. The zero-value ambiguity makes 'disable this setting' impossible. This will cause surprising behavior when extending a base that enables fail_fast or parallel.",
++      "has_fix": false,
++      "round": 2
++    }
++  ],
++  "prior_shas": [
++    "7728e908abc4cc4cbcb55ef378ccec74cf36a0ef",
++    "58f8b19672317aff55951572debfea9c35a2bf32"
++  ],
++  "min_score_across_rounds": 8,
++  "has_prior_min_score": true
+ }
+\ No newline at end of file
+diff --git a/internal/schema/remote.go b/internal/schema/remote.go
+index 9d193d8..d096a93 100644
+--- a/internal/schema/remote.go
++++ b/internal/schema/remote.go
+@@ -207,25 +207,15 @@ func MergeConfigs(base, overlay SmokeConfig) SmokeConfig {
+ 		merged.Settings.Timeout = overlay.Settings.Timeout
+ 	}
+ 
+-	if overlay.Settings.FailFast {
+-		merged.Settings.FailFast = true
+-	}
+-
+-	if overlay.Settings.Parallel {
+-		merged.Settings.Parallel = true
+-	}
+-
+-	if overlay.Settings.Monorepo {
+-		merged.Settings.Monorepo = true
+-	}
++	merged.Settings.FailFast = overlay.Settings.FailFast
++	merged.Settings.Parallel = overlay.Settings.Parallel
++	merged.Settings.Monorepo = overlay.Settings.Monorepo
+ 
+ 	if len(overlay.Settings.MonorepoExclude) > 0 {
+ 		merged.Settings.MonorepoExclude = overlay.Settings.MonorepoExclude
+ 	}
+ 
+-	if overlay.OTel.Enabled {
+-		merged.OTel.Enabled = true
+-	}
++	merged.OTel.Enabled = overlay.OTel.Enabled
+ 
+ 	if overlay.OTel.JaegerURL != "" {
+ 		merged.OTel.JaegerURL = overlay.OTel.JaegerURL
+@@ -235,9 +225,7 @@ func MergeConfigs(base, overlay SmokeConfig) SmokeConfig {
+ 		merged.OTel.ServiceName = overlay.OTel.ServiceName
+ 	}
+ 
+-	if overlay.OTel.TracePropagation {
+-		merged.OTel.TracePropagation = true
+-	}
++	merged.OTel.TracePropagation = overlay.OTel.TracePropagation
+ 
+ 	if overlay.OTel.ExportURL != "" {
+ 		merged.OTel.ExportURL = overlay.OTel.ExportURL
+@@ -320,6 +308,7 @@ func loadWithDepthAndResolver(path string, depth int, resolver *RemoteResolver)
+ 		}
+ 
+ 		merged := MergeConfigs(*remoteCfg, *cfg)
++		merged.Extends = ""
+ 		cfg = &merged
+ 	}
+ 
+-- 
+2.53.0
+
+
+From 4e3b47bebdf1e14e33ea43babf109df73abd382b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Thu, 30 Apr 2026 16:30:03 -0300
+Subject: [PATCH 4/5] fix(schema): template processing for remote configs,
+ rename url param
+
+Apply processTemplate to remote data before Parse, matching local file
+path. Rename url parameter to rawURL in fetchHTTP to eliminate shadowing
+of net/url import.
+---
+ .review.json              | 37 +++++++++++++++++++++++++++++++------
+ internal/schema/remote.go | 19 ++++++++++++-------
+ 2 files changed, 43 insertions(+), 13 deletions(-)
+
+diff --git a/.review.json b/.review.json
+index 24233d0..bc3c3e2 100644
+--- a/.review.json
++++ b/.review.json
+@@ -1,14 +1,14 @@
+ {
+   "score": 8,
+   "passed": true,
+-  "reviewed_at": "2026-04-30T19:24:06Z",
+-  "reviewed_sha": "58f8b19672317aff55951572debfea9c35a2bf32",
++  "reviewed_at": "2026-04-30T19:27:37Z",
++  "reviewed_sha": "9ffda38469fa5b73df603a6b7124a29382abe1d5",
+   "reviewer": "opus",
+   "origin": "unknown",
+-  "iterations": 2,
++  "iterations": 3,
+   "fixes_applied": 0,
+-  "issues_remaining": 1,
+-  "summary": "Score 8/10, 1 issues",
++  "issues_remaining": 3,
++  "summary": "Score 8/10, 3 issues",
+   "schema_version": 1,
+   "prior_issues": [
+     {
+@@ -18,11 +18,36 @@
+       "description": "MergeConfigs uses truthy checks for boolean fields (FailFast, Parallel, Monorepo, TracePropagation, OTel.Enabled). If the base config has fail_fast: true, the overlay cannot explicitly set it to false. The zero-value ambiguity makes 'disable this setting' impossible. This will cause surprising behavior when extending a base that enables fail_fast or parallel.",
+       "has_fix": false,
+       "round": 2
++    },
++    {
++      "severity": "blocking",
++      "file": "",
++      "line": 0,
++      "description": "MergeConfigs boolean zero-value ambiguity: FailFast, Parallel, Monorepo, TracePropagation, OTel.Enabled are unconditionally overwritten from overlay. If base has fail_fast:true and overlay omits it, the zero-value false silently overrides. Fix requires *bool or explicit presence tracking.",
++      "has_fix": false,
++      "round": 3
++    },
++    {
++      "severity": "blocking",
++      "file": "",
++      "line": 0,
++      "description": "Remote configs fetched via extends skip template processing: loadWithDepthAndResolver calls processTemplate on local file data but Parse() only (no processTemplate) on remote data fetched in the extends branch. Remote configs with {{ .Env.X }} templates will fail or produce literal braces.",
++      "has_fix": false,
++      "round": 3
++    },
++    {
++      "severity": "blocking",
++      "file": "",
++      "line": 0,
++      "description": "fetchHTTP parameter 'url' shadows the net/url import — confusing to readers, fragile under future edits that may need url.Parse inside that function",
++      "has_fix": false,
++      "round": 3
+     }
+   ],
+   "prior_shas": [
+     "7728e908abc4cc4cbcb55ef378ccec74cf36a0ef",
+-    "58f8b19672317aff55951572debfea9c35a2bf32"
++    "58f8b19672317aff55951572debfea9c35a2bf32",
++    "9ffda38469fa5b73df603a6b7124a29382abe1d5"
+   ],
+   "min_score_across_rounds": 8,
+   "has_prior_min_score": true
+diff --git a/internal/schema/remote.go b/internal/schema/remote.go
+index d096a93..cd640a8 100644
+--- a/internal/schema/remote.go
++++ b/internal/schema/remote.go
+@@ -56,18 +56,18 @@ func (r *RemoteResolver) Resolve(ctx context.Context, rawURL string) ([]byte, er
+ 	}
+ }
+ 
+-func (r *RemoteResolver) fetchHTTP(ctx context.Context, url string) ([]byte, error) {
++func (r *RemoteResolver) fetchHTTP(ctx context.Context, rawURL string) ([]byte, error) {
+ 	if err := os.MkdirAll(r.cacheDir, 0755); err != nil {
+ 		return nil, fmt.Errorf("creating cache dir: %w", err)
+ 	}
+ 
+-	cacheFile := r.cachePath(url)
++	cacheFile := r.cachePath(rawURL)
+ 	cachedBody, cachedETag, cachedLastMod, err := r.readCache(cacheFile)
+ 	if err != nil && !os.IsNotExist(err) {
+ 		return nil, fmt.Errorf("reading cache: %w", err)
+ 	}
+ 
+-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
++	req, err := http.NewRequestWithContext(ctx, "GET", rawURL, nil)
+ 	if err != nil {
+ 		return nil, fmt.Errorf("creating request: %w", err)
+ 	}
+@@ -90,16 +90,16 @@ func (r *RemoteResolver) fetchHTTP(ctx context.Context, url string) ([]byte, err
+ 	defer resp.Body.Close()
+ 
+ 	if resp.StatusCode == http.StatusNotModified {
+-		log.Printf("[DEBUG] cache hit for %s (304 Not Modified)", url)
++		log.Printf("[DEBUG] cache hit for %s (304 Not Modified)", rawURL)
+ 		return cachedBody, nil
+ 	}
+ 
+ 	if resp.StatusCode != http.StatusOK {
+ 		if cachedBody != nil {
+-			log.Printf("[WARN] HTTP %d for %s, using cached response", resp.StatusCode, url)
++			log.Printf("[WARN] HTTP %d for %s, using cached response", resp.StatusCode, rawURL)
+ 			return cachedBody, nil
+ 		}
+-		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, url)
++		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, rawURL)
+ 	}
+ 
+ 	body, err := io.ReadAll(io.LimitReader(resp.Body, 10<<20)) // 10MB max
+@@ -302,7 +302,12 @@ func loadWithDepthAndResolver(path string, depth int, resolver *RemoteResolver)
+ 			return nil, fmt.Errorf("resolving extends %q: %w", cfg.Extends, err)
+ 		}
+ 
+-		remoteCfg, err := Parse(remoteData)
++		processed, err := processTemplate(remoteData)
++		if err != nil {
++			return nil, fmt.Errorf("processing template in remote config: %w", err)
++		}
++
++		remoteCfg, err := Parse(processed)
+ 		if err != nil {
+ 			return nil, fmt.Errorf("parsing remote config: %w", err)
+ 		}
+-- 
+2.53.0
+
+
+From 7a4b919fa85e87dd2637589364cc13f9fa8e61d6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Thu, 30 Apr 2026 16:32:15 -0300
+Subject: [PATCH 5/5] chore: add .review-cache to gitignore
+
+---
+ .gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/.gitignore b/.gitignore
+index f966ac9..17157ea 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -117,3 +117,4 @@ GOrchestra/intel/
+ **/*/CLAUDE.md
+ .docs/git-time-machine-pointer.txt
+ .review.json
++.review-cache/
+-- 
+2.53.0
+
