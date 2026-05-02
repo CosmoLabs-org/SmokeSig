@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-02T07:36:21.033766-03:00",
+  "generated_at": "2026-05-02T07:42:09.616726-03:00",
   "generated_by": "GLM-4.7",
-  "expires_at": "2026-05-03T07:36:21.033766-03:00",
-  "last_analyzed_commit": "9d2211b1675f2b3eb1efbe63b458adc1dd4186fb",
-  "summary": "A Go-based monolithic project with an MCP integration layer and a heavy emphasis on automated test generation and flakiness detection.",
+  "expires_at": "2026-05-03T07:42:09.616726-03:00",
+  "last_analyzed_commit": "91d30fb9e9a16d8dc622b08c3c2b97b43224a43c",
+  "summary": "A Go-based testing and validation framework with MCP integration, currently focused on improving test stability through flakiness detection.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -16,20 +16,18 @@
   ],
   "patterns": [
     "test-driven development",
-    "directory-based agent workflows",
     "MCP (Model Context Protocol) handler pattern",
-    "assertion/runner separation of concerns"
+    "assertion-based validation",
+    "schema validation"
   ],
   "concerns": [
-    "high volume of agent-generated extra test directories suggests potential flakiness or unstable test suites",
-    "FEAT-044 flakiness detector indicates ongoing reliability issues with tests",
-    "scattered test files across multiple GOrchestra agent directories may lead to maintenance overhead",
-    "uncommitted modified and staged files in working tree"
+    "high volume of agent-generated extra tests suggests potential flakiness or unstable core logic",
+    "scattered test directories across GOrchestra/glm-agents/ indicate complex automated test generation pipeline",
+    "recent commits mention flakiness detector (FEAT-044), confirming test stability issues"
   ],
   "suggestions": [
-    "consolidate or clean up the numerous GOrchestra agent test directories",
-    "prioritize stabilizing flaky tests using the new FEAT-044 flakiness detector",
-    "review and commit the currently staged and modified changes",
-    "consider centralizing extra test logic to reduce duplication across agent directories"
+    "prioritize stabilizing core runner and schema logic to reduce need for extra tests",
+    "consolidate or clean up the numerous agent-generated test directories",
+    "focus on the flakiness detector implementation to improve CI reliability"
   ]
 }

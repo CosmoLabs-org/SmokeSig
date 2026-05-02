@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "updated_at": "2026-05-02T07:23:23.112797-03:00",
-  "expires_at": "2026-05-02T08:23:23.112797-03:00",
+  "updated_at": "2026-05-02T07:43:01.286083-03:00",
+  "expires_at": "2026-05-02T08:43:01.286083-03:00",
   "project_path": "/Users/gab/PROJECTS/cosmo-smoke",
   "context": "",
-  "glm_enhanced": true
+  "glm_enhanced": false
 }
