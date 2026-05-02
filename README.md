@@ -1,5 +1,7 @@
 # cosmo-smoke
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/CosmoLabs-org/cosmo-smoke.svg)](https://pkg.go.dev/github.com/CosmoLabs-org/cosmo-smoke) [![Go Report Card](https://goreportcard.com/badge/github.com/CosmoLabs-org/cosmo-smoke)](https://goreportcard.com/report/github.com/CosmoLabs-org/cosmo-smoke) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Universal smoke test runner. Define lightweight "does it turn on?" checks in `.smoke.yaml` and run them with a single command — on any project, in any language.
 
 ## Install
@@ -21,7 +23,7 @@ go build -o smoke .
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/CosmoLabs-org/cosmo-smoke
-    rev: v0.12.0
+    rev: v0.18.0
     hooks:
       - id: smoke
 ```
@@ -274,7 +276,7 @@ jobs:
   smoke:
     uses: CosmoLabs-org/cosmo-smoke/.github/workflows/smoke.yml@v1
     with:
-      smoke-version: "latest"       # or pin: "v0.12.0"
+      smoke-version: "latest"       # or pin: "v0.18.0"
       working-directory: "."         # dir containing .smoke.yaml
       tags: "smoke"                  # optional tag filter
       fail-fast: true
@@ -339,14 +341,6 @@ Most CI platforms (GitHub Actions, GitLab CI, Jenkins, CircleCI) natively ingest
 
 `smoke run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`.
 Comma-separated for multiple: `--format terminal,json`.
-
-## Exit Codes
-
-| Code | Meaning |
-|------|---------|
-| `0` | All tests passed |
-| `1` | One or more tests failed |
-| `2` | Config error or invalid arguments |
 
 ## License
 
