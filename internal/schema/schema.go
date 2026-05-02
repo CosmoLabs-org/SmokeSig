@@ -60,10 +60,13 @@ type LifecycleConfig struct {
 
 // LifecycleHook is a command that runs at a specific lifecycle point.
 type LifecycleHook struct {
-	Command   string        `yaml:"command"`
-	Timeout   Duration      `yaml:"timeout,omitempty"`
-	AlwaysRun bool          `yaml:"always_run,omitempty"`
-	EnvPass   bool          `yaml:"env_pass,omitempty"`
+	Command        string   `yaml:"command"`
+	Timeout        Duration `yaml:"timeout,omitempty"`
+	AlwaysRun      bool     `yaml:"always_run,omitempty"`
+	EnvPass        bool     `yaml:"env_pass,omitempty"`
+	Background     bool     `yaml:"background,omitempty"`
+	WaitForPort    int      `yaml:"wait_for_port,omitempty"`
+	StartupTimeout Duration `yaml:"startup_timeout,omitempty"`
 }
 
 // RetryPolicy configures automatic retry for flaky tests.

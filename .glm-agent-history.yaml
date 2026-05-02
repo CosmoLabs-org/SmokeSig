@@ -163,3 +163,8 @@ entries:
       files_changed:
         - internal/migrate/goss/goss_extra_test.go
       commit: d26760f94b9fc36d4afbb874d8280f725590af67
+    - id: "0026"
+      task: 'FEAT-041: Add background command execution with wait_for_port to lifecycle hooks'
+      started: 2026-04-30T18:01:20.075837-03:00
+      completed: 2026-04-30T18:14:40.13937-03:00
+      status: failed

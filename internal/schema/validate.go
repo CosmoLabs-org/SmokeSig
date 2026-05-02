@@ -192,6 +192,9 @@ func Validate(cfg *SmokeConfig) error {
 		if h.Command == "" {
 			errs = append(errs, fmt.Sprintf("lifecycle.before_all[%d]: command is required", i))
 		}
+		if msg := validateBackgroundHook(h, fmt.Sprintf("lifecycle.before_all[%d]", i)); msg != "" {
+			errs = append(errs, msg)
+		}
 	}
 	for i, h := range cfg.Lifecycle.AfterAll {
 		if h.Command == "" {
@@ -201,6 +204,9 @@ func Validate(cfg *SmokeConfig) error {
 	for i, h := range cfg.Lifecycle.BeforeEach {
 		if h.Command == "" {
 			errs = append(errs, fmt.Sprintf("lifecycle.before_each[%d]: command is required", i))
+		}
+		if msg := validateBackgroundHook(h, fmt.Sprintf("lifecycle.before_each[%d]", i)); msg != "" {
+			errs = append(errs, msg)
 		}
 	}
 	for i, h := range cfg.Lifecycle.AfterEach {
@@ -248,4 +254,12 @@ func hasStandaloneAssertions(e Expect) bool {
 		e.NTP != nil ||
 		e.K8sResource != nil ||
 		e.FileSize != nil
+}
+
+// validateBackgroundHook checks that background hooks have valid configuration.
+func validateBackgroundHook(h LifecycleHook, path string) string {
+	if h.Background && h.WaitForPort == 0 && h.Timeout.Duration == 0 && h.StartupTimeout.Duration == 0 {
+		return fmt.Sprintf("%s: background=true requires either wait_for_port or a timeout", path)
+	}
+	return ""
 }

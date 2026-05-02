@@ -1,6 +1,6 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-04-30T17:02:02.764289-03:00
+last_updated: 2026-04-30T18:24:39.309544-03:00
 next_bug_id: 2
 next_feat_id: 52
 next_task_id: 2
@@ -224,7 +224,7 @@ issues:
       created_at: 2026-04-30T02:51:30.530829-03:00
     - id: FEAT-041
       type: feature
-      status: open
+      status: done
       title: Background commands with wait_for_port (BR-14)
       created_at: 2026-04-30T02:51:30.531877-03:00
     - id: FEAT-042
@@ -234,7 +234,7 @@ issues:
       created_at: 2026-04-30T02:51:30.532773-03:00
     - id: FEAT-043
       type: feature
-      status: open
+      status: done
       title: Official GitHub Action wrapper (BR-06)
       created_at: 2026-04-30T02:51:30.533671-03:00
     - id: FEAT-044

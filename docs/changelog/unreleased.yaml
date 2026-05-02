@@ -4,7 +4,13 @@
 
 version: pending
 entries:
-    added: []
+    added:
+        - description: 'FEAT-041: Background commands with wait_for_port on lifecycle hooks'
+          source: manual
+          date: 2026-04-30T18:25:00.634505-03:00
+        - description: 'FEAT-043: Official GitHub Action wrapper (cosmolabs-org/cosmo-smoke-action)'
+          source: manual
+          date: 2026-04-30T18:25:00.686428-03:00
     fixed: []
     changed: []
     deprecated: []

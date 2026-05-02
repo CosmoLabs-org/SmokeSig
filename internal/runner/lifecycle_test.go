@@ -2,7 +2,9 @@ package runner
 
 import (
 	"context"
+	"net"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -296,4 +298,127 @@ func TestLifecycle_EnvPassWithSpaces(t *testing.T) {
 	if val, ok := newEnv["VALUE"]; !ok || val != "hello world" {
 		t.Errorf("expected VALUE='hello world', got %s (ok: %v)", val, ok)
 	}
+}
+
+
+func TestRunLifecycleHooks_BackgroundStarts(t *testing.T) {
+	backgroundProcesses = nil
+	ctx := context.Background()
+	hooks := []schema.LifecycleHook{
+		{Command: "sleep 10", Background: true, Timeout: schema.Duration{Duration: 5 * time.Second}},
+	}
+	_, err := RunLifecycleHooks(ctx, hooks, nil, "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(backgroundProcesses) == 0 {
+		t.Fatal("expected background process to be tracked")
+	}
+	CleanupBackgroundProcesses()
+}
+
+func TestRunLifecycleHooks_WaitForPortReady(t *testing.T) {
+	backgroundProcesses = nil
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen: %v", err)
+	}
+	port := listener.Addr().(*net.TCPAddr).Port
+	go func() {
+		conn, _ := listener.Accept()
+		if conn != nil {
+			conn.Close()
+		}
+	}()
+	defer listener.Close()
+
+	err = waitForPort(context.Background(), port, 2*time.Second)
+	if err != nil {
+		t.Fatalf("expected port to be ready: %v", err)
+	}
+}
+
+func TestRunLifecycleHooks_WaitForPortTimeout(t *testing.T) {
+	err := waitForPort(context.Background(), 59999, 200*time.Millisecond)
+	if err == nil {
+		t.Fatal("expected timeout error")
+	}
+	if !strings.Contains(err.Error(), "timeout") {
+		t.Fatalf("expected timeout error, got: %v", err)
+	}
+}
+
+func TestRunLifecycleHooks_BackgroundCleanup(t *testing.T) {
+	backgroundProcesses = nil
+	ctx := context.Background()
+	hooks := []schema.LifecycleHook{
+		{Command: "sleep 30", Background: true, Timeout: schema.Duration{Duration: 5 * time.Second}},
+	}
+	_, err := RunLifecycleHooks(ctx, hooks, nil, "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(backgroundProcesses) == 0 {
+		t.Fatal("expected background process")
+	}
+
+	CleanupBackgroundProcesses()
+
+	if len(backgroundProcesses) != 0 {
+		t.Fatal("expected background processes to be cleared")
+	}
+}
+
+func TestRunLifecycleHooks_BackgroundWithoutWaitForPort(t *testing.T) {
+	backgroundProcesses = nil
+	ctx := context.Background()
+	hooks := []schema.LifecycleHook{
+		{Command: "sleep 5", Background: true, Timeout: schema.Duration{Duration: 10 * time.Second}},
+	}
+	_, err := RunLifecycleHooks(ctx, hooks, nil, "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	CleanupBackgroundProcesses()
+}
+
+func TestRunLifecycleHooks_PortPollingBackoff(t *testing.T) {
+	start := time.Now()
+	err := waitForPort(context.Background(), 59998, 300*time.Millisecond)
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatal("expected timeout")
+	}
+	if elapsed < 280*time.Millisecond {
+		t.Fatalf("polling exited too quickly: %v", elapsed)
+	}
+}
+
+func TestRunLifecycleHooks_EnvPassFromBackground(t *testing.T) {
+	backgroundProcesses = nil
+	ctx := context.Background()
+	hooks := []schema.LifecycleHook{
+		{Command: "echo PORT=8080", EnvPass: true},
+	}
+	env, err := RunLifecycleHooks(ctx, hooks, nil, "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if env["PORT"] != "8080" {
+		t.Fatalf("expected PORT=8080 in env, got: %v", env)
+	}
+}
+
+func TestRunLifecycleHooks_BackgroundWithAlwaysRun(t *testing.T) {
+	backgroundProcesses = nil
+	ctx := context.Background()
+	hooks := []schema.LifecycleHook{
+		{Command: "sleep 5", Background: true, AlwaysRun: true, Timeout: schema.Duration{Duration: 10 * time.Second}},
+	}
+	_, err := RunLifecycleHooks(ctx, hooks, nil, "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	CleanupBackgroundProcesses()
 }
