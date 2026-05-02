@@ -321,6 +321,104 @@ func TestCheckFileExists_EmptyConfigDir(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// CheckFileSize
+// ---------------------------------------------------------------------------
+
+func TestCheckFileSize_WithinRange(t *testing.T) {
+	tmp := t.TempDir()
+	f, _ := os.CreateTemp(tmp, "testfile")
+	f.Write(make([]byte, 1024))
+	f.Close()
+
+	min := int64(512)
+	max := int64(2048)
+	r := CheckFileSize(&schema.FileSizeCheck{Path: f.Name(), MinBytes: &min, MaxBytes: &max}, "")
+	if !r.Passed {
+		t.Errorf("expected pass, got: expected=%s actual=%s", r.Expected, r.Actual)
+	}
+	if r.Type != "file_size" {
+		t.Errorf("expected type 'file_size', got %q", r.Type)
+	}
+}
+
+func TestCheckFileSize_ExceedsMax(t *testing.T) {
+	tmp := t.TempDir()
+	f, _ := os.CreateTemp(tmp, "testfile")
+	f.Write(make([]byte, 2048))
+	f.Close()
+
+	max := int64(1024)
+	r := CheckFileSize(&schema.FileSizeCheck{Path: f.Name(), MaxBytes: &max}, "")
+	if r.Passed {
+		t.Fatal("expected fail")
+	}
+	if r.Actual != "2.0KB" {
+		t.Errorf("expected actual '2.0KB', got %q", r.Actual)
+	}
+}
+
+func TestCheckFileSize_BelowMin(t *testing.T) {
+	tmp := t.TempDir()
+	f, _ := os.CreateTemp(tmp, "testfile")
+	f.Write(make([]byte, 100))
+	f.Close()
+
+	min := int64(512)
+	r := CheckFileSize(&schema.FileSizeCheck{Path: f.Name(), MinBytes: &min}, "")
+	if r.Passed {
+		t.Fatal("expected fail")
+	}
+	if r.Expected != ">=512B" {
+		t.Errorf("expected '>=512B', got %q", r.Expected)
+	}
+}
+
+func TestCheckFileSize_FileNotFound(t *testing.T) {
+	r := CheckFileSize(&schema.FileSizeCheck{Path: "/nonexistent/file.txt"}, "")
+	if r.Passed {
+		t.Fatal("expected fail for missing file")
+	}
+}
+
+func TestCheckFileSize_NoThresholds(t *testing.T) {
+	tmp := t.TempDir()
+	f, _ := os.CreateTemp(tmp, "testfile")
+	f.Write(make([]byte, 42))
+	f.Close()
+
+	r := CheckFileSize(&schema.FileSizeCheck{Path: f.Name()}, "")
+	if !r.Passed {
+		t.Fatal("expected pass (existence check only)")
+	}
+}
+
+func TestCheckFileSize_MinOnly(t *testing.T) {
+	tmp := t.TempDir()
+	f, _ := os.CreateTemp(tmp, "testfile")
+	f.Write(make([]byte, 2048))
+	f.Close()
+
+	min := int64(1024)
+	r := CheckFileSize(&schema.FileSizeCheck{Path: f.Name(), MinBytes: &min}, "")
+	if !r.Passed {
+		t.Errorf("expected pass, got: expected=%s actual=%s", r.Expected, r.Actual)
+	}
+}
+
+func TestCheckFileSize_MaxOnly(t *testing.T) {
+	tmp := t.TempDir()
+	f, _ := os.CreateTemp(tmp, "testfile")
+	f.Write(make([]byte, 100))
+	f.Close()
+
+	max := int64(1024)
+	r := CheckFileSize(&schema.FileSizeCheck{Path: f.Name(), MaxBytes: &max}, "")
+	if !r.Passed {
+		t.Errorf("expected pass, got: expected=%s actual=%s", r.Expected, r.Actual)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // CheckStderrMatches
 // ---------------------------------------------------------------------------
 
