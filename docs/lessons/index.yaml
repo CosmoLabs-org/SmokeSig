@@ -1,0 +1,4 @@
+lessons:
+  - title: "Process spawning safety"
+    file: LESSONS.md
+    tags: [process, safety, background]
