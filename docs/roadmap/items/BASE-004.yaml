@@ -1,0 +1,9 @@
+id: BASE-004
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.879363-03:00
+title: Security baseline
+description: No secrets in code, .gitignore covers sensitive files, dependency audit clean
+status: completed
+category: security
+tags:
+    - foundation

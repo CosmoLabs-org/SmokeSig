@@ -1,3 +1,18 @@
+---
+branch: multi-reporter-chaining
+created: "2026-04-19"
+goals_completed: 0
+goals_total: 15
+origin: migrated by ccs prompts migrate
+priority: medium
+related_prompts: []
+requires_reading: []
+schema_version: 1
+status: PENDING
+tags: []
+title: Multi-Reporter Chaining Implementation Plan
+---
+
 # Multi-Reporter Chaining Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.

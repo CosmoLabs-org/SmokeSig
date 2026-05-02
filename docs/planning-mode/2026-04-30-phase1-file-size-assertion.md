@@ -1,17 +1,26 @@
 ---
-date: 2026-04-30
-status: plan
-issue: FEAT-037
 brainstorm: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+completed: "2026-05-01"
+created: "2026-04-30"
+date: 2026-04-30T00:00:00Z
 deliverables:
-  - id: P-01
-    title: "file_size assertion struct and schema registration"
-  - id: P-02
-    title: "file_size assertion evaluation logic"
-  - id: P-03
-    title: "file_size assertion tests (happy path, edge cases, errors)"
-  - id: P-04
-    title: "schema validation for file_size"
+    - id: P-01
+      title: file_size assertion struct and schema registration
+    - id: P-02
+      title: file_size assertion evaluation logic
+    - id: P-03
+      title: file_size assertion tests (happy path, edge cases, errors)
+    - id: P-04
+      title: schema validation for file_size
+goals_completed: 0
+goals_total: 0
+issue: FEAT-037
+related_prompts: []
+requires_reading: []
+schema_version: 1
+status: COMPLETED
+tags: []
+title: 'Phase 1: File Size Assertion (BR-11 / FEAT-037)'
 ---
 
 # Phase 1: File Size Assertion (BR-11 / FEAT-037)

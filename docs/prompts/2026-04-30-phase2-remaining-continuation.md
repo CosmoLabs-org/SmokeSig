@@ -1,19 +1,24 @@
 ---
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
 branch: master
+completed: "2026-05-02"
 covers_brainstorm_deliverables:
     - BR-14
     - BR-06
 created: "2026-04-30"
+goals_completed: 7
+goals_total: 7
 id: P-2026-04-30-phase2-remaining-continuation
 plan_ref: docs/planning-mode/2026-04-30-phase1-github-actions-reporter.md
 priority: high
+related_prompts: []
 requires_reading:
     - docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
     - docs/planning-mode/2026-04-30-phase1-github-actions-reporter.md
 schema_version: 1
-status: PENDING
-title: "Phase 2 Remaining — FEAT-041 Background Commands + FEAT-043 GitHub Action"
+status: COMPLETED
+tags: []
+title: Phase 2 Remaining — FEAT-041 Background Commands + FEAT-043 GitHub Action
 ---
 
 # Phase 2 Remaining — FEAT-041 Background Commands + FEAT-043 GitHub Action
@@ -74,7 +79,7 @@ type LifecycleConfig struct {
 
 ## Goals
 
-### [ ] G-01 Build FEAT-041: Background commands with wait_for_port
+### [x] G-01 Build FEAT-041: Background commands with wait_for_port
 **Model:** `glm-turbo` | **Priority:** 1 | **Depends on:** FEAT-040 (done)
 
 Extend lifecycle hooks to support background process execution with port-readiness polling:
@@ -122,7 +127,7 @@ lifecycle:
 
 **TDD:** Invoke `superpowers:test-driven-development` first. Write tests, watch them fail, then implement.
 
-### [ ] G-02 Create FEAT-043: Official GitHub Action wrapper
+### [x] G-02 Create FEAT-043: Official GitHub Action wrapper
 **Model:** `sonnet` | **Priority:** 2
 
 This is a **separate repository**: `cosmolabs-org/cosmo-smoke-action`. Not modifications to cosmo-smoke itself.
@@ -179,7 +184,7 @@ runs:
 
 This automatically gets `$GITHUB_STEP_SUMMARY` integration because FEAT-039's `--format gha` writes to it.
 
-### [ ] G-03 Update issues and roadmap
+### [x] G-03 Update issues and roadmap
 **Model:** `opus`
 
 After both features are complete:

@@ -1,0 +1,9 @@
+id: BASE-013
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.888071-03:00
+title: License defined
+description: LICENSE file present in project root (open source or proprietary)
+status: completed
+category: docs
+tags:
+    - foundation

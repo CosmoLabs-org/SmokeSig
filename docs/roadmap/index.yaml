@@ -1,6 +1,6 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-04-30T02:51:53.366105-03:00
+last_updated: 2026-05-02T00:49:54.891444-03:00
 next_id: 82
 items:
     - id: ROAD-081
@@ -450,3 +450,78 @@ items:
       promoted_to: FEAT-001
       completed_in: v0.12.0
       created_at: 2026-04-15T17:35:55.360951-03:00
+    - id: BASE-001
+      title: Git remote configured
+      status: completed
+      category: infra
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-002
+      title: Tech stack defined
+      status: captured
+      category: core
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-003
+      title: Credentials set up
+      status: captured
+      category: security
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-004
+      title: Security baseline
+      status: completed
+      category: security
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-005
+      title: Documentation structure
+      status: completed
+      category: docs
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-006
+      title: Domain & hosting configured
+      status: captured
+      category: infra
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-007
+      title: Backup strategy defined
+      status: captured
+      category: infra
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-008
+      title: Monitoring & uptime
+      status: captured
+      category: infra
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-009
+      title: Testing framework configured
+      status: completed
+      category: testing
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-010
+      title: Linting & formatting enforced
+      status: captured
+      category: core
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-011
+      title: Error tracking configured
+      status: captured
+      category: infra
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-012
+      title: Database initialized
+      status: captured
+      category: infra
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-013
+      title: License defined
+      status: completed
+      category: docs
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-014
+      title: Dependency audit clean
+      status: completed
+      category: security
+      created_at: 2026-05-02T00:49:54.858493-03:00
+    - id: BASE-015
+      title: Environment separation
+      status: captured
+      category: infra
+      created_at: 2026-05-02T00:49:54.858493-03:00

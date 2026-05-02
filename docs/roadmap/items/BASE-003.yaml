@@ -1,0 +1,9 @@
+id: BASE-003
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.858842-03:00
+title: Credentials set up
+description: Service credentials organized via /credentials SOP with two-tier inheritance
+status: captured
+category: security
+tags:
+    - foundation

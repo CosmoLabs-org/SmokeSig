@@ -11,6 +11,9 @@ entries:
         - description: 'FEAT-043: Official GitHub Action wrapper (cosmolabs-org/cosmo-smoke-action)'
           source: manual
           date: 2026-04-30T18:25:00.686428-03:00
+        - description: File size assertion type (BR-11)
+          source: FEAT-037
+          date: 2026-05-01T22:44:30.440157-03:00
     fixed: []
     changed: []
     deprecated: []

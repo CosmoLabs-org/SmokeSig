@@ -1,0 +1,9 @@
+id: BASE-014
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.890287-03:00
+title: Dependency audit clean
+description: No known vulnerabilities in dependencies (npm audit, go vet, Snyk, etc.)
+status: completed
+category: security
+tags:
+    - foundation

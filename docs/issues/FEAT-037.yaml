@@ -1,12 +1,15 @@
 id: FEAT-037
 type: feature
 created_at: 2026-04-30T02:51:30.525722-03:00
-updated_at: 2026-04-30T02:54:15.272903-03:00
+updated_at: 2026-05-01T22:44:30.324832-03:00
 source: local
-status: open
+status: done
 origin:
     session: 2027
 title: File size assertion type (BR-11)
 description: Add file_size assertion that checks file existence AND size thresholds (min_bytes, max_bytes). Extends existing file_exists. ~50 lines. Bundle size regression detection for Tauri/React Native.
 plan_ref: docs/planning-mode/2026-04-30-phase1-file-size-assertion.md
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+revisions:
+    - date: "2026-05-01"
+      action: closed

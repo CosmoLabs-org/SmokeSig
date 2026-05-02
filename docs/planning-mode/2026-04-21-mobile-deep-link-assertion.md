@@ -1,3 +1,18 @@
+---
+branch: mobile-deep-link-assertion
+created: "2026-04-21"
+goals_completed: 0
+goals_total: 39
+origin: migrated by ccs prompts migrate
+priority: medium
+related_prompts: []
+requires_reading: []
+schema_version: 1
+status: PENDING
+tags: []
+title: Mobile Deep Link Assertion — Implementation Plan
+---
+
 # Mobile Deep Link Assertion — Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.

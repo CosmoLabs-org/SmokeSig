@@ -1,0 +1,9 @@
+id: BASE-011
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.859487-03:00
+title: Error tracking configured
+description: Sentry, Bugsnag, or equivalent catches production errors with source maps
+status: captured
+category: infra
+tags:
+    - foundation

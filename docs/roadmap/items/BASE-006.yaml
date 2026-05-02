@@ -1,0 +1,9 @@
+id: BASE-006
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.859103-03:00
+title: Domain & hosting configured
+description: Production domain configured, DNS pointing, hosting provisioned
+status: captured
+category: infra
+tags:
+    - foundation

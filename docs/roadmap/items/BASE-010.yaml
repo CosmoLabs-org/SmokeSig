@@ -1,0 +1,9 @@
+id: BASE-010
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.859413-03:00
+title: Linting & formatting enforced
+description: Code style enforced via linter config (.eslintrc, .golangci.yml, prettier, etc.)
+status: captured
+category: core
+tags:
+    - foundation

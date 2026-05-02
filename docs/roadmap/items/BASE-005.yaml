@@ -1,0 +1,9 @@
+id: BASE-005
+created_at: 2026-05-02T00:49:54.858493-03:00
+updated_at: 2026-05-02T00:49:54.881693-03:00
+title: Documentation structure
+description: README.md, CLAUDE.md, and docs/ directory created per CCS standards
+status: completed
+category: docs
+tags:
+    - foundation

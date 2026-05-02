@@ -1,3 +1,17 @@
+---
+created: ""
+goals_completed: 0
+goals_total: 0
+origin: migrated by ccs prompts migrate
+priority: medium
+related_prompts: []
+requires_reading: []
+schema_version: 1
+status: COMPLETED
+tags: []
+title: 'Session: LDAP Authenticated Bind + Session Summaries + v1.0 Planning'
+---
+
 # Session: LDAP Authenticated Bind + Session Summaries + v1.0 Planning
 
 **Date**: 2026-04-22
