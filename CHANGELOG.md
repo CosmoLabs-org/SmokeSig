@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-05-02
+
+### Added
+- FEAT-044: Flakiness detector — smoke stress command
+- FEAT-036: v1.0 release readiness — README polish, API audit, semver guarantees, distribution tooling
+- add distribution tooling — goreleaser, Docker, Homebrew (commit:c1775662)
+- add smoke stress command with Cobra wiring (commit:49fded3d)
+- add stress test engine with worker pool and error dedup (commit:75e12363)
+
 ## [0.18.0] - 2026-05-02
 
 ### Added
