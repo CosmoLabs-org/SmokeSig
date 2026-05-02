@@ -8,6 +8,9 @@ entries:
         - description: 'FEAT-044: Flakiness detector — smoke stress command'
           source: manual
           date: 2026-05-02T08:10:56.241429-03:00
+        - description: 'FEAT-036: v1.0 release readiness — README polish, API audit, semver guarantees, distribution tooling'
+          source: manual
+          date: 2026-05-02T14:18:50.873733-03:00
     fixed: []
     changed: []
     deprecated: []
