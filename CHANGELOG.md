@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-05-02
+
+### Added
+- FEAT-041: Background commands with wait_for_port on lifecycle hooks
+- FEAT-043: Official GitHub Action wrapper (cosmolabs-org/cosmo-smoke-action)
+- File size assertion type (BR-11) (FEAT-037) (FEAT-037)
+- FEAT-044 flakiness detector implementation plan
+- FEAT-041 background commands with wait_for_port + FEAT-043 GitHub Action (commit:16bea779)
+
 ## [0.17.0] - 2026-04-30
 
 ### Added
