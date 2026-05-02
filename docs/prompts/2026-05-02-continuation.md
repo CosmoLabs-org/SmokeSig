@@ -1,26 +1,15 @@
 ---
-date: 2026-05-02
-status: PENDING
 branch: master
+completed: "2026-05-02"
+created: "2026-05-02"
+goals_completed: 11
+goals_total: 11
+related_prompts: []
+requires_reading: []
 schema_version: 1
-goals:
-  - Execute FEAT-044 flakiness detector plan (P-01 through P-05)
-  - Push 6 local commits to origin
-  - Optional: Start FEAT-038 if FEAT-044 completes early
-requires_reading:
-  - docs/planning-mode/2026-05-02-flakiness-detector-stress.md
-  - docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
-  - CLAUDE.md
-  - internal/runner/runner.go
-  - internal/schema/schema.go
-covers_plan_deliverables:
-  - P-01
-  - P-02
-  - P-03
-  - P-04
-  - P-05
-covers_brainstorm_deliverables:
-  - BR-02
+status: COMPLETED
+tags: []
+title: 'Continuation: FEAT-044 Flakiness Detector + Push to Origin'
 ---
 
 # Continuation: FEAT-044 Flakiness Detector + Push to Origin
@@ -146,14 +135,14 @@ Key types to understand before implementing:
 
 Before declaring FEAT-044 done:
 
-- [ ] All stress-specific tests pass: `go test ./internal/runner/ -run "TestStressTest_|TestDedupErrors|TestReliabilityStatus" -v`
-- [ ] All command tests pass: `go test ./cmd/ -run "TestStressCmd_" -v`
-- [ ] Full suite green: `go test ./... -count=1`
-- [ ] Binary builds: `go build -o smoke .`
-- [ ] Help output correct: `./smoke stress --help`
-- [ ] Manual smoke: `./smoke run` (self-smoke still passes with 6 tests)
-- [ ] Issue updated: `ccs issues update FEAT-044 --status done`
-- [ ] Changelog entry: `ccs changelog add "FEAT-044: ..." --type added`
+- [x] All stress-specific tests pass: `go test ./internal/runner/ -run "TestStressTest_|TestDedupErrors|TestReliabilityStatus" -v`
+- [x] All command tests pass: `go test ./cmd/ -run "TestStressCmd_" -v`
+- [x] Full suite green: `go test ./... -count=1`
+- [x] Binary builds: `go build -o smoke .`
+- [x] Help output correct: `./smoke stress --help`
+- [x] Manual smoke: `./smoke run` (self-smoke still passes with 6 tests)
+- [x] Issue updated: `ccs issues update FEAT-044 --status done`
+- [x] Changelog entry: `ccs changelog add "FEAT-044: ..." --type added`
 
 ## Warnings
 
