@@ -119,3 +119,8 @@ GOrchestra/intel/
 .review.json
 .review-cache/
 .ccs-verify-cache.json
+
+# ─── CCS Standard Patterns (auto-synced) ─────────────────────────────────
+.claude/session-end-state.json
+.claude/session-id
+.claude/session-start
