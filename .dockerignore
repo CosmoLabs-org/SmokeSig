@@ -1,0 +1,32 @@
+# Binaries
+smoke
+*.exe
+
+# Test and CI
+*.test
+coverage.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# Documentation (not needed in image)
+docs/
+*.md
+!README.md
+
+# Build artifacts
+dist/
+
+# Git
+.git/
+.gitignore
+
+# CosmoLabs tooling
+.claude/
+GOrchestra/
+.version-registry.json
