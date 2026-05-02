@@ -190,3 +190,15 @@
   branch: agent-a577e66986b1a4267
   base: master
   outcome: 
+- name: agent-a577e66986b1a4267
+  created: '2026-05-02T17:10:16-03:00'
+  status: killed
+  branch: agent-a577e66986b1a4267
+  base: master
+  outcome: archived
+- name: agent-a71a40f4b3b8e367f
+  created: '2026-05-02T17:10:17-03:00'
+  status: killed
+  branch: agent-a71a40f4b3b8e367f
+  base: master
+  outcome: archived
