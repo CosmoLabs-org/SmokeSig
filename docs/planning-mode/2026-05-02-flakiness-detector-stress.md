@@ -1,19 +1,28 @@
 ---
-date: 2026-05-02
-status: plan
-issue: FEAT-044
 brainstorm: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+completed: "2026-05-02"
+created: "2026-05-02"
+date: 2026-05-02T00:00:00Z
 deliverables:
-  - id: P-01
-    title: "stress result types, error dedup, reliability scoring"
-  - id: P-02
-    title: "worker pool stress execution with atomic counters"
-  - id: P-03
-    title: "stress command Cobra wiring and flags"
-  - id: P-04
-    title: "terminal summary output formatting"
-  - id: P-05
-    title: "edge cases — fail-fast, config dir, final verification"
+    - id: P-01
+      title: stress result types, error dedup, reliability scoring
+    - id: P-02
+      title: worker pool stress execution with atomic counters
+    - id: P-03
+      title: stress command Cobra wiring and flags
+    - id: P-04
+      title: terminal summary output formatting
+    - id: P-05
+      title: edge cases — fail-fast, config dir, final verification
+goals_completed: 21
+goals_total: 21
+issue: FEAT-044
+related_prompts: []
+requires_reading: []
+schema_version: 1
+status: COMPLETED
+tags: []
+title: Flakiness Detector — smoke stress (FEAT-044 / BR-02)
 ---
 
 # Flakiness Detector — smoke stress (FEAT-044 / BR-02)
@@ -47,7 +56,7 @@ deliverables:
 - Create: `internal/runner/stress.go`
 - Test: `internal/runner/stress_test.go`
 
-- [ ] **Step 1: Write failing tests for StressResult and error dedup**
+- [x] **Step 1: Write failing tests for StressResult and error dedup**
 
 ```go
 package runner
@@ -103,12 +112,12 @@ func TestReliabilityStatus(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `go test ./internal/runner/ -run "TestDedupErrors|TestReliabilityStatus" -v`
 Expected: FAIL (functions not defined)
 
-- [ ] **Step 3: Implement types and functions**
+- [x] **Step 3: Implement types and functions**
 
 ```go
 package runner
@@ -172,12 +181,12 @@ func ReliabilityStatus(passRate float64) string {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `go test ./internal/runner/ -run "TestDedupErrors|TestReliabilityStatus" -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/runner/stress.go internal/runner/stress_test.go
@@ -192,7 +201,7 @@ git commit -m "feat(FEAT-044): stress result types, error dedup, reliability sco
 - Modify: `internal/runner/stress.go`
 - Modify: `internal/runner/stress_test.go`
 
-- [ ] **Step 1: Write failing tests for StressTest function**
+- [x] **Step 1: Write failing tests for StressTest function**
 
 ```go
 func TestStressTest_AllPass(t *testing.T) {
@@ -268,12 +277,12 @@ func TestStressTest_Concurrent(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `go test ./internal/runner/ -run "TestStressTest_" -v`
 Expected: FAIL (StressTest method not defined)
 
-- [ ] **Step 3: Implement StressTest method**
+- [x] **Step 3: Implement StressTest method**
 
 Add to `internal/runner/stress.go`:
 
@@ -380,12 +389,12 @@ func testErrorMessage(tr TestResult) string {
 
 Add `"context"` to imports in `internal/runner/stress.go`.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `go test ./internal/runner/ -run "TestStressTest_" -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/runner/stress.go internal/runner/stress_test.go
@@ -402,7 +411,7 @@ git commit -m "feat(FEAT-044): worker pool stress execution with atomic counters
 - Create: `cmd/stress.go`
 - Create: `cmd/stress_test.go`
 
-- [ ] **Step 1: Write failing tests for stress command flags**
+- [x] **Step 1: Write failing tests for stress command flags**
 
 ```go
 package cmd
@@ -433,12 +442,12 @@ func TestStressCmd_RequiresTestName(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `go test ./cmd/ -run "TestStressCmd_" -v`
 Expected: FAIL (stressCmd not defined)
 
-- [ ] **Step 3: Implement stress command**
+- [x] **Step 3: Implement stress command**
 
 ```go
 package cmd
@@ -556,12 +565,12 @@ func formatStressSummary(r runner.StressResult, project string) string {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `go test ./cmd/ -run "TestStressCmd_" -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add cmd/stress.go cmd/stress_test.go
@@ -577,7 +586,7 @@ git commit -m "feat(FEAT-044): stress command with Cobra flags, summary output, 
 **Files:**
 - Modify: `internal/runner/stress_test.go`
 
-- [ ] **Step 1: Write edge case tests**
+- [x] **Step 1: Write edge case tests**
 
 ```go
 func TestStressTest_FailFast(t *testing.T) {
@@ -612,29 +621,29 @@ func TestStressTest_AllowsFailure(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run all stress tests**
+- [x] **Step 2: Run all stress tests**
 
 Run: `go test ./internal/runner/ -run "TestStressTest_|TestDedupErrors|TestReliabilityStatus" -v`
 Expected: All pass
 
-- [ ] **Step 3: Run full suite to check for regressions**
+- [x] **Step 3: Run full suite to check for regressions**
 
 Run: `go test ./... -count=1`
 Expected: All 1023+ tests pass
 
-- [ ] **Step 4: Build and verify binary**
+- [x] **Step 4: Build and verify binary**
 
 Run: `go build -o smoke . && ./smoke stress --help`
 Expected: Help output showing flags (--runs, --workers, --fail-fast, --file, --format)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/runner/stress_test.go
 git commit -m "test(FEAT-044): edge cases — fail-fast, allow-failure"
 ```
 
-- [ ] **Step 6: Update issues and changelog**
+- [x] **Step 6: Update issues and changelog**
 
 ```bash
 ccs issues update FEAT-044 --status done

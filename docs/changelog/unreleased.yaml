@@ -4,7 +4,10 @@
 
 version: pending
 entries:
-    added: []
+    added:
+        - description: 'FEAT-044: Flakiness detector — smoke stress command'
+          source: manual
+          date: 2026-05-02T08:10:56.241429-03:00
     fixed: []
     changed: []
     deprecated: []
