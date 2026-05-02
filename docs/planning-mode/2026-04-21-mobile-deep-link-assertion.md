@@ -1,14 +1,15 @@
 ---
 branch: mobile-deep-link-assertion
+completed: "2026-05-02"
 created: "2026-04-21"
-goals_completed: 0
+goals_completed: 39
 goals_total: 39
 origin: migrated by ccs prompts migrate
 priority: medium
 related_prompts: []
 requires_reading: []
 schema_version: 1
-status: PENDING
+status: COMPLETED
 tags: []
 title: Mobile Deep Link Assertion — Implementation Plan
 ---
@@ -47,7 +48,7 @@ title: Mobile Deep Link Assertion — Implementation Plan
 **Files:**
 - Modify: `internal/schema/schema.go`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `internal/schema/schema_test.go` (or create schema_decode_test.go if needed):
 
@@ -91,12 +92,12 @@ tests:
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test ./internal/schema/ -run TestDeepLinkAssertionParsing -v`
 Expected: FAIL — `DeepLink` field doesn't exist
 
-- [ ] **Step 3: Add DeepLink struct to Expect**
+- [x] **Step 3: Add DeepLink struct to Expect**
 
 In `internal/schema/schema.go`, add the struct and field:
 
@@ -114,17 +115,17 @@ type DeepLinkCheck struct {
 
 Add `DeepLink *DeepLinkCheck` to the `Expect` struct (alongside existing assertion fields).
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `go test ./internal/schema/ -run TestDeepLinkAssertionParsing -v`
 Expected: PASS
 
-- [ ] **Step 5: Run full schema tests**
+- [x] **Step 5: Run full schema tests**
 
 Run: `go test ./internal/schema/ -v`
 Expected: All pass (no regressions)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add internal/schema/schema.go internal/schema/schema_test.go
@@ -139,7 +140,7 @@ git commit -m "feat(schema): add DeepLink assertion struct for mobile deep link 
 - Modify: `internal/detector/detector.go`
 - Modify: `internal/detector/detector_test.go`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```go
 func TestDetect_ReactNative(t *testing.T) {
@@ -188,12 +189,12 @@ func TestDetect_Android(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test ./internal/detector/ -run "TestDetect_ReactNative|TestDetect_Flutter|TestDetect_IOS|TestDetect_Android" -v`
 Expected: FAIL — constants don't exist
 
-- [ ] **Step 3: Add constants and detection logic**
+- [x] **Step 3: Add constants and detection logic**
 
 In `internal/detector/detector.go`, add to the const block:
 
@@ -237,17 +238,17 @@ if !hasType(types, ReactNative) && !hasType(types, Flutter) {
 
 Add helper functions `hasDepInPackageJSON`, `hasFlutterDep`, `hasType`, `hasGlob`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `go test ./internal/detector/ -run "TestDetect_ReactNative|TestDetect_Flutter|TestDetect_IOS|TestDetect_Android" -v`
 Expected: PASS
 
-- [ ] **Step 5: Run full detector tests**
+- [x] **Step 5: Run full detector tests**
 
 Run: `go test ./internal/detector/ -v`
 Expected: All pass
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add internal/detector/detector.go internal/detector/detector_test.go
@@ -264,7 +265,7 @@ git commit -m "feat(detector): add ReactNative, Flutter, iOS, Android project ty
 - Create: `internal/runner/assertion_deeplink.go`
 - Create: `internal/runner/assertion_deeplink_test.go`
 
-- [ ] **Step 1: Write failing tests for assetlinks.json check**
+- [x] **Step 1: Write failing tests for assetlinks.json check**
 
 ```go
 func TestCheckAssetlinks_Valid(t *testing.T) {
@@ -316,12 +317,12 @@ func TestCheckAASA_Valid(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test ./internal/runner/ -run "TestCheckAssetlinks|TestCheckAASA" -v`
 Expected: FAIL — functions don't exist
 
-- [ ] **Step 3: Implement CheckAssetlinks and CheckAASA**
+- [x] **Step 3: Implement CheckAssetlinks and CheckAASA**
 
 In `internal/runner/assertion_deeplink.go`:
 
@@ -405,12 +406,12 @@ func CheckAASA(baseURL, expectedBundleID string) AssertionResult {
 }
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `go test ./internal/runner/ -run "TestCheckAssetlinks|TestCheckAASA" -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/runner/assertion_deeplink.go internal/runner/assertion_deeplink_test.go
@@ -427,7 +428,7 @@ git commit -m "feat(runner): add assetlinks.json and AASA HTTP validation for de
 - Modify: `internal/runner/assertion_deeplink.go`
 - Modify: `internal/runner/assertion_deeplink_test.go`
 
-- [ ] **Step 1: Write failing tests for CheckDeepLink (main entry point)**
+- [x] **Step 1: Write failing tests for CheckDeepLink (main entry point)**
 
 Test that `CheckDeepLink` routes to tier 1 checks for HTTP URLs, checks local config for custom schemes, and optionally calls tier 2.
 
@@ -469,12 +470,12 @@ func TestCheckDeepLink_CustomSchemeSkipsHTTP(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `go test ./internal/runner/ -run "TestCheckDeepLink" -v`
 Expected: FAIL — `CheckDeepLink` doesn't exist
 
-- [ ] **Step 3: Implement CheckDeepLink**
+- [x] **Step 3: Implement CheckDeepLink**
 
 `CheckDeepLink(cfg *schema.DeepLinkCheck, configDir string) []AssertionResult` is the main entry point:
 
@@ -532,12 +533,12 @@ func CheckDeepLink(cfg *schema.DeepLinkCheck, configDir string) []AssertionResul
 
 Add helpers: `checkLocalSchemeConfig`, `hasAdb`, `hasXcrun`, `resolveDeepLink`.
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `go test ./internal/runner/ -run "TestCheckDeepLink" -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add internal/runner/assertion_deeplink.go internal/runner/assertion_deeplink_test.go
@@ -553,7 +554,7 @@ git commit -m "feat(runner): add CheckDeepLink main entry with tier routing and 
 **Files:**
 - Modify: `internal/runner/runner.go`
 
-- [ ] **Step 1: Add deep_link assertion check to runTestOnce**
+- [x] **Step 1: Add deep_link assertion check to runTestOnce**
 
 After the existing `graphql` check block in `runTestOnce`, add:
 
@@ -569,7 +570,7 @@ if t.Expect.DeepLink != nil {
 }
 ```
 
-- [ ] **Step 2: Write integration test**
+- [x] **Step 2: Write integration test**
 
 ```go
 func TestDeepLink_AssertionInRunner(t *testing.T) {
@@ -591,12 +592,12 @@ func TestDeepLink_AssertionInRunner(t *testing.T) {
 }
 ```
 
-- [ ] **Step 3: Run test**
+- [x] **Step 3: Run test**
 
 Run: `go test ./internal/runner/ -run TestDeepLink_AssertionInRunner -v`
 Expected: PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add internal/runner/runner.go internal/runner/assertion_deeplink_test.go
@@ -610,7 +611,7 @@ git commit -m "feat(runner): wire deep_link assertion into test execution pipeli
 **Files:**
 - Modify: `internal/detector/templates.go`
 
-- [ ] **Step 1: Add mobile project templates to GenerateConfig switch**
+- [x] **Step 1: Add mobile project templates to GenerateConfig switch**
 
 Add cases for `ReactNative`, `Flutter`, `IOS`, `Android` in the switch statement:
 
@@ -636,12 +637,12 @@ case Flutter, IOS, Android:
     })
 ```
 
-- [ ] **Step 2: Run detector tests**
+- [x] **Step 2: Run detector tests**
 
 Run: `go test ./internal/detector/ -v`
 Expected: All pass
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add internal/detector/templates.go
@@ -655,7 +656,7 @@ git commit -m "feat(detector): add mobile project smoke init templates with deep
 **Files:**
 - Modify: `CLAUDE.md`
 
-- [ ] **Step 1: Add `deep_link` to assertion types table**
+- [x] **Step 1: Add `deep_link` to assertion types table**
 
 Add row:
 
@@ -663,16 +664,16 @@ Add row:
 | deep_link | `{url, android_package?, ios_bundle_id?, ios_associated_domains?, check_assetlinks?, check_aasa?, tier?}` | Mobile deep link / universal link verification (two-tier: HTTP config + tool-augmented resolution) |
 ```
 
-- [ ] **Step 2: Add mobile project types to detected types**
+- [x] **Step 2: Add mobile project types to detected types**
 
 Add to "Detected Project Types" section: React Native, Flutter, iOS, Android
 
-- [ ] **Step 3: Run full test suite**
+- [x] **Step 3: Run full test suite**
 
 Run: `go test ./...`
 Expected: All pass
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add CLAUDE.md

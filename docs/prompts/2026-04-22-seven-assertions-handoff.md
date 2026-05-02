@@ -1,8 +1,14 @@
 ---
-title: "cosmo-smoke v0.14.0 — Seven Assertions Session Handoff"
+completed: "2026-05-02"
 created: "2026-04-22"
-status: PENDING
+goals_completed: 0
+goals_total: 0
+related_prompts: []
+requires_reading: []
 schema_version: 1
+status: COMPLETED
+tags: []
+title: cosmo-smoke v0.14.0 — Seven Assertions Session Handoff
 ---
 
 # cosmo-smoke v0.14.0 — Seven Assertions Session Handoff
