@@ -128,7 +128,10 @@ func (r *Runner) Run(opts RunOptions) (*SuiteResult, error) {
 
 	failFast := opts.FailFast || r.Config.Settings.FailFast
 
-	if r.Config.Settings.Parallel && !failFast {
+	// Force sequential execution when chained tests are detected (extract → vars dependencies).
+	chainGroups := detectChains(tests)
+
+	if r.Config.Settings.Parallel && !failFast && len(chainGroups) == 0 {
 		r.runParallel(tests, opts, suite)
 	} else {
 		r.runSequential(tests, opts, suite, failFast)

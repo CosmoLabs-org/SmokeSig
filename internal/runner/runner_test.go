@@ -517,6 +517,66 @@ func TestRetry_TraceAware_NoOTelTrace_ExhaustsRetries(t *testing.T) {
 	}
 }
 
+func TestRunner_ChainExtractResolve(t *testing.T) {
+	dir := t.TempDir()
+	cfg := newConfig([]schema.Test{
+		{
+			Name: "extract-value",
+			Run:   `echo '{"token":"abc123"}'`,
+			Expect: schema.Expect{
+				JSONField: &schema.JSONFieldCheck{
+					Path:    "token",
+					Extract: "auth_token",
+				},
+			},
+		},
+		{
+			Name: "use-value",
+			Run:   `echo "got {{ .Vars.auth_token }}"`,
+			Expect: schema.Expect{
+				StdoutContains: "got abc123",
+			},
+		},
+	})
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: dir}
+	result, err := r.Run(RunOptions{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Passed != 2 {
+		t.Errorf("passed = %d, want 2", result.Passed)
+	}
+	if result.Failed != 0 {
+		t.Errorf("failed = %d, want 0", result.Failed)
+	}
+}
+
+func TestRunner_ChainForcesSequential(t *testing.T) {
+	cfg := newConfig([]schema.Test{
+		{
+			Name: "extract",
+			Run:   `echo '{"val":"x"}'`,
+			Expect: schema.Expect{
+				JSONField: &schema.JSONFieldCheck{Path: "val", Extract: "v"},
+			},
+		},
+		{
+			Name: "consume",
+			Run:   `echo "{{ .Vars.v }}"`,
+			Expect: schema.Expect{StdoutContains: "x"},
+		},
+	})
+	cfg.Settings.Parallel = true
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+	result, err := r.Run(RunOptions{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Passed != 2 {
+		t.Errorf("passed = %d, want 2 (sequential execution needed for chains)", result.Passed)
+	}
+}
+
 func TestRunner_DeepLink_CustomScheme(t *testing.T) {
 	dir := t.TempDir()
 	cfg := newConfig([]schema.Test{{
