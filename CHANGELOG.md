@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-05-02
+
+### Added
+- FEAT-036: Distribution tooling — goreleaser, Docker, Homebrew
+- FEAT-044: Flakiness detector — smoke stress command with worker pool
+- FEAT-038: Test chaining with data extraction (extract, VarStore, chain detection)
+- # FEAT-038: Test chaining with data extraction (BR-08)
+
+**Type**: feature
+**Status**: closed
+**Plan**: docs/planning-mode/2026-04-30-phase1-test-chaining.md
+**Created**: 2026-04-30
+
+## Description
+
+Enable extracting values from one test (extract: field on json_field, stdout_matches) and injecting into subsequent tests via {{ .Vars.name }} templating. Sensitive vars masked. Chained tests run sequentially. ~500 lines. Biggest functional gap for API testing workflows.
+- wire chain detection to force sequential execution for chained tests
+- wire chain detection to force sequential execution (commit:b76cf89b)
+
 ## [0.19.0] - 2026-05-02
 
 ### Added

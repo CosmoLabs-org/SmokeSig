@@ -4,29 +4,7 @@
 
 version: pending
 entries:
-    added:
-        - description: 'FEAT-036: Distribution tooling — goreleaser, Docker, Homebrew'
-          source: manual
-          date: 2026-05-02T19:10:30.5242-03:00
-        - description: 'FEAT-044: Flakiness detector — smoke stress command with worker pool'
-          source: manual
-          date: 2026-05-02T19:10:31.157288-03:00
-        - description: 'FEAT-038: Test chaining with data extraction (extract, VarStore, chain detection)'
-          source: manual
-          date: 2026-05-02T19:10:31.861038-03:00
-        - description: |-
-            # FEAT-038: Test chaining with data extraction (BR-08)
-
-            **Type**: feature
-            **Status**: closed
-            **Plan**: docs/planning-mode/2026-04-30-phase1-test-chaining.md
-            **Created**: 2026-04-30
-
-            ## Description
-
-            Enable extracting values from one test (extract: field on json_field, stdout_matches) and injecting into subsequent tests via {{ .Vars.name }} templating. Sensitive vars masked. Chained tests run sequentially. ~500 lines. Biggest functional gap for API testing workflows.
-          source: manual
-          date: 2026-05-02T21:20:26.181393-03:00
+    added: []
     fixed: []
     changed: []
     deprecated: []
