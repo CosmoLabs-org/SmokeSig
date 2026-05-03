@@ -1,9 +1,9 @@
 id: FEAT-038
 type: feature
 created_at: 2026-04-30T02:51:30.528009-03:00
-updated_at: 2026-05-02T19:12:18.556716-03:00
+updated_at: 2026-05-02T21:20:24.968841-03:00
 source: local
-status: done
+status: closed
 origin:
     session: 2027
 title: Test chaining with data extraction (BR-08)
@@ -11,5 +11,7 @@ description: 'Enable extracting values from one test (extract: field on json_fie
 plan_ref: docs/planning-mode/2026-04-30-phase1-test-chaining.md
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
 revisions:
+    - date: "2026-05-02"
+      action: closed
     - date: "2026-05-02"
       action: closed

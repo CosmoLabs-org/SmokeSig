@@ -1,6 +1,6 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-05-02T19:12:18.562013-03:00
+last_updated: 2026-05-02T21:20:24.97146-03:00
 next_bug_id: 2
 next_feat_id: 52
 next_task_id: 2
@@ -209,7 +209,7 @@ issues:
       created_at: 2026-04-30T02:51:30.525722-03:00
     - id: FEAT-038
       type: feature
-      status: done
+      status: closed
       title: Test chaining with data extraction (BR-08)
       created_at: 2026-04-30T02:51:30.528009-03:00
     - id: FEAT-039
