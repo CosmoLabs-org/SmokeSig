@@ -1,19 +1,26 @@
 ---
 branch: master
+completed: "2026-05-02"
 created: "2026-05-02"
-status: ACTIVE
-schema_version: 1
-requires_reading:
-  - docs/planning-mode/2026-04-30-phase1-test-chaining.md
-  - docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
-  - internal/runner/runner.go
-  - internal/schema/schema.go
-  - internal/reporter/reporter.go
-  - cmd/run.go
+goals_completed: 5
+goals_total: 5
 related_prompts:
-  - docs/prompts/2026-04-30-phase2-remaining-continuation.md
-tags: [feat-038, feat-045, ecosystem, continuation]
-title: "Continuation: Ecosystem Features — FEAT-038, FEAT-045, Doc Audit"
+    - docs/prompts/2026-04-30-phase2-remaining-continuation.md
+requires_reading:
+    - docs/planning-mode/2026-04-30-phase1-test-chaining.md
+    - docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+    - internal/runner/runner.go
+    - internal/schema/schema.go
+    - internal/reporter/reporter.go
+    - cmd/run.go
+schema_version: 1
+status: COMPLETED
+tags:
+    - feat-038
+    - feat-045
+    - ecosystem
+    - continuation
+title: 'Continuation: Ecosystem Features — FEAT-038, FEAT-045, Doc Audit'
 ---
 
 # Continuation: Ecosystem Features — FEAT-038, FEAT-045, Doc Audit
@@ -195,14 +202,14 @@ Check which of the 9 commands (stress, init, run, serve, validate, schema, versi
 
 Before declaring the session complete:
 
-- [ ] FEAT-038 tests pass: `go test ./internal/runner/ -run "TestChain|TestVarStore|TestExtract" -v`
-- [ ] FEAT-038 schema tests pass: `go test ./internal/schema/ -run "TestExtract|TestDepends|TestSensitive" -v`
-- [ ] Full suite green: `go test ./... -count=1` (1034+ tests)
-- [ ] Binary builds: `go build -o smoke .`
-- [ ] Changelog staged for FEAT-036 and FEAT-044
-- [ ] Changelog staged for FEAT-038 (if completed)
-- [ ] Issue updated: `ccs issues update FEAT-038 --status done`
-- [ ] No regressions in self-smoke: `./smoke run`
+- [x] FEAT-038 tests pass: `go test ./internal/runner/ -run "TestChain|TestVarStore|TestExtract" -v`
+- [x] FEAT-038 schema tests pass: `go test ./internal/schema/ -run "TestExtract|TestDepends|TestSensitive" -v`
+- [x] Full suite green: `go test ./... -count=1` (1034+ tests)
+- [x] Binary builds: `go build -o smoke .`
+- [x] Changelog staged for FEAT-036 and FEAT-044
+- [x] Changelog staged for FEAT-038 (if completed)
+- [x] Issue updated: `ccs issues update FEAT-038 --status done`
+- [x] No regressions in self-smoke: `./smoke run`
 
 ## Warnings
 
