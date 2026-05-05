@@ -437,7 +437,7 @@ tests:
 `, server.URL)
 
 	tmpDir := t.TempDir()
-	localCfgPath := filepath.Join(tmpDir, ".smoke.yaml")
+	localCfgPath := filepath.Join(tmpDir, ".smokesig.yaml")
 	if err := os.WriteFile(localCfgPath, []byte(localYAML), 0644); err != nil {
 		t.Fatalf("failed to write local config: %v", err)
 	}
@@ -507,7 +507,7 @@ tests:
 `, server.URL)
 
 	tmpDir := t.TempDir()
-	localCfgPath := filepath.Join(tmpDir, ".smoke.yaml")
+	localCfgPath := filepath.Join(tmpDir, ".smokesig.yaml")
 	includeCfgPath := filepath.Join(tmpDir, "include.yaml")
 
 	if err := os.WriteFile(localCfgPath, []byte(localYAML), 0644); err != nil {

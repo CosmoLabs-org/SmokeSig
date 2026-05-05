@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/reporter"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // noopReporter discards all events.

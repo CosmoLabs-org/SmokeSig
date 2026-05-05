@@ -3,7 +3,7 @@ package runner
 import (
 	"testing"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 func TestCheckPing_Success(t *testing.T) {

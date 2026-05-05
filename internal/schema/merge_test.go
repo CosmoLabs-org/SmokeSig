@@ -19,7 +19,7 @@ tests:
     expect:
       exit_code: 0
 `
-	basePath := filepath.Join(dir, ".smoke.yaml")
+	basePath := filepath.Join(dir, ".smokesig.yaml")
 	os.WriteFile(basePath, []byte(baseYAML), 0644)
 
 	// Write env config
@@ -30,7 +30,7 @@ tests:
     expect:
       exit_code: 0
 `
-	envPath := filepath.Join(dir, "staging.smoke.yaml")
+	envPath := filepath.Join(dir, "staging.smokesig.yaml")
 	os.WriteFile(envPath, []byte(envYAML), 0644)
 
 	// Load and merge
@@ -67,7 +67,7 @@ tests:
     expect:
       exit_code: 0
 `
-	basePath := filepath.Join(dir, ".smoke.yaml")
+	basePath := filepath.Join(dir, ".smokesig.yaml")
 	os.WriteFile(basePath, []byte(baseYAML), 0644)
 
 	envYAML := `
@@ -80,7 +80,7 @@ tests:
     expect:
       exit_code: 0
 `
-	envPath := filepath.Join(dir, "production.smoke.yaml")
+	envPath := filepath.Join(dir, "production.smokesig.yaml")
 	os.WriteFile(envPath, []byte(envYAML), 0644)
 
 	base, _ := Load(basePath)
@@ -99,7 +99,7 @@ tests:
 
 func TestMergeEnvMissingFile(t *testing.T) {
 	base := &SmokeConfig{Tests: []Test{{Name: "t", Run: "true"}}}
-	_, err := MergeEnv(base, "/nonexistent/staging.smoke.yaml")
+	_, err := MergeEnv(base, "/nonexistent/staging.smokesig.yaml")
 	if err == nil {
 		t.Error("should fail on missing env file")
 	}
@@ -118,7 +118,7 @@ tests:
     expect:
       exit_code: 0
 `
-	basePath := filepath.Join(dir, ".smoke.yaml")
+	basePath := filepath.Join(dir, ".smokesig.yaml")
 	os.WriteFile(basePath, []byte(baseYAML), 0644)
 
 	envYAML := `
@@ -127,7 +127,7 @@ prerequisites:
     check: "true"
 tests: []
 `
-	envPath := filepath.Join(dir, "ci.smoke.yaml")
+	envPath := filepath.Join(dir, "ci.smokesig.yaml")
 	os.WriteFile(envPath, []byte(envYAML), 0644)
 
 	base, _ := Load(basePath)

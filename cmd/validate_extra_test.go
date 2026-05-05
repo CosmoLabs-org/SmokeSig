@@ -152,7 +152,7 @@ tests:
         status_code: 200
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +189,7 @@ tests:
         timeout: 10s
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -230,7 +230,7 @@ tests:
       retry_on_trace_only: true
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -272,7 +272,7 @@ tests:
       file_missing: /tmp/skip-marker
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -307,7 +307,7 @@ tests:
       exit_code: 0
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}

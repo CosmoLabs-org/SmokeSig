@@ -170,7 +170,7 @@ func TestTemplate_EnvSubstitution(t *testing.T) {
 	defer os.Unsetenv("SMOKE_TEST_VAR")
 
 	dir := t.TempDir()
-	configPath := filepath.Join(dir, ".smoke.yaml")
+	configPath := filepath.Join(dir, ".smokesig.yaml")
 
 	yaml := `
 version: 1
@@ -212,7 +212,7 @@ tests:
     expect:
       exit_code: 0
 `
-	basePath := filepath.Join(dir, "base.smoke.yaml")
+	basePath := filepath.Join(dir, "base.smokesig.yaml")
 	if err := os.WriteFile(basePath, []byte(baseContent), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -222,14 +222,14 @@ tests:
 version: 1
 project: main
 includes:
-  - base.smoke.yaml
+  - base.smokesig.yaml
 tests:
   - name: "main test"
     run: "echo main"
     expect:
       exit_code: 0
 `
-	mainPath := filepath.Join(dir, ".smoke.yaml")
+	mainPath := filepath.Join(dir, ".smokesig.yaml")
 	if err := os.WriteFile(mainPath, []byte(mainContent), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -259,24 +259,24 @@ func TestLoad_CircularIncludeProtection(t *testing.T) {
 version: 1
 project: a
 includes:
-  - b.smoke.yaml
+  - b.smokesig.yaml
 tests: []
 `
 	bContent := `
 version: 1
 project: b
 includes:
-  - a.smoke.yaml
+  - a.smokesig.yaml
 tests: []
 `
-	if err := os.WriteFile(filepath.Join(dir, "a.smoke.yaml"), []byte(aContent), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "a.smokesig.yaml"), []byte(aContent), 0644); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "b.smoke.yaml"), []byte(bContent), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "b.smokesig.yaml"), []byte(bContent), 0644); err != nil {
 		t.Fatal(err)
 	}
 
-	_, err := Load(filepath.Join(dir, "a.smoke.yaml"))
+	_, err := Load(filepath.Join(dir, "a.smokesig.yaml"))
 	if err == nil {
 		t.Error("expected error for circular includes")
 	}

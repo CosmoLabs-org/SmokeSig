@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 const shortTimeout = 5 * time.Second

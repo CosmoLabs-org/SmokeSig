@@ -6,16 +6,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/reporter"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/runner"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
+	"github.com/CosmoLabs-org/SmokeSig/internal/runner"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // writeRunConfig writes a YAML config to a temp dir and returns the dir path.
 func writeRunConfig(t *testing.T, content string) string {
 	t.Helper()
 	dir := t.TempDir()
-	if err := os.WriteFile(dir+"/.smoke.yaml", []byte(content), 0644); err != nil {
+	if err := os.WriteFile(dir+"/.smokesig.yaml", []byte(content), 0644); err != nil {
 		t.Fatal(err)
 	}
 	return dir
@@ -37,7 +37,7 @@ tests:
     expect:
       exit_code: 0
 `)
-	cfg, err := schema.Load(dir + "/.smoke.yaml")
+	cfg, err := schema.Load(dir + "/.smokesig.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ tests:
     expect:
       exit_code: 0
 `)
-	cfg, err := schema.Load(dir + "/.smoke.yaml")
+	cfg, err := schema.Load(dir + "/.smokesig.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,7 +116,7 @@ tests:
     expect:
       exit_code: 0
 `)
-	cfg, err := schema.Load(dir + "/.smoke.yaml")
+	cfg, err := schema.Load(dir + "/.smokesig.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -146,7 +146,7 @@ tests:
     expect:
       exit_code: 0
 `)
-	cfg, err := schema.Load(dir + "/.smoke.yaml")
+	cfg, err := schema.Load(dir + "/.smokesig.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,7 +185,7 @@ tests:
     expect:
       exit_code: 0
 `)
-	cfg, err := schema.Load(dir + "/.smoke.yaml")
+	cfg, err := schema.Load(dir + "/.smokesig.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,7 +215,7 @@ tests:
 // when the config file is modified between calls.
 func TestLoadConfig_ReloadOnFileChange(t *testing.T) {
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 
 	os.WriteFile(path, []byte(`
 version: 1
@@ -285,7 +285,7 @@ tests:
 	health := runner.NewTraceHealthTracker(10)
 
 	for i := 0; i < 3; i++ {
-		cfg, err := schema.Load(dir + "/.smoke.yaml")
+		cfg, err := schema.Load(dir + "/.smokesig.yaml")
 		if err != nil {
 			t.Fatal(err)
 		}

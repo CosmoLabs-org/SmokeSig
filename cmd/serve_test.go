@@ -34,11 +34,11 @@ func TestServeCommand_Exists(t *testing.T) {
 	}
 }
 
-// writeTempConfig writes a minimal .smoke.yaml to a temp dir and returns the path.
+// writeTempConfig writes a minimal .smokesig.yaml to a temp dir and returns the path.
 func writeTempConfig(t *testing.T, content string) string {
 	t.Helper()
 	dir := t.TempDir()
-	p := filepath.Join(dir, ".smoke.yaml")
+	p := filepath.Join(dir, ".smokesig.yaml")
 	if err := os.WriteFile(p, []byte(content), 0644); err != nil {
 		t.Fatalf("write temp config: %v", err)
 	}

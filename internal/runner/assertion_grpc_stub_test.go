@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 func TestCheckGRPCHealth_StubReturns(t *testing.T) {

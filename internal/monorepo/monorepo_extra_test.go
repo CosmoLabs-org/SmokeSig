@@ -9,15 +9,15 @@ import (
 
 func TestDiscover_NestedThreePlusLevels(t *testing.T) {
 	root := t.TempDir()
-	// Level 3: root/a/b/c/.smoke.yaml
+	// Level 3: root/a/b/c/.smokesig.yaml
 	os.MkdirAll(filepath.Join(root, "a", "b", "c"), 0755)
-	os.WriteFile(filepath.Join(root, "a", "b", "c", ".smoke.yaml"), []byte("version: 1\n"), 0644)
-	// Level 4: root/x/y/z/w/.smoke.yaml
+	os.WriteFile(filepath.Join(root, "a", "b", "c", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
+	// Level 4: root/x/y/z/w/.smokesig.yaml
 	os.MkdirAll(filepath.Join(root, "x", "y", "z", "w"), 0755)
-	os.WriteFile(filepath.Join(root, "x", "y", "z", "w", ".smoke.yaml"), []byte("version: 1\n"), 0644)
-	// Level 5: root/p/q/r/s/t/.smoke.yaml
+	os.WriteFile(filepath.Join(root, "x", "y", "z", "w", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
+	// Level 5: root/p/q/r/s/t/.smokesig.yaml
 	os.MkdirAll(filepath.Join(root, "p", "q", "r", "s", "t"), 0755)
-	os.WriteFile(filepath.Join(root, "p", "q", "r", "s", "t", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, "p", "q", "r", "s", "t", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 
 	configs, err := Discover(root, nil)
 	if err != nil {
@@ -37,16 +37,16 @@ func TestDiscover_HiddenDirsExcluded(t *testing.T) {
 	root := t.TempDir()
 	// .git is in defaultSkipDirs
 	os.MkdirAll(filepath.Join(root, ".git", "hooks"), 0755)
-	os.WriteFile(filepath.Join(root, ".git", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, ".git", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 	// .next is in defaultSkipDirs
 	os.MkdirAll(filepath.Join(root, ".next", "static"), 0755)
-	os.WriteFile(filepath.Join(root, ".next", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, ".next", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 	// .cache is in defaultSkipDirs
 	os.MkdirAll(filepath.Join(root, ".cache"), 0755)
-	os.WriteFile(filepath.Join(root, ".cache", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, ".cache", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 	// Non-hidden dir with config should still be found
 	os.MkdirAll(filepath.Join(root, "api"), 0755)
-	os.WriteFile(filepath.Join(root, "api", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, "api", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 
 	configs, err := Discover(root, nil)
 	if err != nil {
@@ -65,7 +65,7 @@ func TestDiscover_EmptyDirsSkippedGracefully(t *testing.T) {
 	os.MkdirAll(filepath.Join(root, "empty3"), 0755)
 	// One with a config
 	os.MkdirAll(filepath.Join(root, "api"), 0755)
-	os.WriteFile(filepath.Join(root, "api", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, "api", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 
 	configs, err := Discover(root, nil)
 	if err != nil {
@@ -93,9 +93,9 @@ func TestDiscover_DuplicateProjectNames(t *testing.T) {
 	root := t.TempDir()
 	// Two dirs named "api" at different paths
 	os.MkdirAll(filepath.Join(root, "api"), 0755)
-	os.WriteFile(filepath.Join(root, "api", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, "api", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 	os.MkdirAll(filepath.Join(root, "services", "api"), 0755)
-	os.WriteFile(filepath.Join(root, "services", "api", ".smoke.yaml"), []byte("version: 1\n"), 0644)
+	os.WriteFile(filepath.Join(root, "services", "api", ".smokesig.yaml"), []byte("version: 1\n"), 0644)
 
 	configs, err := Discover(root, nil)
 	if err != nil {

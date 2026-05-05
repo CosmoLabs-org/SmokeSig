@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"gopkg.in/yaml.v3"
 )
 
-// TestInit_EmptyDir creates a .smoke.yaml in an empty directory.
+// TestInit_EmptyDir creates a .smokesig.yaml in an empty directory.
 func TestInit_EmptyDir(t *testing.T) {
 	dir := t.TempDir()
 	origDir, _ := os.Getwd()
@@ -25,14 +25,14 @@ func TestInit_EmptyDir(t *testing.T) {
 		t.Fatalf("runInit failed: %v", err)
 	}
 
-	data, err := os.ReadFile(filepath.Join(dir, ".smoke.yaml"))
+	data, err := os.ReadFile(filepath.Join(dir, ".smokesig.yaml"))
 	if err != nil {
-		t.Fatalf("reading .smoke.yaml: %v", err)
+		t.Fatalf("reading .smokesig.yaml: %v", err)
 	}
 
 	var cfg schema.SmokeConfig
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		t.Fatalf("parsing .smoke.yaml: %v", err)
+		t.Fatalf("parsing .smokesig.yaml: %v", err)
 	}
 	if cfg.Version != 1 {
 		t.Errorf("expected version 1, got %d", cfg.Version)
@@ -42,7 +42,7 @@ func TestInit_EmptyDir(t *testing.T) {
 	}
 }
 
-// TestInit_ForceOverwrite overwrites an existing .smoke.yaml when --force is set.
+// TestInit_ForceOverwrite overwrites an existing .smokesig.yaml when --force is set.
 func TestInit_ForceOverwrite(t *testing.T) {
 	dir := t.TempDir()
 	origDir, _ := os.Getwd()
@@ -52,7 +52,7 @@ func TestInit_ForceOverwrite(t *testing.T) {
 	defer os.Chdir(origDir)
 
 	// Create an initial config
-	if err := os.WriteFile(".smoke.yaml", []byte("version: 1\nproject: old\n"), 0644); err != nil {
+	if err := os.WriteFile(".smokesig.yaml", []byte("version: 1\nproject: old\n"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -60,7 +60,7 @@ func TestInit_ForceOverwrite(t *testing.T) {
 	forceOverwrite = false
 	fromRunning = ""
 	if err := runInit(nil, nil); err == nil {
-		t.Fatal("expected error when .smoke.yaml exists without --force")
+		t.Fatal("expected error when .smokesig.yaml exists without --force")
 	}
 
 	// With --force it should succeed
@@ -69,14 +69,14 @@ func TestInit_ForceOverwrite(t *testing.T) {
 		t.Fatalf("runInit with --force failed: %v", err)
 	}
 
-	data, err := os.ReadFile(filepath.Join(dir, ".smoke.yaml"))
+	data, err := os.ReadFile(filepath.Join(dir, ".smokesig.yaml"))
 	if err != nil {
-		t.Fatalf("reading .smoke.yaml: %v", err)
+		t.Fatalf("reading .smokesig.yaml: %v", err)
 	}
 
 	var cfg schema.SmokeConfig
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		t.Fatalf("parsing .smoke.yaml: %v", err)
+		t.Fatalf("parsing .smokesig.yaml: %v", err)
 	}
 	if cfg.Project == "old" {
 		t.Error("expected config to be overwritten, but project is still 'old'")
@@ -104,14 +104,14 @@ func TestInit_DetectGoProject(t *testing.T) {
 		t.Fatalf("runInit failed: %v", err)
 	}
 
-	data, err := os.ReadFile(filepath.Join(dir, ".smoke.yaml"))
+	data, err := os.ReadFile(filepath.Join(dir, ".smokesig.yaml"))
 	if err != nil {
-		t.Fatalf("reading .smoke.yaml: %v", err)
+		t.Fatalf("reading .smokesig.yaml: %v", err)
 	}
 
 	var cfg schema.SmokeConfig
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		t.Fatalf("parsing .smoke.yaml: %v", err)
+		t.Fatalf("parsing .smokesig.yaml: %v", err)
 	}
 
 	// Go project should have "go build" and "go test" tests
@@ -149,14 +149,14 @@ func TestInit_DetectNodeProject(t *testing.T) {
 		t.Fatalf("runInit failed: %v", err)
 	}
 
-	data, err := os.ReadFile(filepath.Join(dir, ".smoke.yaml"))
+	data, err := os.ReadFile(filepath.Join(dir, ".smokesig.yaml"))
 	if err != nil {
-		t.Fatalf("reading .smoke.yaml: %v", err)
+		t.Fatalf("reading .smokesig.yaml: %v", err)
 	}
 
 	var cfg schema.SmokeConfig
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		t.Fatalf("parsing .smoke.yaml: %v", err)
+		t.Fatalf("parsing .smokesig.yaml: %v", err)
 	}
 
 	// Node/npm project should have "npm install" test

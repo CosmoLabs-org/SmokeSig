@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 const testWSGUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"

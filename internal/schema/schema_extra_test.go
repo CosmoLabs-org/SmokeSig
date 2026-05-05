@@ -53,7 +53,7 @@ func TestLoadDefault_FileNotFound(t *testing.T) {
 
 	_, err := LoadDefault()
 	if err == nil {
-		t.Fatal("expected error when no .smoke.yaml exists")
+		t.Fatal("expected error when no .smokesig.yaml exists")
 	}
 }
 
@@ -68,7 +68,7 @@ tests:
     expect:
       exit_code: 0
 `
-	if err := os.WriteFile(filepath.Join(dir, ".smoke.yaml"), []byte(yamlContent), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, ".smokesig.yaml"), []byte(yamlContent), 0644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -100,7 +100,7 @@ tests:
     expect:
       exit_code: 0
 `
-	configPath := filepath.Join(dir, ".smoke.yaml")
+	configPath := filepath.Join(dir, ".smokesig.yaml")
 	if err := os.WriteFile(configPath, []byte(yamlContent), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ tests:
     expect:
       exit_code: 0
 `
-	configPath := filepath.Join(dir, ".smoke.yaml")
+	configPath := filepath.Join(dir, ".smokesig.yaml")
 	if err := os.WriteFile(configPath, []byte(yamlContent), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -721,7 +721,7 @@ tests:
     expect:
       exit_code: 0
 `
-	basePath := filepath.Join(dir, ".smoke.yaml")
+	basePath := filepath.Join(dir, ".smokesig.yaml")
 	os.WriteFile(basePath, []byte(baseYAML), 0644)
 
 	envYAML := `
@@ -729,7 +729,7 @@ settings:
   parallel: true
 tests: []
 `
-	envPath := filepath.Join(dir, "parallel.smoke.yaml")
+	envPath := filepath.Join(dir, "parallel.smokesig.yaml")
 	os.WriteFile(envPath, []byte(envYAML), 0644)
 
 	base, _ := Load(basePath)

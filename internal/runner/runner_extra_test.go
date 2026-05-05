@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/monorepo"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/monorepo"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // --- CheckPortListening extended tests ---
@@ -114,15 +114,15 @@ tests:
     expect:
       exit_code: 0
 `
-	os.WriteFile(filepath.Join(svc1Dir, ".smoke.yaml"), []byte(svc1Config), 0644)
-	os.WriteFile(filepath.Join(svc2Dir, ".smoke.yaml"), []byte(svc2Config), 0644)
+	os.WriteFile(filepath.Join(svc1Dir, ".smokesig.yaml"), []byte(svc1Config), 0644)
+	os.WriteFile(filepath.Join(svc2Dir, ".smokesig.yaml"), []byte(svc2Config), 0644)
 
 	cfg := &schema.SmokeConfig{Version: 1, Project: "monorepo"}
 	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: dir}
 
 	subs := []monorepo.SubConfig{
-		{Path: filepath.Join(svc1Dir, ".smoke.yaml"), Dir: svc1Dir, Project: "svc1"},
-		{Path: filepath.Join(svc2Dir, ".smoke.yaml"), Dir: svc2Dir, Project: "svc2"},
+		{Path: filepath.Join(svc1Dir, ".smokesig.yaml"), Dir: svc1Dir, Project: "svc1"},
+		{Path: filepath.Join(svc2Dir, ".smokesig.yaml"), Dir: svc2Dir, Project: "svc2"},
 	}
 
 	result, err := r.RunMonorepo(RunOptions{}, subs)
@@ -144,13 +144,13 @@ func TestRunMonorepo_BadConfig(t *testing.T) {
 	dir := t.TempDir()
 	badDir := filepath.Join(dir, "bad")
 	os.MkdirAll(badDir, 0755)
-	os.WriteFile(filepath.Join(badDir, ".smoke.yaml"), []byte("not: valid\n[yaml"), 0644)
+	os.WriteFile(filepath.Join(badDir, ".smokesig.yaml"), []byte("not: valid\n[yaml"), 0644)
 
 	cfg := &schema.SmokeConfig{Version: 1, Project: "test"}
 	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: dir}
 
 	subs := []monorepo.SubConfig{
-		{Path: filepath.Join(badDir, ".smoke.yaml"), Dir: badDir, Project: "bad"},
+		{Path: filepath.Join(badDir, ".smokesig.yaml"), Dir: badDir, Project: "bad"},
 	}
 
 	_, err := r.RunMonorepo(RunOptions{}, subs)
@@ -173,13 +173,13 @@ tests:
     expect:
       exit_code: 0
 `
-	os.WriteFile(filepath.Join(svcDir, ".smoke.yaml"), []byte(config), 0644)
+	os.WriteFile(filepath.Join(svcDir, ".smokesig.yaml"), []byte(config), 0644)
 
 	cfg := &schema.SmokeConfig{Version: 1, Project: "monorepo"}
 	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: dir}
 
 	subs := []monorepo.SubConfig{
-		{Path: filepath.Join(svcDir, ".smoke.yaml"), Dir: svcDir, Project: "fail-svc"},
+		{Path: filepath.Join(svcDir, ".smokesig.yaml"), Dir: svcDir, Project: "fail-svc"},
 	}
 
 	result, err := r.RunMonorepo(RunOptions{}, subs)

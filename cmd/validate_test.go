@@ -16,7 +16,7 @@ tests:
       exit_code: 0
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ project: ""
 tests: []
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -52,7 +52,7 @@ tests: []
 }
 
 func TestValidateCmd_FileNotFound(t *testing.T) {
-	_, err := runValidate("/nonexistent/.smoke.yaml")
+	_, err := runValidate("/nonexistent/.smokesig.yaml")
 	if err == nil {
 		t.Fatal("expected error for missing file")
 	}
@@ -65,7 +65,7 @@ tests:
   - run: echo hi
 `
 	dir := t.TempDir()
-	path := dir + "/.smoke.yaml"
+	path := dir + "/.smokesig.yaml"
 	if err := os.WriteFile(path, []byte(cfg), 0644); err != nil {
 		t.Fatal(err)
 	}
