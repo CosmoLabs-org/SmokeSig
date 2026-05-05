@@ -45,11 +45,11 @@ func TestSmokeRunHandlerExists(t *testing.T) {
 	}
 }
 
-// TestSmokeRunAgainstSelf runs smoke_run against the project's own .smoke.yaml.
+// TestSmokeRunAgainstSelf runs smoke_run against the project's own .smokesig.yaml.
 func TestSmokeRunAgainstSelf(t *testing.T) {
-	configPath := "../../.smoke.yaml"
+	configPath := "../../.smokesig.yaml"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		t.Skip("no .smoke.yaml found, skipping integration test")
+		t.Skip("no .smokesig.yaml found, skipping integration test")
 	}
 
 	srv := NewServer()
@@ -68,7 +68,7 @@ func TestSmokeRunAgainstSelf(t *testing.T) {
 	}
 
 	if runResult.Total == 0 {
-		t.Error("expected at least one test in .smoke.yaml")
+		t.Error("expected at least one test in .smokesig.yaml")
 	}
 
 	if runResult.Passed+runResult.Failed+runResult.Skipped != runResult.Total {
@@ -79,9 +79,9 @@ func TestSmokeRunAgainstSelf(t *testing.T) {
 
 // TestSmokeRunWithTags tests tag filtering via the handler.
 func TestSmokeRunWithTags(t *testing.T) {
-	configPath := "../../.smoke.yaml"
+	configPath := "../../.smokesig.yaml"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		t.Skip("no .smoke.yaml found, skipping integration test")
+		t.Skip("no .smokesig.yaml found, skipping integration test")
 	}
 
 	srv := NewServer()

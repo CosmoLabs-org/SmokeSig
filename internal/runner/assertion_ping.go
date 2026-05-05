@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // CheckPing verifies a host responds to ICMP echo requests via the system ping command.

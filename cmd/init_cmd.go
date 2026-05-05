@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/detector"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/detector"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Generate .smoke.yaml for this project",
-	Long:  "Auto-detect project type and generate a .smoke.yaml configuration",
+	Short: "Generate .smokesig.yaml for this project",
+	Long:  "Auto-detect project type and generate a .smokesig.yaml configuration",
 	RunE:  runInit,
 }
 
@@ -24,13 +24,13 @@ var (
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-	initCmd.Flags().BoolVarP(&forceOverwrite, "force", "f", false, "Overwrite existing .smoke.yaml")
+	initCmd.Flags().BoolVarP(&forceOverwrite, "force", "f", false, "Overwrite existing .smokesig.yaml")
 	initCmd.Flags().StringVar(&fromRunning, "from-running", "", "Generate config by inspecting a running Docker container")
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
-	if _, err := os.Stat(".smoke.yaml"); err == nil && !forceOverwrite {
-		return fmt.Errorf(".smoke.yaml already exists (use --force to overwrite)")
+	if _, err := os.Stat(".smokesig.yaml"); err == nil && !forceOverwrite {
+		return fmt.Errorf(".smokesig.yaml already exists (use --force to overwrite)")
 	}
 
 	var cfg *schema.SmokeConfig
@@ -53,7 +53,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 		types := detector.Detect(cwd)
 		if len(types) == 0 {
-			fmt.Println("No project type detected. Creating a minimal .smoke.yaml")
+			fmt.Println("No project type detected. Creating a minimal .smokesig.yaml")
 		} else {
 			names := make([]string, len(types))
 			for i, t := range types {
@@ -70,11 +70,11 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
 
-	if err := os.WriteFile(".smoke.yaml", data, 0644); err != nil {
-		return fmt.Errorf("writing .smoke.yaml: %w", err)
+	if err := os.WriteFile(".smokesig.yaml", data, 0644); err != nil {
+		return fmt.Errorf("writing .smokesig.yaml: %w", err)
 	}
 
-	fmt.Println("Created .smoke.yaml")
+	fmt.Println("Created .smokesig.yaml")
 	return nil
 }
 

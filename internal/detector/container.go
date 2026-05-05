@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // SmokeConfig is an alias for schema.SmokeConfig for external use.

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // traceBackend queries a trace backend for trace data.

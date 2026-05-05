@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // CheckRedisPing issues a PING to a Redis server and expects +PONG.

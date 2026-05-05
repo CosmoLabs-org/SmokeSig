@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 func TestTranslateProcess(t *testing.T) {
@@ -255,7 +255,7 @@ func TestEmittedOutputParsesBack(t *testing.T) {
 
 	cfg, err := schema.Parse([]byte(output))
 	if err != nil {
-		t.Fatalf("generated output should parse as valid .smoke.yaml: %v\nOutput:\n%s", err, output)
+		t.Fatalf("generated output should parse as valid .smokesig.yaml: %v\nOutput:\n%s", err, output)
 	}
 	if len(cfg.Tests) != len(tests) {
 		t.Errorf("parsed tests = %d, want %d", len(cfg.Tests), len(tests))
@@ -273,7 +273,7 @@ func TestEmittedOutputParsesBackLongtail(t *testing.T) {
 
 	cfg, err := schema.Parse([]byte(output))
 	if err != nil {
-		t.Fatalf("generated output should parse as valid .smoke.yaml: %v\nOutput:\n%s", err, output)
+		t.Fatalf("generated output should parse as valid .smokesig.yaml: %v\nOutput:\n%s", err, output)
 	}
 	if len(cfg.Tests) == 0 {
 		t.Error("expected at least one test from longtail translation")

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // PrereqResult holds the outcome of a single prerequisite check.

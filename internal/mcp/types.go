@@ -67,7 +67,7 @@ type DiscoverResult struct {
 	Configs []DiscoveredConfig `json:"configs"`
 }
 
-// DiscoveredConfig is a single discovered .smoke.yaml.
+// DiscoveredConfig is a single discovered .smokesig.yaml.
 type DiscoveredConfig struct {
 	Path        string `json:"path"`
 	Directory   string `json:"directory"`

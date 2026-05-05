@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/monorepo"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/reporter"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/monorepo"
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // RunOptions controls test execution behavior.

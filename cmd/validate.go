@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"github.com/spf13/cobra"
 )
 
 var validateCmd = &cobra.Command{
 	Use:   "validate [-f path]",
 	Short: "Validate smoke test config without running tests",
-	Long:  "Load and validate .smoke.yaml configuration. Reports all errors at once.",
+	Long:  "Load and validate .smokesig.yaml configuration. Reports all errors at once.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		configFile, _ := cmd.Flags().GetString("file")
 		if configFile == "" {
-			configFile = ".smoke.yaml"
+			configFile = ".smokesig.yaml"
 		}
 		out, err := runValidate(configFile)
 		if err != nil {

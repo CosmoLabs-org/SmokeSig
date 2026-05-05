@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // CheckMQTTPing sends a CONNECT packet to an MQTT broker and expects a CONNACK response.

@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // BackgroundProcess tracks a background process started by a lifecycle hook.

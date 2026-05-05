@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 )
 
-// SubConfig represents a discovered .smoke.yaml file.
+// SubConfig represents a discovered .smokesig.yaml file.
 type SubConfig struct {
-	Path    string // absolute path to .smoke.yaml
+	Path    string // absolute path to .smokesig.yaml
 	Dir     string // directory containing it
 	Project string // directory name as fallback project name
 }
@@ -19,8 +19,8 @@ var defaultSkipDirs = map[string]bool{
 	"target": true, ".next": true, ".cache": true,
 }
 
-// Discover walks root and finds all .smoke.yaml files in subdirectories.
-// Returns discovered configs sorted by path. Does not include root's own .smoke.yaml.
+// Discover walks root and finds all .smokesig.yaml (and legacy .smoke.yaml) files in subdirectories.
+// Returns discovered configs sorted by path. Does not include root's own config.
 func Discover(root string, exclude []string) ([]SubConfig, error) {
 	excludeSet := make(map[string]bool)
 	for _, d := range exclude {

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // WarningCategory classifies translation warnings.

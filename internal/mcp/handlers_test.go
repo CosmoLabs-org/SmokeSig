@@ -8,9 +8,9 @@ import (
 
 // TestHandleSmokeValidate tests config validation via MCP handler.
 func TestHandleSmokeValidate(t *testing.T) {
-	configPath := "../../.smoke.yaml"
+	configPath := "../../.smokesig.yaml"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		t.Skip("no .smoke.yaml found")
+		t.Skip("no .smokesig.yaml found")
 	}
 
 	srv := NewServer()
@@ -42,7 +42,7 @@ func TestHandleSmokeValidateBadPath(t *testing.T) {
 	handler := srv.Handler("smoke_validate")
 
 	_, err := handler(context.Background(), map[string]interface{}{
-		"config_path": "/nonexistent/.smoke.yaml",
+		"config_path": "/nonexistent/.smokesig.yaml",
 	})
 	if err == nil {
 		t.Error("expected error for nonexistent config path")
@@ -51,9 +51,9 @@ func TestHandleSmokeValidateBadPath(t *testing.T) {
 
 // TestHandleSmokeList tests listing tests via MCP handler.
 func TestHandleSmokeList(t *testing.T) {
-	configPath := "../../.smoke.yaml"
+	configPath := "../../.smokesig.yaml"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		t.Skip("no .smoke.yaml found")
+		t.Skip("no .smokesig.yaml found")
 	}
 
 	srv := NewServer()
@@ -85,9 +85,9 @@ func TestHandleSmokeList(t *testing.T) {
 
 // TestHandleSmokeListWithTags tests tag filtering in list.
 func TestHandleSmokeListWithTags(t *testing.T) {
-	configPath := "../../.smoke.yaml"
+	configPath := "../../.smokesig.yaml"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		t.Skip("no .smoke.yaml found")
+		t.Skip("no .smokesig.yaml found")
 	}
 
 	srv := NewServer()
@@ -107,11 +107,11 @@ func TestHandleSmokeListWithTags(t *testing.T) {
 	}
 }
 
-// TestHandleSmokeDiscover tests finding .smoke.yaml files.
+// TestHandleSmokeDiscover tests finding .smokesig.yaml files.
 func TestHandleSmokeDiscover(t *testing.T) {
 	dir := "../.."
-	if _, err := os.Stat(dir + "/.smoke.yaml"); os.IsNotExist(err) {
-		t.Skip("no .smoke.yaml found in project root")
+	if _, err := os.Stat(dir + "/.smokesig.yaml"); os.IsNotExist(err) {
+		t.Skip("no .smokesig.yaml found in project root")
 	}
 
 	srv := NewServer()

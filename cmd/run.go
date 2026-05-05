@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/baseline"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/monorepo"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/reporter"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/runner"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/baseline"
+	"github.com/CosmoLabs-org/SmokeSig/internal/monorepo"
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
+	"github.com/CosmoLabs-org/SmokeSig/internal/runner"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 )
@@ -78,7 +78,7 @@ func withPushReport(rep reporter.Reporter) reporter.Reporter {
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run smoke tests",
-	Long:  "Execute smoke tests defined in .smoke.yaml",
+	Long:  "Execute smoke tests defined in .smokesig.yaml",
 	RunE:  runSmoke,
 }
 
@@ -103,7 +103,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-	runCmd.Flags().StringVarP(&configFile, "file", "f", ".smoke.yaml", "Config file path")
+	runCmd.Flags().StringVarP(&configFile, "file", "f", ".smokesig.yaml", "Config file path")
 	runCmd.Flags().StringSliceVar(&tags, "tag", nil, "Include only tests with these tags")
 	runCmd.Flags().StringSliceVar(&excludeTags, "exclude-tag", nil, "Exclude tests with these tags")
 	runCmd.Flags().StringVar(&format, "format", "terminal", "Output format(s), comma-separated (terminal,json,junit,tap,prometheus)")
@@ -111,8 +111,8 @@ func init() {
 	runCmd.Flags().StringVar(&timeout, "timeout", "", "Per-test timeout override (e.g. 30s)")
 	runCmd.Flags().BoolVar(&dryRun, "dry-run", false, "List tests without running")
 	runCmd.Flags().BoolVar(&watch, "watch", false, "Re-run tests when files change (Ctrl+C to exit)")
-	runCmd.Flags().StringVar(&envName, "env", "", "Load environment-specific config (e.g. staging loads staging.smoke.yaml)")
-	runCmd.Flags().BoolVar(&monorepoMode, "monorepo", false, "Auto-discover .smoke.yaml in subdirectories")
+	runCmd.Flags().StringVar(&envName, "env", "", "Load environment-specific config (e.g. staging loads staging.smokesig.yaml)")
+	runCmd.Flags().BoolVar(&monorepoMode, "monorepo", false, "Auto-discover .smokesig.yaml in subdirectories")
 	runCmd.Flags().StringVar(&otelCollector, "otel-collector", "", "Override otel.jaeger_url and enable tracing")
 	runCmd.Flags().BoolVar(&noOtel, "no-otel", false, "Disable otel trace propagation for this run")
 	runCmd.Flags().StringVar(&reportURL, "report-url", "", "POST results to this URL after run")
@@ -129,7 +129,7 @@ func loadConfig() (*schema.SmokeConfig, error) {
 	}
 	if envName != "" {
 		configDir := filepath.Dir(configFile)
-		envFile := filepath.Join(configDir, envName+".smoke.yaml")
+		envFile := filepath.Join(configDir, envName+".smokesig.yaml")
 		cfg, err = schema.MergeEnv(cfg, envFile)
 		if err != nil {
 			return nil, err

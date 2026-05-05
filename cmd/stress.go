@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/reporter"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/runner"
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
+	"github.com/CosmoLabs-org/SmokeSig/internal/runner"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +31,7 @@ func init() {
 	stressCmd.Flags().IntVar(&stressRuns, "runs", 50, "Total number of executions")
 	stressCmd.Flags().IntVar(&stressWorkers, "workers", 1, "Concurrency (1 = sequential)")
 	stressCmd.Flags().BoolVar(&stressFailFast, "fail-fast", false, "Stop on first failure")
-	stressCmd.Flags().StringVarP(&configFile, "file", "f", ".smoke.yaml", "Config file path")
+	stressCmd.Flags().StringVarP(&configFile, "file", "f", ".smokesig.yaml", "Config file path")
 	stressCmd.Flags().StringVar(&format, "format", "terminal", "Output format (terminal, json)")
 }
 

@@ -12,7 +12,7 @@ type suggestionRule struct {
 var assertionSuggestions = map[string][]suggestionRule{
 	"redis_ping": {
 		{Match: "connection refused", Action: "Redis is not running or not listening on the configured host/port. Start Redis: docker run -d -p 6379:6379 redis:alpine"},
-		{Match: "auth", Action: "Redis requires authentication. Add redis_ping.password to .smoke.yaml"},
+		{Match: "auth", Action: "Redis requires authentication. Add redis_ping.password to .smokesig.yaml"},
 		{Match: "timeout", Action: "Redis connection timed out. Check if Redis is reachable and not behind a firewall"},
 	},
 	"http": {

@@ -3,7 +3,7 @@
 package runner
 
 import (
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // CheckGRPCHealth returns an error when built without the grpc tag.

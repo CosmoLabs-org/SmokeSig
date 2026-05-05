@@ -8,17 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/detector"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/monorepo"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/reporter"
+	"github.com/CosmoLabs-org/SmokeSig/internal/detector"
+	"github.com/CosmoLabs-org/SmokeSig/internal/monorepo"
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
 	"gopkg.in/yaml.v3"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/runner"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/runner"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // handleSmokeRun executes smoke tests and returns structured results.
 func handleSmokeRun(ctx context.Context, args map[string]interface{}) (interface{}, error) {
-	configPath := resolveConfigPath(strArg(args, "config_path", ".smoke.yaml"))
+	configPath := resolveConfigPath(strArg(args, "config_path", ".smokesig.yaml"))
 
 	cfg, err := schema.Load(configPath)
 	if err != nil {
@@ -56,7 +56,7 @@ func handleSmokeRun(ctx context.Context, args map[string]interface{}) (interface
 	return suiteResultToMCP(suiteResult, configPath), nil
 }
 
-// handleSmokeInit generates a .smoke.yaml config.
+// handleSmokeInit generates a .smokesig.yaml config.
 func handleSmokeInit(ctx context.Context, args map[string]interface{}) (interface{}, error) {
 	dir := strArg(args, "directory", ".")
 	absDir, err := filepath.Abs(dir)
@@ -77,12 +77,12 @@ func handleSmokeInit(ctx context.Context, args map[string]interface{}) (interfac
 
 	shouldWrite := boolArg(args, "write", false)
 	if shouldWrite {
-		outPath := filepath.Join(absDir, ".smoke.yaml")
+		outPath := filepath.Join(absDir, ".smokesig.yaml")
 		force := boolArg(args, "force", false)
 		if !force {
 			if _, err := filepath.Abs(outPath); err == nil {
 				if fi, statErr := os.Stat(outPath); statErr == nil && !fi.IsDir() {
-					return nil, fmt.Errorf(".smoke.yaml already exists (use force=true to overwrite)")
+					return nil, fmt.Errorf(".smokesig.yaml already exists (use force=true to overwrite)")
 				}
 			}
 		}
@@ -97,7 +97,7 @@ func handleSmokeInit(ctx context.Context, args map[string]interface{}) (interfac
 
 // handleSmokeValidate validates a config file.
 func handleSmokeValidate(ctx context.Context, args map[string]interface{}) (interface{}, error) {
-	configPath := resolveConfigPath(strArg(args, "config_path", ".smoke.yaml"))
+	configPath := resolveConfigPath(strArg(args, "config_path", ".smokesig.yaml"))
 
 	cfg, err := schema.Load(configPath)
 	if err != nil {
@@ -122,7 +122,7 @@ func handleSmokeValidate(ctx context.Context, args map[string]interface{}) (inte
 
 // handleSmokeList lists tests in a config.
 func handleSmokeList(ctx context.Context, args map[string]interface{}) (interface{}, error) {
-	configPath := resolveConfigPath(strArg(args, "config_path", ".smoke.yaml"))
+	configPath := resolveConfigPath(strArg(args, "config_path", ".smokesig.yaml"))
 
 	cfg, err := schema.Load(configPath)
 	if err != nil {
@@ -147,7 +147,7 @@ func handleSmokeList(ctx context.Context, args map[string]interface{}) (interfac
 	return &ListResult{ConfigPath: configPath, Tests: tests}, nil
 }
 
-// handleSmokeDiscover finds .smoke.yaml files.
+// handleSmokeDiscover finds .smokesig.yaml files.
 func handleSmokeDiscover(ctx context.Context, args map[string]interface{}) (interface{}, error) {
 	dir := strArg(args, "directory", ".")
 
@@ -161,9 +161,9 @@ func handleSmokeDiscover(ctx context.Context, args map[string]interface{}) (inte
 		return nil, fmt.Errorf("discovering configs: %w", err)
 	}
 
-	// Also check if the root directory has a .smoke.yaml
+	// Also check if the root directory has a .smokesig.yaml
 	configs := make([]DiscoveredConfig, 0)
-	rootConfig := filepath.Join(absDir, ".smoke.yaml")
+	rootConfig := filepath.Join(absDir, ".smokesig.yaml")
 	if _, err := filepath.Abs(rootConfig); err == nil {
 		if fi, err := filepath.Abs(rootConfig); err == nil {
 			if _, statErr := filepath.Abs(fi); statErr == nil {

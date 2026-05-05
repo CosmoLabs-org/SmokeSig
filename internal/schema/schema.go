@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// SmokeConfig is the top-level configuration parsed from .smoke.yaml.
+// SmokeConfig is the top-level configuration parsed from .smokesig.yaml.
 type SmokeConfig struct {
 	Version     int             `yaml:"version"`
 	Project     string          `yaml:"project"`
@@ -415,7 +415,7 @@ func (d Duration) MarshalYAML() (interface{}, error) {
 	return d.Duration.String(), nil
 }
 
-// Load reads and parses a .smoke.yaml file from the given path.
+// Load reads and parses a .smokesig.yaml (or legacy .smoke.yaml) file from the given path.
 // Supports Go templates ({{ .Env.FOO }}), extends, and includes.
 func Load(path string) (*SmokeConfig, error) {
 	return LoadWithResolver(path, nil)
@@ -457,9 +457,17 @@ func Parse(data []byte) (*SmokeConfig, error) {
 	return &cfg, nil
 }
 
-// LoadDefault finds and loads .smoke.yaml from the current directory.
+// LoadDefault finds and loads .smokesig.yaml from the current directory.
+// Falls back to .smoke.yaml with a deprecation warning for backward compat.
 func LoadDefault() (*SmokeConfig, error) {
-	return Load(".smoke.yaml")
+	if _, err := os.Stat(".smokesig.yaml"); err == nil {
+		return Load(".smokesig.yaml")
+	}
+	if _, err := os.Stat(".smoke.yaml"); err == nil {
+		fmt.Fprintln(os.Stderr, "⚠ Config file .smoke.yaml is deprecated, rename to .smokesig.yaml")
+		return Load(".smoke.yaml")
+	}
+	return nil, fmt.Errorf("no config file found: .smokesig.yaml or .smoke.yaml")
 }
 
 // MergeEnv loads an environment-specific config and deep-merges it onto base.

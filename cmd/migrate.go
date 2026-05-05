@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/migrate/goss"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/migrate/goss"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +25,7 @@ var migrateCmd = &cobra.Command{
 
 var gossCmd = &cobra.Command{
 	Use:   "goss <input.yaml>",
-	Short: "Migrate a Goss YAML file to .smoke.yaml",
+	Short: "Migrate a Goss YAML file to .smokesig.yaml",
 	Long: `Migrate a Goss YAML configuration to cosmo-smoke format.
 
 Supports all Goss resource types. Core keys (process, port, command, file,
@@ -35,7 +35,7 @@ lack native support.
 
 Examples:
   smoke migrate goss goss.yaml
-  smoke migrate goss goss.yaml -o .smoke.yaml
+  smoke migrate goss goss.yaml -o .smokesig.yaml
   smoke migrate goss goss.yaml --strict --stats
   smoke migrate goss goss.yaml --distro rpm -o smoke.yaml`,
 	Args: cobra.ExactArgs(1),
@@ -43,7 +43,7 @@ Examples:
 }
 
 func init() {
-	gossCmd.Flags().StringVarP(&migrateOutput, "output", "o", "", "Output .smoke.yaml path (default: stdout)")
+	gossCmd.Flags().StringVarP(&migrateOutput, "output", "o", "", "Output .smokesig.yaml path (default: stdout)")
 	gossCmd.Flags().BoolVar(&migrateOverwrite, "overwrite", false, "Overwrite output file if it exists")
 	gossCmd.Flags().BoolVar(&migrateStrict, "strict", false, "Fail on any unmappable assertion")
 	gossCmd.Flags().BoolVar(&migrateStats, "stats", false, "Print mapping stats to stderr")
@@ -100,7 +100,7 @@ func runMigrateGoss(cmd *cobra.Command, args []string) error {
 
 	// Validate emitted YAML parses back
 	if _, err := schema.Parse([]byte(output)); err != nil {
-		return fmt.Errorf("generated output is not valid .smoke.yaml: %w", err)
+		return fmt.Errorf("generated output is not valid .smokesig.yaml: %w", err)
 	}
 
 	// Print stats if requested

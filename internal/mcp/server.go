@@ -100,9 +100,9 @@ func (s *Server) adaptHandler(h ToolHandler) server.ToolHandlerFunc {
 
 func smokeRunTool() mcplib.Tool {
 	return mcplib.NewTool("smoke_run",
-		mcplib.WithDescription("Run smoke tests from a .smoke.yaml config file. Returns pass/fail results with assertion details for each test. Use this to verify services are healthy, check endpoints, validate configs, or debug failures."),
+		mcplib.WithDescription("Run smoke tests from a .smokesig.yaml config file. Returns pass/fail results with assertion details for each test. Use this to verify services are healthy, check endpoints, validate configs, or debug failures."),
 		mcplib.WithString("config_path",
-			mcplib.Description("Path to .smoke.yaml (default: .smoke.yaml in working directory)"),
+			mcplib.Description("Path to .smokesig.yaml (default: .smokesig.yaml in working directory)"),
 		),
 		mcplib.WithArray("tags",
 			mcplib.Description("Include only tests with these tags"),
@@ -122,14 +122,14 @@ func smokeRunTool() mcplib.Tool {
 			mcplib.Description("List tests without running them (default: false)"),
 		),
 		mcplib.WithBoolean("monorepo",
-			mcplib.Description("Discover and run .smoke.yaml in subdirectories (default: false)"),
+			mcplib.Description("Discover and run .smokesig.yaml in subdirectories (default: false)"),
 		),
 	)
 }
 
 func smokeInitTool() mcplib.Tool {
 	return mcplib.NewTool("smoke_init",
-		mcplib.WithDescription("Generate a .smoke.yaml smoke test config for a project. Auto-detects Go, Node, Python, Docker, and Rust projects. Can also inspect a running Docker container. Returns the generated config without writing to disk unless write=true."),
+		mcplib.WithDescription("Generate a .smokesig.yaml smoke test config for a project. Auto-detects Go, Node, Python, Docker, and Rust projects. Can also inspect a running Docker container. Returns the generated config without writing to disk unless write=true."),
 		mcplib.WithString("directory",
 			mcplib.Description("Project directory to scan (default: working directory)"),
 		),
@@ -137,28 +137,28 @@ func smokeInitTool() mcplib.Tool {
 			mcplib.Description("Generate config by inspecting a running Docker container name"),
 		),
 		mcplib.WithBoolean("write",
-			mcplib.Description("Write .smoke.yaml to disk (default: false, returns YAML as text)"),
+			mcplib.Description("Write .smokesig.yaml to disk (default: false, returns YAML as text)"),
 		),
 		mcplib.WithBoolean("force",
-			mcplib.Description("Overwrite existing .smoke.yaml (default: false)"),
+			mcplib.Description("Overwrite existing .smokesig.yaml (default: false)"),
 		),
 	)
 }
 
 func smokeValidateTool() mcplib.Tool {
 	return mcplib.NewTool("smoke_validate",
-		mcplib.WithDescription("Validate a .smoke.yaml config file without running tests. Checks for required fields, assertion consistency, regex validity, and structural correctness. Returns all errors at once."),
+		mcplib.WithDescription("Validate a .smokesig.yaml config file without running tests. Checks for required fields, assertion consistency, regex validity, and structural correctness. Returns all errors at once."),
 		mcplib.WithString("config_path",
-			mcplib.Description("Path to .smoke.yaml (default: .smoke.yaml)"),
+			mcplib.Description("Path to .smokesig.yaml (default: .smokesig.yaml)"),
 		),
 	)
 }
 
 func smokeListTool() mcplib.Tool {
 	return mcplib.NewTool("smoke_list",
-		mcplib.WithDescription("List all smoke tests defined in a .smoke.yaml config. Shows test names, tags, command, and assertion types. Useful for understanding what's configured before running."),
+		mcplib.WithDescription("List all smoke tests defined in a .smokesig.yaml config. Shows test names, tags, command, and assertion types. Useful for understanding what's configured before running."),
 		mcplib.WithString("config_path",
-			mcplib.Description("Path to .smoke.yaml (default: .smoke.yaml)"),
+			mcplib.Description("Path to .smokesig.yaml (default: .smokesig.yaml)"),
 		),
 		mcplib.WithArray("tags",
 			mcplib.Description("Filter to tests with these tags"),
@@ -172,7 +172,7 @@ func smokeListTool() mcplib.Tool {
 
 func smokeDiscoverTool() mcplib.Tool {
 	return mcplib.NewTool("smoke_discover",
-		mcplib.WithDescription("Find all .smoke.yaml config files in a directory tree. Returns paths and project names. Useful for understanding the test landscape of a workspace."),
+		mcplib.WithDescription("Find all .smokesig.yaml config files in a directory tree. Returns paths and project names. Useful for understanding the test landscape of a workspace."),
 		mcplib.WithString("directory",
 			mcplib.Description("Root directory to search (default: working directory)"),
 		),
@@ -194,7 +194,7 @@ func smokeExplainTool() mcplib.Tool {
 
 func smokeGenerateTestTool() mcplib.Tool {
 	return mcplib.NewTool("smoke_generate_test",
-		mcplib.WithDescription("Generate a single smoke test YAML snippet. Provide what you want to test and get back valid YAML to add to .smoke.yaml. Supports all 29 assertion types."),
+		mcplib.WithDescription("Generate a single smoke test YAML snippet. Provide what you want to test and get back valid YAML to add to .smokesig.yaml. Supports all 29 assertion types."),
 		mcplib.WithString("name",
 			mcplib.Description("Test name"),
 			mcplib.Required(),

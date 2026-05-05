@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // CheckNTP sends a 48-byte NTP client packet and verifies a valid server response.

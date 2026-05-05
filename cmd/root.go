@@ -21,7 +21,7 @@ const banner = `
 var rootCmd = &cobra.Command{
 	Use:   "smoke",
 	Short: "Universal smoke test runner",
-	Long:  banner + "\n  Run lightweight smoke tests from .smoke.yaml",
+	Long:  banner + "\n  Run lightweight smoke tests from .smokesig.yaml",
 }
 
 // Execute runs the root command.

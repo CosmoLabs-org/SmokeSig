@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/mcp"
+	"github.com/CosmoLabs-org/SmokeSig/internal/mcp"
 	"github.com/spf13/cobra"
 )
 

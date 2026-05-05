@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"gopkg.in/yaml.v3"
 )
 
@@ -31,7 +31,7 @@ func Stats(warnings []TranslationWarning) (direct, commandFallback, skipped int)
 	return direct, commandFallback, skipped
 }
 
-// Emit generates a .smoke.yaml string from translated tests with comments.
+// Emit generates a .smokesig.yaml string from translated tests with comments.
 func Emit(tests []schema.Test, warnings []TranslationWarning, meta EmitMeta) (string, error) {
 	var b strings.Builder
 

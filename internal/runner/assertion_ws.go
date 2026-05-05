@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // websocketGUID is the magic GUID from RFC 6455 used for accept key computation.

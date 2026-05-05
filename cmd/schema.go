@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"github.com/spf13/cobra"
 )
 

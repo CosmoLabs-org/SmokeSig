@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/dashboard"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/reporter"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/runner"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/dashboard"
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
+	"github.com/CosmoLabs-org/SmokeSig/internal/runner"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +38,7 @@ func init() {
 	rootCmd.AddCommand(serveCmd)
 	serveCmd.Flags().StringVarP(&servePort, "port", "p", "8080", "Port to listen on")
 	serveCmd.Flags().StringVar(&servePath, "path", "/healthz", "Health endpoint path")
-	serveCmd.Flags().StringVarP(&serveConfigFile, "file", "f", ".smoke.yaml", "Config file path")
+	serveCmd.Flags().StringVarP(&serveConfigFile, "file", "f", ".smokesig.yaml", "Config file path")
 	serveCmd.Flags().BoolVar(&serveDashboard, "dashboard", false, "Enable dashboard aggregation mode")
 	serveCmd.Flags().StringVar(&serveAPIKey, "api-key", "", "API key for POST /api/results (X-API-Key header)")
 	serveCmd.Flags().StringVar(&serveDBPath, "db-path", "smoke-dashboard.db", "SQLite database path")

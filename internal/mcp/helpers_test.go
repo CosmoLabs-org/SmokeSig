@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/runner"
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/runner"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // --- generateExpectBlock tests ---
@@ -403,7 +403,7 @@ func TestSuiteResultToMCP_WithErrors(t *testing.T) {
 		},
 	}
 
-	result := suiteResultToMCP(sr, "/path/to/.smoke.yaml")
+	result := suiteResultToMCP(sr, "/path/to/.smokesig.yaml")
 
 	if result.Project != "test-project" {
 		t.Errorf("project = %q, want test-project", result.Project)
@@ -453,7 +453,7 @@ func TestSuiteResultToMCP_AllowedFailure(t *testing.T) {
 		},
 	}
 
-	result := suiteResultToMCP(sr, ".smoke.yaml")
+	result := suiteResultToMCP(sr, ".smokesig.yaml")
 	if len(result.Tests) != 1 {
 		t.Fatalf("tests = %d, want 1", len(result.Tests))
 	}
@@ -480,7 +480,7 @@ func TestSuiteResultToMCP_SkippedTest(t *testing.T) {
 		},
 	}
 
-	result := suiteResultToMCP(sr, ".smoke.yaml")
+	result := suiteResultToMCP(sr, ".smokesig.yaml")
 	if len(result.Tests) != 1 {
 		t.Fatalf("tests = %d, want 1", len(result.Tests))
 	}
@@ -497,13 +497,13 @@ func TestResolveConfigPath(t *testing.T) {
 		path string
 		want string
 	}{
-		{"absolute path", "/abs/path/.smoke.yaml", "/abs/path/.smoke.yaml"},
-		{"relative path", ".smoke.yaml", ".smoke.yaml"}, // just check it doesn't panic
+		{"absolute path", "/abs/path/.smokesig.yaml", "/abs/path/.smokesig.yaml"},
+		{"relative path", ".smokesig.yaml", ".smokesig.yaml"}, // just check it doesn't panic
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := resolveConfigPath(tt.path)
-			if tt.path == "/abs/path/.smoke.yaml" && got != tt.want {
+			if tt.path == "/abs/path/.smokesig.yaml" && got != tt.want {
 				t.Errorf("resolveConfigPath() = %q, want %q", got, tt.want)
 			}
 			// For relative paths, just ensure we got a non-empty result
