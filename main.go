@@ -1,6 +1,6 @@
 package main
 
-import "github.com/CosmoLabs-org/cosmo-smoke/cmd"
+import "github.com/CosmoLabs-org/SmokeSig/cmd"
 
 func main() {
 	cmd.Execute()

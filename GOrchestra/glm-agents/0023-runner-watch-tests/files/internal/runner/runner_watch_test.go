@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmoLabs-org/cosmo-smoke/internal/schema"
+	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 // TestWatch_PrereqExecutesCommands verifies that prerequisites run before tests.

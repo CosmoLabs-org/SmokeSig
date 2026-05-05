@@ -1,4 +1,4 @@
-module github.com/CosmoLabs-org/cosmo-smoke
+module github.com/CosmoLabs-org/SmokeSig
 
 go 1.26.2
 
