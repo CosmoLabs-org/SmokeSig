@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-02T21:33:35.522827-03:00",
+  "generated_at": "2026-05-05T14:58:24.061487-03:00",
   "generated_by": "GLM-4.7",
-  "expires_at": "2026-05-03T21:33:35.522827-03:00",
-  "last_analyzed_commit": "88f99c8a79fb91ded2ca024cb6f3a7b2b7793c30",
-  "summary": "A Go monolith implementing an MCP-based runner with schema validation, currently in a post-release phase with significant AI-agent-generated test expansion.",
+  "expires_at": "2026-05-06T14:58:24.061487-03:00",
+  "last_analyzed_commit": "ff4adb877a0f69f3e90b2570837faa194f3fccd6",
+  "summary": "A Go-based CLI tool (SmokeSig) featuring a test runner, schema validation, and MCP integration, currently undergoing a significant binary and configuration rename.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,22 +15,21 @@
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
-    "test-driven development",
+    "Test-Driven Development (TDD)",
     "MCP (Model Context Protocol) handler pattern",
-    "assertion-based validation",
-    "schema validation",
-    "agent-based iteration (GOrchestra/glm-agents)"
+    "Assertion/Validation pipeline",
+    "Monorepo agent-based test generation"
   ],
   "concerns": [
-    "high volume of AI-generated test iterations (25+ agent directories) suggests unstable test baseline",
-    "test file sprawl with multiple _extra_test.go variants indicates flaky or incomplete original test coverage",
-    "potential redundancy between agent-generated tests and main test files",
-    "clean git status post-release suggests tests may have been force-committed without proper integration"
+    "High volume of auto-generated extra tests (glm-agents) may bloat the codebase and slow down CI",
+    "Ongoing SmokeSig rename indicates recent instability or incomplete refactoring",
+    "Untracked and unstaged files during a rename refactor suggest potential merge conflicts or lost work",
+    "Deeply nested agent-generated test directories (GOrchestra/glm-agents/...) add structural noise"
   ],
   "suggestions": [
-    "consolidate extra test files into main test suites to reduce maintenance burden",
-    "review and deduplicate the 25+ agent-generated test directories",
-    "establish stricter test stability gates before merging agent-generated code",
-    "focus on core runner and MCP handler reliability rather than expanding test permutations"
+    "Finalize and commit the SmokeSig rename to stabilize the main branch",
+    "Evaluate consolidating or pruning redundant agent-generated extra tests",
+    "Add .gitignore rules or archive scripts for historical agent test runs",
+    "Ensure all import paths are fully updated post-rename to prevent runtime failures"
   ]
 }

@@ -1,0 +1,203 @@
+From 5dc38b225e3dd66586b66e08b3e23182feef1fc3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Tue, 5 May 2026 14:38:23 -0300
+Subject: [PATCH 1/2] refactor(cmd): rename binary from smoke to smokesig
+
+---
+ .gorchestra/fingerprint-cache.json |  7 +++----
+ .version-registry.json             |  6 +++---
+ GOrchestra/intel/status.json       |  8 ++++----
+ cmd/migrate.go                     |  8 ++++----
+ cmd/root.go                        | 10 ++--------
+ cmd/serve.go                       |  2 +-
+ cmd/version.go                     |  2 +-
+ 7 files changed, 18 insertions(+), 25 deletions(-)
+
+diff --git a/.gorchestra/fingerprint-cache.json b/.gorchestra/fingerprint-cache.json
+index 4cedcfd..a002f2f 100644
+--- a/.gorchestra/fingerprint-cache.json
++++ b/.gorchestra/fingerprint-cache.json
+@@ -1,13 +1,12 @@
+ {
+-  "hash": "72964943aa8972d89b6ac7414f964c9e86c691330eb5914e0af37ef27aeef585",
+-  "project_name": "cosmo-smoke",
++  "hash": "cd0030bed1ca828519b7863ce479fb654feda78ef79bdbda4fc56e18971203da",
++  "project_name": "_glm-agent-0027-p-03-binary-rename-refactor",
+   "language": "go",
+   "framework": "cli",
+   "directories": [
+     "ClaudeDesktop",
+     "GOrchestra",
+     "GeminiAI",
+-    "bin",
+     "cmd",
+     "docs",
+     "examples",
+@@ -28,5 +27,5 @@
+   ],
+   "has_tests": true,
+   "has_ci": true,
+-  "generated_at": "2026-04-30T15:39:38.076655-03:00"
++  "generated_at": "2026-05-05T14:34:24.251159-03:00"
+ }
+\ No newline at end of file
+diff --git a/.version-registry.json b/.version-registry.json
+index 9afe5d7..9dfe89b 100644
+--- a/.version-registry.json
++++ b/.version-registry.json
+@@ -1,13 +1,13 @@
+ {
+   "repository": {
+     "version": "0.20.0",
+-    "build": 426,
++    "build": 428,
+     "name": "cosmo-smoke",
+-    "lastUpdated": "2026-05-03T00:33:02Z",
++    "lastUpdated": "2026-05-05T17:38:23Z",
+     "derived_from": "git tag"
+   },
+   "metadata": {
+-    "last_synced": "2026-05-02T22:02:28Z",
++    "last_synced": "2026-05-05T17:34:31Z",
+     "sync_method": "git_history_analysis"
+   },
+   "releaseContext": {
+diff --git a/GOrchestra/intel/status.json b/GOrchestra/intel/status.json
+index 360638f..3530608 100644
+--- a/GOrchestra/intel/status.json
++++ b/GOrchestra/intel/status.json
+@@ -1,8 +1,8 @@
+ {
+   "version": "1.0",
+-  "updated_at": "2026-05-02T19:02:27.004417-03:00",
+-  "expires_at": "2026-05-02T20:02:27.004417-03:00",
+-  "project_path": "/Users/gab/PROJECTS/cosmo-smoke",
++  "updated_at": "2026-05-05T14:34:27.771131-03:00",
++  "expires_at": "2026-05-05T15:34:27.771131-03:00",
++  "project_path": "/Users/gab/PROJECTS/cosmo-smoke-worktrees/_glm-agent-0027-p-03-binary-rename-refactor",
+   "context": "",
+-  "glm_enhanced": true
++  "glm_enhanced": false
+ }
+\ No newline at end of file
+diff --git a/cmd/migrate.go b/cmd/migrate.go
+index 7c60259..ae413ea 100644
+--- a/cmd/migrate.go
++++ b/cmd/migrate.go
+@@ -34,10 +34,10 @@ keys are mapped via command fallback with TODO comments for attributes that
+ lack native support.
+ 
+ Examples:
+-  smoke migrate goss goss.yaml
+-  smoke migrate goss goss.yaml -o .smoke.yaml
+-  smoke migrate goss goss.yaml --strict --stats
+-  smoke migrate goss goss.yaml --distro rpm -o smoke.yaml`,
++  smokesig migrate goss goss.yaml
++  smokesig migrate goss goss.yaml -o .smoke.yaml
++  smokesig migrate goss goss.yaml --strict --stats
++  smokesig migrate goss goss.yaml --distro rpm -o smoke.yaml`,
+ 	Args: cobra.ExactArgs(1),
+ 	RunE: runMigrateGoss,
+ }
+diff --git a/cmd/root.go b/cmd/root.go
+index e050098..b8f3dca 100644
+--- a/cmd/root.go
++++ b/cmd/root.go
+@@ -8,18 +8,12 @@ import (
+ )
+ 
+ const banner = `
+-   _____ __  __  ____  _  ______
+-  / ____|  \/  |/ __ \| |/ / __ \
+- | (___ | \  / | |  | | ' / |__) |
+-  \___ \| |\/| | |  | |  <|  ___/
+-  ____) | |  | | |__| | . \ |____
+- |_____/|_|  |_|\____/|_|\_\_____|
+-
++  SmokeSig
+   Universal Smoke Test Runner
+ `
+ 
+ var rootCmd = &cobra.Command{
+-	Use:   "smoke",
++	Use:   "smokesig",
+ 	Short: "Universal smoke test runner",
+ 	Long:  banner + "\n  Run lightweight smoke tests from .smoke.yaml",
+ }
+diff --git a/cmd/serve.go b/cmd/serve.go
+index 9a1aea5..f4fb6c2 100644
+--- a/cmd/serve.go
++++ b/cmd/serve.go
+@@ -168,7 +168,7 @@ func runServe(cmd *cobra.Command, args []string) error {
+ 		srv.Shutdown(ctx) //nolint:errcheck
+ 	}()
+ 
+-	fmt.Fprintf(os.Stderr, "smoke serve listening on %s%s\n", addr, servePath)
++	fmt.Fprintf(os.Stderr, "smokesig serve listening on %s%s\n", addr, servePath)
+ 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+ 		return err
+ 	}
+diff --git a/cmd/version.go b/cmd/version.go
+index 251bf99..ebeff12 100644
+--- a/cmd/version.go
++++ b/cmd/version.go
+@@ -13,7 +13,7 @@ var versionCmd = &cobra.Command{
+ 	Use:   "version",
+ 	Short: "Print version",
+ 	Run: func(cmd *cobra.Command, args []string) {
+-		fmt.Printf("smoke %s\n", Version)
++		fmt.Printf("smokesig %s\n", Version)
+ 	},
+ }
+ 
+-- 
+2.53.0
+
+
+From 9bae9cb0e14c9d55e1f480d842eb94662578938b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=CE=9BB?= <Gab@CosmoLabs.org>
+Date: Tue, 5 May 2026 14:46:24 -0300
+Subject: [PATCH 2/2] chore: add quality review results
+
+---
+ .review.json | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/.review.json b/.review.json
+index bc3c3e2..1667513 100644
+--- a/.review.json
++++ b/.review.json
+@@ -1,14 +1,14 @@
+ {
+   "score": 8,
+   "passed": true,
+-  "reviewed_at": "2026-04-30T19:27:37Z",
+-  "reviewed_sha": "9ffda38469fa5b73df603a6b7124a29382abe1d5",
++  "reviewed_at": "2026-05-05T17:46:24Z",
++  "reviewed_sha": "5dc38b225e3dd66586b66e08b3e23182feef1fc3",
+   "reviewer": "opus",
+-  "origin": "unknown",
+-  "iterations": 3,
++  "origin": "glm-agent",
++  "iterations": 4,
+   "fixes_applied": 0,
+-  "issues_remaining": 3,
+-  "summary": "Score 8/10, 3 issues",
++  "issues_remaining": 0,
++  "summary": "Score 8/10, 0 issues",
+   "schema_version": 1,
+   "prior_issues": [
+     {
+@@ -47,7 +47,8 @@
+   "prior_shas": [
+     "7728e908abc4cc4cbcb55ef378ccec74cf36a0ef",
+     "58f8b19672317aff55951572debfea9c35a2bf32",
+-    "9ffda38469fa5b73df603a6b7124a29382abe1d5"
++    "9ffda38469fa5b73df603a6b7124a29382abe1d5",
++    "5dc38b225e3dd66586b66e08b3e23182feef1fc3"
+   ],
+   "min_score_across_rounds": 8,
+   "has_prior_min_score": true
+-- 
+2.53.0
+
