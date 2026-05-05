@@ -41,7 +41,7 @@ func CheckMQTTPing(check *schema.MQTTCheck) AssertionResult {
 	// Build MQTT CONNECT packet
 	clientID := check.ClientID
 	if clientID == "" {
-		clientID = "cosmo-smoke"
+		clientID = "smokesig"
 	}
 
 	// Variable header: protocol name "MQTT", protocol level 4, connect flags, keep alive

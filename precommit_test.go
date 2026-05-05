@@ -19,10 +19,10 @@ func TestPrecommitHooksYAML(t *testing.T) {
 	if len(hooks) != 1 {
 		t.Fatalf("expected 1 hook, got %d", len(hooks))
 	}
-	if hooks[0]["id"] != "smoke" {
-		t.Errorf("hook id = %v, want smoke", hooks[0]["id"])
+	if hooks[0]["id"] != "smokesig" {
+		t.Errorf("hook id = %v, want smokesig", hooks[0]["id"])
 	}
-	if hooks[0]["entry"] != "smoke run --fail-fast" {
-		t.Errorf("hook entry = %v, want smoke run --fail-fast", hooks[0]["entry"])
+	if hooks[0]["entry"] != "smokesig run --fail-fast" {
+		t.Errorf("hook entry = %v, want smokesig run --fail-fast", hooks[0]["entry"])
 	}
 }

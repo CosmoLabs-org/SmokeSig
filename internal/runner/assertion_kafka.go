@@ -46,7 +46,7 @@ func checkKafkaConn(conn net.Conn, broker, topic string, timeout time.Duration) 
 	// Request header: api_key(2) + api_version(2) + correlation_id(4) + client_id_len(2) + client_id
 	// Body: topic_array_len(4) [+ topic_name_len(2) + topic_name]
 
-	clientID := "cosmo-smoke"
+	clientID := "smokesig"
 	clientIDBytes := []byte(clientID)
 
 	var topicBytes []byte

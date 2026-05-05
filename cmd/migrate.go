@@ -20,16 +20,16 @@ var (
 var migrateCmd = &cobra.Command{
 	Use:   "migrate",
 	Short: "Migrate from other test frameworks",
-	Long:  "Migrate configuration files from other test frameworks to cosmo-smoke format.",
+	Long:  "Migrate configuration files from other test frameworks to SmokeSig format.",
 }
 
 var gossCmd = &cobra.Command{
 	Use:   "goss <input.yaml>",
 	Short: "Migrate a Goss YAML file to .smokesig.yaml",
-	Long: `Migrate a Goss YAML configuration to cosmo-smoke format.
+	Long: `Migrate a Goss YAML configuration to SmokeSig format.
 
 Supports all Goss resource types. Core keys (process, port, command, file,
-http, package, service) are mapped to native cosmo-smoke assertions. Other
+http, package, service) are mapped to native SmokeSig assertions. Other
 keys are mapped via command fallback with TODO comments for attributes that
 lack native support.
 
@@ -76,7 +76,7 @@ func runMigrateGoss(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("parsing goss file: %w", err)
 	}
 
-	// Translate to cosmo-smoke tests
+	// Translate to SmokeSig tests
 	tests, warnings := goss.Translate(gf, goss.TranslateOptions{
 		Distro: migrateDistro,
 	})

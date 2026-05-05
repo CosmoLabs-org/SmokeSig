@@ -1,7 +1,7 @@
-- id: smoke
-  name: cosmo-smoke
-  description: Run smoke tests from .smoke.yaml
-  entry: smoke run --fail-fast
+- id: smokesig
+  name: SmokeSig
+  description: Run smoke tests from .smokesig.yaml
+  entry: smokesig run --fail-fast
   language: system
   pass_filenames: false
   always_run: true

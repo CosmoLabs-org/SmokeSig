@@ -30,7 +30,7 @@ port: ## Show assigned port for this project
 
 BINARY_NAME := $(PROJECT_NAME)
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
-LDFLAGS := -s -w -X github.com/CosmoLabs-org/cosmo-smoke/cmd.Version=$(VERSION)
+LDFLAGS := -s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version=$(VERSION)
 
 install: ## Download Go module dependencies
 	go mod download

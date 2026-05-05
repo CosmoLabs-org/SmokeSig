@@ -44,7 +44,7 @@ func TestVersionOutputsVersionString(t *testing.T) {
 	if !strings.Contains(out, "test-version") {
 		t.Errorf("version output should contain version string, got: %q", out)
 	}
-	if !strings.HasPrefix(out, "smoke ") {
+	if !strings.HasPrefix(out, "smokesig ") {
 		t.Errorf("version output should start with 'smoke ', got: %q", out)
 	}
 }

@@ -7,19 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const banner = `
-   _____ __  __  ____  _  ______
-  / ____|  \/  |/ __ \| |/ / __ \
- | (___ | \  / | |  | | ' / |__) |
-  \___ \| |\/| | |  | |  <|  ___/
-  ____) | |  | | |__| | . \ |____
- |_____/|_|  |_|\____/|_|\_\_____|
-
-  Universal Smoke Test Runner
-`
+const banner = `  SmokeSig
+  Universal Smoke Test Runner`
 
 var rootCmd = &cobra.Command{
-	Use:   "smoke",
+	Use:   "smokesig",
 	Short: "Universal smoke test runner",
 	Long:  banner + "\n  Run lightweight smoke tests from .smokesig.yaml",
 }

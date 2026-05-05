@@ -174,7 +174,7 @@ project: otel-test
 otel:
   enabled: true
   jaeger_url: "http://jaeger:16686"
-  service_name: "cosmo-smoke"
+  service_name: "SmokeSig"
   trace_propagation: true
   export_url: "http://jaeger:16686/v1/traces"
 tests:
@@ -184,7 +184,7 @@ tests:
       exit_code: 0
       otel_trace:
         jaeger_url: "http://jaeger:16686"
-        service_name: "cosmo-smoke"
+        service_name: "SmokeSig"
         min_spans: 1
         timeout: 10s
 `
@@ -288,17 +288,17 @@ tests:
 
 // TestValidateCmd_EnvOverrides validates a config using Go template env vars.
 func TestValidateCmd_EnvOverrides(t *testing.T) {
-	t.Setenv("COSMO_SMOKE_PROJECT", "env-override-test")
-	t.Setenv("COSMO_SMOKE_URL", "http://localhost:8080")
+	t.Setenv("SMOKESIG_PROJECT", "env-override-test")
+	t.Setenv("SMOKESIG_URL", "http://localhost:8080")
 
 	cfg := `
 version: 1
-project: "{{ .Env.COSMO_SMOKE_PROJECT }}"
+project: "{{ .Env.SMOKESIG_PROJECT }}"
 tests:
   - name: templated-url
     expect:
       http:
-        url: "{{ .Env.COSMO_SMOKE_URL }}/health"
+        url: "{{ .Env.SMOKESIG_URL }}/health"
         method: GET
         status_code: 200
   - name: fallback-run

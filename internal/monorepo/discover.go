@@ -51,8 +51,18 @@ func Discover(root string, exclude []string) ([]SubConfig, error) {
 			return nil
 		}
 
-		configPath := filepath.Join(path, ".smoke.yaml")
-		if _, err := os.Stat(configPath); err == nil {
+		// Check .smokesig.yaml first, fallback to legacy .smoke.yaml
+		configPath := ""
+		p := filepath.Join(path, ".smokesig.yaml")
+		if _, statErr := os.Stat(p); statErr == nil {
+			configPath = p
+		} else {
+			p = filepath.Join(path, ".smoke.yaml")
+			if _, statErr := os.Stat(p); statErr == nil {
+				configPath = p
+			}
+		}
+		if configPath != "" {
 			configs = append(configs, SubConfig{
 				Path:    configPath,
 				Dir:     path,

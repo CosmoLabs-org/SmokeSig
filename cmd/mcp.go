@@ -14,7 +14,7 @@ operations as tools. Designed for use with Claude Desktop and other MCP clients.
 Add to your Claude Desktop configuration:
   {
     "mcpServers": {
-      "cosmo-smoke": {
+      "SmokeSig": {
         "command": "smoke",
         "args": ["mcp"]
       }

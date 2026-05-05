@@ -1319,7 +1319,7 @@ func TestCheckMySQLPing_Unreachable(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestCheckDockerContainerRunning_NotFound(t *testing.T) {
-	r := CheckDockerContainerRunning(&schema.DockerContainerCheck{Name: "cosmo-smoke-nonexistent-container-xyz"})
+	r := CheckDockerContainerRunning(&schema.DockerContainerCheck{Name: "SmokeSig-nonexistent-container-xyz"})
 	if r.Passed {
 		t.Error("expected fail for non-existent container, got pass")
 	}
@@ -1349,7 +1349,7 @@ func TestCheckDockerContainerRunning_Pass(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestCheckDockerImageExists_NotFound(t *testing.T) {
-	r := CheckDockerImageExists(&schema.DockerImageCheck{Image: "cosmo-smoke-nonexistent-image-xyz:latest"})
+	r := CheckDockerImageExists(&schema.DockerImageCheck{Image: "SmokeSig-nonexistent-image-xyz:latest"})
 	if r.Passed {
 		t.Error("expected fail for non-existent image, got pass")
 	}

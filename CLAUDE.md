@@ -1,10 +1,10 @@
-# cosmo-smoke — Project Instructions
+# SmokeSig — Project Instructions
 
 ## Overview
 
-Universal smoke test runner. Standalone Go binary that reads `.smoke.yaml` and runs lightweight smoke tests. Designed for CosmoLabs' ~95-project portfolio.
+Universal smoke test runner. Standalone Go binary that reads `.smokesig.yaml` and runs lightweight smoke tests. Designed for CosmoLabs' ~95-project portfolio.
 
-**Repository**: `github.com/CosmoLabs-org/cosmo-smoke`
+**Repository**: `github.com/CosmoLabs-org/SmokeSig`
 **Company**: CosmoLabs
 **Version**: 0.13.0
 
@@ -13,11 +13,11 @@ Universal smoke test runner. Standalone Go binary that reads `.smoke.yaml` and r
 ```
 cmd/
 ├── root.go          # Cobra root command with banner
-├── run.go           # smoke run — main entry point
-├── validate.go      # smoke validate — config validation without running
-├── schema.go        # smoke schema — export assertion types as JSON
-├── init_cmd.go      # smoke init — auto-detect + generate config
-└── version.go       # smoke version (ldflags-injected)
+├── run.go           # smokesig run — main entry point
+├── validate.go      # smokesig validate — config validation without running
+├── schema.go        # smokesig schema — export assertion types as JSON
+├── init_cmd.go      # smokesig init — auto-detect + generate config
+└── version.go       # smokesig version (ldflags-injected)
 internal/
 ├── schema/          # SmokeConfig structs, YAML parsing, validation
 ├── baseline/        # Performance baseline storage and comparison
@@ -38,7 +38,7 @@ internal/
 - **Reporter interface**: Terminal and JSON reporters are pluggable via interface.
 - **Watch mode**: `--watch` keeps smoke resident and re-runs on file changes. fsnotify-backed. 500ms debounce. When OTel is enabled, tracks trace health across runs with a sliding window (last 10 runs). Alerts when health drops below 50%.
 - **Retry**: Opt-in `retry: {count, backoff, retry_on_trace_only?}` on test level. Exponential backoff. No side effects on pass-first-try. `retry_on_trace_only` skips retry when the otel_trace assertion confirms the trace was received.
-- **Monorepo**: `--monorepo` flag auto-discovers `.smoke.yaml` in subdirectories. Unlimited depth, configurable exclusions.
+- **Monorepo**: `--monorepo` flag auto-discovers `.smokesig.yaml` in subdirectories. Unlimited depth, configurable exclusions.
 - **WebSocket**: Stdlib-only WebSocket client. Connect-send-expect pattern with no external deps.
 - **gRPC opt-in**: gRPC health check excluded from default build. Use `-tags grpc` to include.
 
@@ -47,19 +47,19 @@ internal/
 ```bash
 go build ./...                    # Build
 go test ./...                     # Run all tests (877 total)
-smoke run                         # Self-smoke (6 tests)
-go build -ldflags "-s -w -X github.com/CosmoLabs-org/cosmo-smoke/cmd.Version=X.Y.Z" -o smoke .
+smokesig run                         # Self-smoke (6 tests)
+go build -ldflags "-s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version=X.Y.Z" -o smoke .
 ```
 
 ## Commands
 
 ```bash
-smoke run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--baseline] [--baseline-threshold 50]
-smoke validate [-f path]
-smoke schema
-smoke serve [--port 8080] [--dashboard] [--api-key KEY] [--db-path PATH]
-smoke init [--force] [--from-running CONTAINER]
-smoke version
+smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--baseline] [--baseline-threshold 50]
+smokesig validate [-f path]
+smokesig schema
+smokesig serve [--port 8080] [--dashboard] [--api-key KEY] [--db-path PATH]
+smokesig init [--force] [--from-running CONTAINER]
+smokesig version
 ```
 
 ## Assertion Types
@@ -114,7 +114,7 @@ Plus `allow_failure: true` on Test for flaky/allowed-failure tests.
 otel:
   enabled: true
   jaeger_url: "http://jaeger:16686"
-  service_name: "cosmo-smoke"
+  service_name: "SmokeSig"
   trace_propagation: true
 ```
 
@@ -124,7 +124,7 @@ Smoke test results are also exported as OTLP telemetry when `export_url` is conf
 
 ## Output Formats
 
-`smoke run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`. Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files (`smoke-results.json`, `smoke-junit.xml`, `smoke-metrics.prom`, `smoke-tap.txt`). The `gha` format writes markdown to `$GITHUB_STEP_SUMMARY` and emits `::error`/`::warning` workflow commands for CI annotations.
+`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`. Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files (`smoke-results.json`, `smoke-junit.xml`, `smoke-metrics.prom`, `smoke-tap.txt`). The `gha` format writes markdown to `$GITHUB_STEP_SUMMARY` and emits `::error`/`::warning` workflow commands for CI annotations.
 
 ## Detected Project Types
 

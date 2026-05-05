@@ -1,53 +1,53 @@
-# cosmo-smoke
+# SmokeSig
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/CosmoLabs-org/cosmo-smoke.svg)](https://pkg.go.dev/github.com/CosmoLabs-org/cosmo-smoke) [![Go Report Card](https://goreportcard.com/badge/github.com/CosmoLabs-org/cosmo-smoke)](https://goreportcard.com/report/github.com/CosmoLabs-org/cosmo-smoke) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Reference](https://pkg.go.dev/badge/github.com/CosmoLabs-org/SmokeSig.svg)](https://pkg.go.dev/github.com/CosmoLabs-org/SmokeSig) [![Go Report Card](https://goreportcard.com/badge/github.com/CosmoLabs-org/SmokeSig)](https://goreportcard.com/report/github.com/CosmoLabs-org/SmokeSig) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Universal smoke test runner. Define lightweight "does it turn on?" checks in `.smoke.yaml` and run them with a single command — on any project, in any language.
+Universal smoke test runner. Define lightweight "does it turn on?" checks in `.smokesig.yaml` and run them with a single command — on any project, in any language.
 
 ## Install
 
 **Go install:**
 ```bash
-go install github.com/CosmoLabs-org/cosmo-smoke@latest
+go install github.com/CosmoLabs-org/SmokeSig@latest
 ```
 
 **Build from source:**
 ```bash
-git clone https://github.com/CosmoLabs-org/cosmo-smoke
-cd cosmo-smoke
-go build -o smoke .
+git clone https://github.com/CosmoLabs-org/SmokeSig
+cd SmokeSig
+go build -o smokesig .
 ```
 
 **Pre-commit hook:**
 ```yaml
 # .pre-commit-config.yaml
 repos:
-  - repo: https://github.com/CosmoLabs-org/cosmo-smoke
+  - repo: https://github.com/CosmoLabs-org/SmokeSig
     rev: v0.18.0
     hooks:
-      - id: smoke
+      - id: smokesig
 ```
 
 ## Quick Start
 
 ```bash
 # 1. Generate a config for your project
-smoke init
+smokesig init
 
 # 2. Run all tests
-smoke run
+smokesig run
 
 # 3. Run only tagged tests
-smoke run --tag build
+smokesig run --tag build
 
 # 4. CI-friendly JSON output
-smoke run --format json
+smokesig run --format json
 
 # 5. Watch mode — re-run on file changes
-smoke run --watch
+smokesig run --watch
 ```
 
-## Example .smoke.yaml
+## Example .smokesig.yaml
 
 ```yaml
 version: 1
@@ -194,8 +194,8 @@ All assertions are optional and combinable within a single `expect` block.
 ## CLI Reference
 
 ```
-smoke run [flags]
-  -f, --file string          Config file (default ".smoke.yaml")
+smokesig run [flags]
+  -f, --file string          Config file (default ".smokesig.yaml")
       --tag strings          Run only tests with these tags
       --exclude-tag strings  Skip tests with these tags
       --format string        Output format: terminal|json|junit|tap|prometheus (default "terminal")
@@ -204,15 +204,15 @@ smoke run [flags]
       --dry-run              List matching tests without running them
       --watch                Re-run tests on file changes
 
-smoke init [flags]
-  -f, --force                Overwrite existing .smoke.yaml
+smokesig init [flags]
+  -f, --force                Overwrite existing .smokesig.yaml
 
-smoke version
+smokesig version
 ```
 
 ## Auto-Detection
 
-`smoke init` inspects the current directory and generates a starter config. Supports **31 project types** across languages, mobile, infrastructure, and static sites.
+`smokesig init` inspects the current directory and generates a starter config. Supports **31 project types** across languages, mobile, infrastructure, and static sites.
 
 ### Languages & Frameworks
 
@@ -274,10 +274,10 @@ Reference the reusable workflow from any repo:
 ```yaml
 jobs:
   smoke:
-    uses: CosmoLabs-org/cosmo-smoke/.github/workflows/smoke.yml@v1
+    uses: CosmoLabs-org/SmokeSig/.github/workflows/smoke.yml@v1
     with:
       smoke-version: "latest"       # or pin: "v0.18.0"
-      working-directory: "."         # dir containing .smoke.yaml
+      working-directory: "."         # dir containing .smokesig.yaml
       tags: "smoke"                  # optional tag filter
       fail-fast: true
 ```
@@ -291,10 +291,10 @@ smoke:
   stage: test
   image: golang:1.23
   before_script:
-    - go install github.com/CosmoLabs-org/cosmo-smoke@latest
+    - go install github.com/CosmoLabs-org/SmokeSig@latest
   script:
-    - smoke run --format junit > smoke-junit.xml
-    - smoke run --format json > smoke-results.json
+    - smokesig run --format junit > smoke-junit.xml
+    - smokesig run --format json > smoke-results.json
   artifacts:
     when: always
     reports:
@@ -307,7 +307,7 @@ smoke:
 
 ```dockerfile
 FROM golang:1.23 AS smoke
-RUN go install github.com/CosmoLabs-org/cosmo-smoke@latest
+RUN go install github.com/CosmoLabs-org/SmokeSig@latest
 WORKDIR /app
 COPY . .
 CMD ["smoke", "run", "--fail-fast"]
@@ -318,7 +318,7 @@ CMD ["smoke", "run", "--fail-fast"]
 Push results to a dashboard endpoint:
 
 ```bash
-smoke run --format json --report-url https://dashboard.example.com/api/results --report-api-key $API_KEY
+smokesig run --format json --report-url https://dashboard.example.com/api/results --report-api-key $API_KEY
 ```
 
 ### Exit Code Semantics
@@ -332,14 +332,14 @@ smoke run --format json --report-url https://dashboard.example.com/api/results -
 ### JUnit for CI Ingestion
 
 ```bash
-smoke run --format junit  # writes smoke-junit.xml
+smokesig run --format junit  # writes smoke-junit.xml
 ```
 
 Most CI platforms (GitHub Actions, GitLab CI, Jenkins, CircleCI) natively ingest JUnit XML for test result visualization.
 
 ## Output Formats
 
-`smoke run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`.
+`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`.
 Comma-separated for multiple: `--format terminal,json`.
 
 ## License
