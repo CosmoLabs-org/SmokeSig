@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-05-05
+
+### Changed
+- Renamed project to SmokeSig (binary: smokesig, config: .smokesig.yaml)
+- complete SmokeSig rename — binary, banner, docs, build config (commit:ff4adb87)
+- rename binary to smokesig, config to .smokesig.yaml (commit:f763d821)
+- rename module path and project metadata to SmokeSig (commit:39ebe888)
+
+### Fixed
+- missed import path in assertion_test.go (commit:74b1bbfb)
+
 ## [0.20.0] - 2026-05-02
 
 ### Added
