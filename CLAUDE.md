@@ -6,7 +6,7 @@ Universal smoke test runner. Standalone Go binary that reads `.smokesig.yaml` an
 
 **Repository**: `github.com/CosmoLabs-org/SmokeSig`
 **Company**: CosmoLabs
-**Version**: 0.13.0
+**Version**: 0.20.1
 
 ## Architecture
 
@@ -22,7 +22,7 @@ internal/
 ├── schema/          # SmokeConfig structs, YAML parsing, validation
 ├── baseline/        # Performance baseline storage and comparison
 ├── runner/          # Assertion engine (39 types), prereq runner, test execution
-├── reporter/        # Terminal (Lipgloss) + JSON + GHA + Push reporters
+├── reporter/        # Terminal (Lipgloss) + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push reporters
 ├── monorepo/        # Sub-config discovery for monorepo projects
 ├── dashboard/       # Portfolio dashboard (SQLite storage, API handlers, embedded UI)
 └── detector/        # Project type detection + template generation
@@ -46,15 +46,15 @@ internal/
 
 ```bash
 go build ./...                    # Build
-go test ./...                     # Run all tests (877 total)
+go test ./...                     # Run all tests (1045 total)
 smokesig run                         # Self-smoke (6 tests)
-go build -ldflags "-s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version=X.Y.Z" -o smoke .
+go build -ldflags "-s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version=X.Y.Z" -o smokesig .
 ```
 
 ## Commands
 
 ```bash
-smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--baseline] [--baseline-threshold 50]
+smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha,backstage] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--baseline] [--baseline-threshold 50]
 smokesig validate [-f path]
 smokesig schema
 smokesig serve [--port 8080] [--dashboard] [--api-key KEY] [--db-path PATH]
@@ -124,7 +124,7 @@ Smoke test results are also exported as OTLP telemetry when `export_url` is conf
 
 ## Output Formats
 
-`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`. Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files (`smoke-results.json`, `smoke-junit.xml`, `smoke-metrics.prom`, `smoke-tap.txt`). The `gha` format writes markdown to `$GITHUB_STEP_SUMMARY` and emits `::error`/`::warning` workflow commands for CI annotations.
+`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`, `backstage`. Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files (`smoke-results.json`, `smoke-junit.xml`, `smoke-metrics.prom`, `smoke-tap.txt`, `smoke-backstage.json`). The `gha` format writes markdown to `$GITHUB_STEP_SUMMARY` and emits `::error`/`::warning` workflow commands for CI annotations. The `backstage` format emits a Backstage entity annotation JSON for developer portal integration.
 
 ## Detected Project Types
 

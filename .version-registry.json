@@ -1,13 +1,13 @@
 {
   "repository": {
     "version": "0.20.1",
-    "build": 436,
+    "build": 438,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-05T18:16:54Z",
+    "lastUpdated": "2026-05-09T22:44:48Z",
     "derived_from": "git tag"
   },
   "metadata": {
-    "last_synced": "2026-05-03T00:51:00Z",
+    "last_synced": "2026-05-05T19:48:42Z",
     "sync_method": "git_history_analysis"
   },
   "releaseContext": {

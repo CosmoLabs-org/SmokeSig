@@ -174,12 +174,34 @@ All assertions are optional and combinable within a single `expect` block.
 | ICMP ping | `ping: {host, count?, timeout?}` | ICMP echo via system ping command |
 | Kubernetes | `k8s_resource: {context?, namespace, kind, name, condition?, timeout?}` | K8s resource state via kubectl |
 
+### Observability & APIs
+
+| Type | Field | Description |
+|------|-------|-------------|
+| OpenTelemetry trace | `otel_trace: {jaeger_url, service_name?, min_spans?, timeout?}` | Trace verification with W3C traceparent propagation |
+| GraphQL | `graphql: {url, query?, status_code?, expect_types?, expect_contains?}` | GraphQL introspection assertion |
+| WebSocket | `websocket: {url, send?, expect_contains?, expect_matches?}` | WebSocket connect-send-expect |
+
+### Mobile & Web
+
+| Type | Field | Description |
+|------|-------|-------------|
+| Deep link | `deep_link: {url, android_package?, ios_bundle_id?}` | Mobile deep link / universal link verification |
+| DNS resolve | `dns_resolve: {hostname, record_type?, expected_ip?}` | DNS resolution check (A, AAAA, TXT, MX, CNAME) |
+
+### Messaging & Mail
+
+| Type | Field | Description |
+|------|-------|-------------|
+| SMTP | `smtp_ping: {host, port?, timeout?}` | SMTP server connectivity + EHLO handshake |
+
 ### Tool Verification
 
 | Type | Field | Description |
 |------|-------|-------------|
 | Version check | `version_check: {command, pattern}` | Shell command output matches regex |
 | JSON field | `json_field: {path, equals?, contains?, matches?}` | JSONPath assertion on stdout |
+| Credential check | `credential_check: {source, name, contains?}` | Verify credential accessible without leaking value |
 
 ### Test Modifiers
 
@@ -310,7 +332,7 @@ FROM golang:1.23 AS smoke
 RUN go install github.com/CosmoLabs-org/SmokeSig@latest
 WORKDIR /app
 COPY . .
-CMD ["smoke", "run", "--fail-fast"]
+CMD ["smokesig", "run", "--fail-fast"]
 ```
 
 ### Centralized Result Collection
@@ -339,8 +361,19 @@ Most CI platforms (GitHub Actions, GitLab CI, Jenkins, CircleCI) natively ingest
 
 ## Output Formats
 
-`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`.
-Comma-separated for multiple: `--format terminal,json`.
+`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`.
+Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files.
+
+## Migration from cosmo-smoke
+
+SmokeSig was previously named `cosmo-smoke`. The migration is straightforward:
+
+1. **Config file**: Rename `.smoke.yaml` to `.smokesig.yaml`. The old name still works but prints a deprecation warning.
+2. **Binary**: Replace `smoke` with `smokesig` in scripts, CI configs, and aliases.
+3. **Go import**: Change `github.com/CosmoLabs-org/cosmo-smoke` to `github.com/CosmoLabs-org/SmokeSig`.
+4. **Pre-commit hook**: Change `id: smoke` to `id: smokesig`.
+
+No assertion types, config structure, or subcommand names changed.
 
 ## License
 

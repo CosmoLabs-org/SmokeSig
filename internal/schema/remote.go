@@ -27,7 +27,7 @@ func NewRemoteResolver(cacheDir string) *RemoteResolver {
 		if err != nil {
 			homeDir = os.TempDir()
 		}
-		cacheDir = filepath.Join(homeDir, "cosmo-smoke")
+		cacheDir = filepath.Join(homeDir, "smokesig")
 	}
 	return &RemoteResolver{
 		cacheDir: cacheDir,

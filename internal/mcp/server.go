@@ -8,7 +8,7 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 )
 
-// Server wraps the mcp-go MCPServer with cosmo-smoke tool registration.
+// Server wraps the mcp-go MCPServer with smokesig tool registration.
 type Server struct {
 	mcp       *server.MCPServer
 	handlers  map[string]ToolHandler
@@ -17,7 +17,7 @@ type Server struct {
 // NewServer creates a new MCP server with all smoke tools registered.
 func NewServer() *Server {
 	mcpServer := server.NewMCPServer(
-		"cosmo-smoke",
+		"smokesig",
 		"0.9.0",
 		server.WithToolCapabilities(true),
 	)

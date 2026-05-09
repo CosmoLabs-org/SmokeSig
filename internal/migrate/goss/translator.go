@@ -30,7 +30,7 @@ type TranslateOptions struct {
 	Distro string // deb, rpm, apk
 }
 
-// Translate converts a GossFile into cosmo-smoke tests and warnings.
+// Translate converts a GossFile into SmokeSig tests and warnings.
 func Translate(gf *GossFile, opts TranslateOptions) ([]schema.Test, []TranslationWarning) {
 	var tests []schema.Test
 	var warnings []TranslationWarning
@@ -272,7 +272,7 @@ func translateCommand(name string, attrs GossAttrs) ([]schema.Test, []Translatio
 			GossKey:  "command",
 			Resource: name,
 			Category: WarnPartial,
-			Message:  "Goss supports multiple stdout/stderr entries; cosmo-smoke maps only the first. Add additional tests manually.",
+			Message:  "Goss supports multiple stdout/stderr entries; SmokeSig maps only the first. Add additional tests manually.",
 		})
 	}
 
@@ -364,7 +364,7 @@ func translateHTTP(name string, attrs GossAttrs) ([]schema.Test, []TranslationWa
 			GossKey:  "http",
 			Resource: name,
 			Category: WarnPartial,
-			Message:  "Goss supports multiple body matchers; cosmo-smoke maps only the first via body_contains",
+			Message:  "Goss supports multiple body matchers; SmokeSig maps only the first via body_contains",
 		})
 	}
 

@@ -1332,13 +1332,13 @@ func TestCheckDockerContainerRunning_Pass(t *testing.T) {
 	if !isDockerAvailable() {
 		t.Skip("docker daemon not available")
 	}
-	// This test requires a running container named "cosmo-smoke-test-alpine".
-	// Start one with: docker run -d --name cosmo-smoke-test-alpine --rm alpine sleep 300
-	out, err := exec.Command("docker", "ps", "-q", "--filter", "name=cosmo-smoke-test-alpine").Output()
+	// This test requires a running container named "smokesig-test-alpine".
+	// Start one with: docker run -d --name smokesig-test-alpine --rm alpine sleep 300
+	out, err := exec.Command("docker", "ps", "-q", "--filter", "name=smokesig-test-alpine").Output()
 	if err != nil || strings.TrimSpace(string(out)) == "" {
-		t.Skip("test container 'cosmo-smoke-test-alpine' not running")
+		t.Skip("test container 'smokesig-test-alpine' not running")
 	}
-	r := CheckDockerContainerRunning(&schema.DockerContainerCheck{Name: "cosmo-smoke-test-alpine"})
+	r := CheckDockerContainerRunning(&schema.DockerContainerCheck{Name: "smokesig-test-alpine"})
 	if !r.Passed {
 		t.Errorf("expected pass, got fail: actual=%s", r.Actual)
 	}
