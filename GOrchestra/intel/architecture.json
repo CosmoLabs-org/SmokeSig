@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-05T15:16:00.928907-03:00",
+  "generated_at": "2026-05-05T15:17:17.892959-03:00",
   "generated_by": "GLM-4.7",
-  "expires_at": "2026-05-06T15:16:00.928907-03:00",
-  "last_analyzed_commit": "4dff57f88c7ad9dba0d51e8014fa5c56d4f08ead",
-  "summary": "A Go-based CLI tool called SmokeSig that executes assertion-based validation runs and exposes MCP handlers, heavily supplemented by agent-generated extra tests.",
+  "expires_at": "2026-05-06T15:17:17.892959-03:00",
+  "last_analyzed_commit": "450ea4954b1ea3652d0afa3a9ec395f107399386",
+  "summary": "A Go-based monolithic CLI tool featuring an assertion runner and MCP handlers, heavily exercised through automated agent-generated test suites.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -18,19 +18,18 @@
     "test-driven development",
     "MCP (Model Context Protocol) handler pattern",
     "assertion-based validation",
-    "schema validation",
-    "agent-based code generation workflow"
+    "agent-based workflow orchestration"
   ],
   "concerns": [
-    "high volume of agent-generated extra tests suggests potential flakiness or coverage gaps",
-    "recent commit fixing a missed import path indicates possible post-refactor fragility",
-    "scattered test directories across GOrchestra/glm-agents/* imply complex external CI/generation pipeline",
-    "staged and untracked files in git status suggest incomplete commit hygiene"
+    "high volume of agent-generated extra test files suggests fragile test coverage",
+    "untracked file in git status indicates incomplete commit hygiene",
+    "recent binary rename (SmokeSig) may cause lingering references or broken integrations",
+    "scattered test directories across GOrchestra/glm-agents paths imply complex external orchestration"
   ],
   "suggestions": [
-    "consolidate or clean up the numerous agent-generated extra test directories",
-    "verify test stability and remove redundant extra tests post-refactor",
-    "ensure all import paths are updated following the SmokeSig rename",
-    "commit or stash the pending staged/untracked changes to maintain a clean working tree"
+    "consolidate or clean up the numerous agent-generated extra test files",
+    "resolve the untracked file and stabilize the repository state",
+    "verify all references are updated post-SmokeSig rename",
+    "review runner and MCP handler logic for production readiness"
   ]
 }
