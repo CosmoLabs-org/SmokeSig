@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-05-18
+
+### Added
+- CCS dependency integration — rebuild target, smoke passthrough, roadmap tracking
+- add CCS dependency integration tracking (commit:0e7d0687)
+- add --format backstage for Backstage.io entity annotations (commit:29d93fd8)
+
 ## [0.20.1] - 2026-05-05
 
 ### Changed
