@@ -1,0 +1,17 @@
+id: ROAD-083
+created_at: 2026-05-15T15:06:15.300607-03:00
+updated_at: 2026-05-15T15:06:21.520959-03:00
+title: Portfolio-wide smoke test adoption — wire .smokesig.yaml across CosmoLabs projects
+status: captured
+priority: 70
+description: |
+  Once CCS integration is live (ROAD-082), run smokesig init across the CosmoLabs
+  portfolio (~95 projects). Start with Go services, then Node/Python/Rust. Each project
+  gets a .smokesig.yaml with build, lint, and basic connectivity checks. Track adoption
+  in the portfolio dashboard.
+tags:
+    - source:internal
+    - area:ecosystem
+    - area:dx
+origin:
+    session: 2027

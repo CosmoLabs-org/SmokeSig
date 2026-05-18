@@ -1,0 +1,16 @@
+id: ROAD-084
+created_at: 2026-05-15T15:06:30.470479-03:00
+updated_at: 2026-05-15T15:06:38.77899-03:00
+title: Push reporter — send results to webhook/Slack/PagerDuty on failure
+status: captured
+priority: 55
+description: |
+  Add --report-url and --report-api-key flags for pushing results to external systems.
+  Support generic webhooks (JSON POST), Slack webhook format, and PagerDuty events API.
+  Trigger on failure or always (configurable). Already have the flag scaffolding in cmd/run.go.
+tags:
+    - source:internal
+    - area:ci
+    - area:dx
+origin:
+    session: 2027

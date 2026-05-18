@@ -1,0 +1,14 @@
+id: ROAD-086
+created_at: 2026-05-15T15:06:30.856523-03:00
+updated_at: 2026-05-15T15:06:38.896702-03:00
+title: Wasm plugin system for custom assertions via wazero
+status: captured
+priority: 25
+tags:
+    - source:gemini-feedback
+parent: ROAD-081
+refs:
+    - type: issue
+      path: docs/issues/FEAT-048.yaml
+origin:
+    session: 2027

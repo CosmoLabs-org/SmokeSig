@@ -1,11 +1,14 @@
 id: FEAT-050
 type: feature
 created_at: 2026-04-30T02:51:30.548221-03:00
-updated_at: 2026-04-30T02:52:04.380576-03:00
+updated_at: 2026-05-12T17:27:45.551141-03:00
 source: local
-status: open
+status: done
 origin:
     session: 2027
 title: Backstage.io schema output reporter (BR-05)
 description: Add --format backstage reporter emitting Backstage entity annotation JSON. Maps test results to HealthCheck annotations. ~150 lines.
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+revisions:
+    - date: "2026-05-12"
+      action: closed

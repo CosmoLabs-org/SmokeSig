@@ -1,9 +1,9 @@
 version: "1.0"
 next_id: 9
-last_updated: "2026-04-19"
+last_updated: "2026-05-15T13:06:32.209083-03:00"
 stats:
-    total: 9
-    pending: 9
+    total: 10
+    pending: 10
     implemented: 0
     rejected: 0
     converted: 0
@@ -53,3 +53,8 @@ entries:
       status: pending
       from_project: cosmo-smoke
       created: "2026-04-19T02:16:13.53465-03:00"
+    - id: FB-010
+      title: Wire SmokeSig as a CCS external dependency
+      status: pending
+      from_project: SmokeSig
+      created: "2026-05-15T13:06:31.277302-03:00"
