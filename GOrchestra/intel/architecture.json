@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-09T19:45:11.743632-03:00",
-  "generated_by": "GLM-4.7",
-  "expires_at": "2026-05-10T19:45:11.743632-03:00",
-  "last_analyzed_commit": "4b0992a9c10215dd76c6bfacbe83dc98fda4ce63",
-  "summary": "A Go-based monolithic CLI tool featuring an assertion runner and MCP handlers, currently undergoing heavy AI-assisted test generation and API renaming.",
+  "generated_at": "2026-05-18T02:57:54.095713-03:00",
+  "generated_by": "glm-5-turbo",
+  "expires_at": "2026-05-19T02:57:54.095713-03:00",
+  "last_analyzed_commit": "a398c4d8b7479f3504914eae48d64b90e6e5b7ba",
+  "summary": "A Go-based testing and validation framework featuring MCP integration, schema validation, and assertion-based test runners, currently undergoing active branding changes to SmokeSig.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,21 +15,19 @@
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
-    "Test-Driven Development",
+    "test-driven development",
     "MCP (Model Context Protocol) handler pattern",
-    "Assertion-based validation",
-    "Agent-driven test generation (GOrchestra/glm-agents)"
+    "assertion-based validation",
+    "schema validation"
   ],
   "concerns": [
-    "Proliferation of auto-generated extra test directories (0005-0025) cluttering the repository",
-    "Mixed staged, modified, and untracked files in git status indicating incomplete commit workflow",
-    "Heavy reliance on AI-generated tests may lead to brittle or redundant test coverage",
-    "Recent commits show churn around documentation and renaming (SmokeSig) suggesting unstable API surface"
+    "high volume of agent-generated extra test files (0005-0025) polluting the repository structure",
+    "uncommitted changes (2 modified, 1 staged) during release v0.21.0",
+    "potential test flakiness from extensive assertion wiring"
   ],
   "suggestions": [
-    "Archive or ignore GOrchestra/glm-agents directories to reduce repository noise",
-    "Resolve current git state (stage untracked, commit or stash modified) before continuing",
-    "Consolidate overlapping extra tests into standard test files",
-    "Stabilize public API naming before expanding test coverage"
+    "clean up or archive the GOrchestra/glm-agents generated test directories",
+    "commit or stash the pending changes before further development",
+    "consolidate extra test files into standard test suites"
   ]
 }

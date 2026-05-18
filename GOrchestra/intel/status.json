@@ -2,7 +2,7 @@
   "version": "1.0",
   "updated_at": "2026-05-15T12:55:54.9486-03:00",
   "expires_at": "2026-05-15T13:55:54.9486-03:00",
-  "project_path": "/Users/gab/PROJECTS/SmokeSig",
+  "project_path": "~/PROJECTS/SmokeSig",
   "context": "",
-  "glm_enhanced": false
+  "glm_enhanced": true
 }
