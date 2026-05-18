@@ -1,5 +1,6 @@
 ---
 brainstorm: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+completed: "2026-05-12"
 created: "2026-05-02"
 deliverables:
     - id: P-01
@@ -10,10 +11,13 @@ deliverables:
       title: '`--format backstage` integration in chain.go'
     - id: P-04
       title: Tests for Backstage output format
+goals_completed: 0
+goals_total: 0
 issue: FEAT-050
+related_prompts: []
 requires_reading: []
 schema_version: 1
-status: PENDING
+status: COMPLETED
 tags:
     - feat-050
     - reporter

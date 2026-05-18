@@ -1,6 +1,6 @@
 {
-  "hash": "3399d6d77b04251bd785d6638dfaac373e4334ac564f218c6780a6bc3fb5ff33",
-  "project_name": "cosmo-smoke",
+  "hash": "1de4f9ab9a1d9db605d93bec403d24f9e9ca92f85b8b6dc2fa2b9af3fd298991",
+  "project_name": "SmokeSig",
   "language": "go",
   "framework": "cli",
   "directories": [
@@ -28,5 +28,5 @@
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-05T14:57:52.789417-03:00"
+  "generated_at": "2026-05-09T19:44:48.232319-03:00"
 }

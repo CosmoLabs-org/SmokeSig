@@ -1,20 +1,25 @@
 ---
 brainstorm_ref: docs/brainstorming/2026-05-05-rename-to-smokesig.md
 branch: master
+completed: "2026-05-12"
 covers_brainstorm_deliverables:
     - BR-04
 covers_plan_deliverables:
     - P-04
 created: "2026-05-05"
+goals_completed: 4
+goals_total: 4
 id: P-2026-05-05-smokesig-docs
 plan_ref: docs/planning-mode/2026-05-05-rename-to-smokesig.md
 priority: medium
+related_prompts: []
 requires_reading:
     - docs/brainstorming/2026-05-05-rename-to-smokesig.md
     - docs/planning-mode/2026-05-05-rename-to-smokesig.md
 schema_version: 1
-status: PENDING
-title: "SmokeSig: Docs Polish & Remaining Cleanup"
+status: COMPLETED
+tags: []
+title: 'SmokeSig: Docs Polish & Remaining Cleanup'
 ---
 
 # SmokeSig: Docs Polish & Remaining Cleanup
@@ -42,7 +47,7 @@ The project is on v0.20.0 with 7 open features from the Gemini ecosystem brainst
 
 ## Goals
 
-### [ ] G-01 README.md full rewrite
+### [x] G-01 README.md full rewrite
 **Model:** `sonnet` | **Files:** `README.md`
 
 The current README had `cosmo-smoke` replaced with `SmokeSig` via sed. It needs a proper rewrite:
@@ -55,7 +60,7 @@ The current README had `cosmo-smoke` replaced with `SmokeSig` via sed. It needs 
 - Keep all assertion type tables and architecture sections intact
 - Add a "Migration from cosmo-smoke" section explaining `.smoke.yaml` backward compat
 
-### [ ] G-02 Remaining cosmo-smoke reference cleanup
+### [x] G-02 Remaining cosmo-smoke reference cleanup
 **Model:** `glm-turbo` | **Files:** `CHANGELOG.md`, `internal/migrate/goss/translator.go`, `internal/migrate/goss/translator_test.go`, test fixtures
 
 Grep for remaining `cosmo-smoke` references in the repo (excluding `.git/`, `GOrchestra/sessions/`, and the deprecation/fallback strings in `schema.go`/`discover.go`). Clean up:
@@ -66,7 +71,7 @@ Grep for remaining `cosmo-smoke` references in the repo (excluding `.git/`, `GOr
 
 Verify: `grep -ri "cosmo-smoke" --include="*.go" . | grep -v ".git/" | grep -v "deprecated\|fallback\|legacy\|smoke.yaml"` returns zero results.
 
-### [ ] G-03 CLAUDE.md quality pass
+### [x] G-03 CLAUDE.md quality pass
 **Model:** `sonnet` | **Files:** `CLAUDE.md`
 
 The CLAUDE.md had sed replacements applied. Verify:
@@ -75,7 +80,7 @@ The CLAUDE.md had sed replacements applied. Verify:
 - Repository path is `github.com/CosmoLabs-org/SmokeSig`
 - No double-replaced or mangled text from sed
 
-### [ ] G-04 FEAT-050 Backstage.io reporter — begin implementation
+### [x] G-04 FEAT-050 Backstage.io reporter — begin implementation
 **Model:** `glm-turbo` | **Files:** `internal/reporter/backstage.go`, `internal/reporter/backstage_test.go`, `internal/reporter/chain.go`
 
 If docs work finishes quickly, start FEAT-050. Plan is at `docs/planning-mode/2026-05-02-backstage-reporter.md`. Steps:
