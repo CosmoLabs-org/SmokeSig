@@ -1,16 +1,16 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T19:34:46.781114-03:00",
+  "generated_at": "2026-05-24T19:35:22.2722-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T19:34:46.781114-03:00",
-  "last_analyzed_commit": "22986e24eba7d3c6b4579289262a8b49c918aa51",
-  "summary": "A Go-based monolithic project featuring a test runner, schema validation, and MCP handlers, currently undergoing heavy automated agent-driven test expansion.",
+  "expires_at": "2026-05-25T19:35:22.2722-03:00",
+  "last_analyzed_commit": "b186c0a4163ac6c5ac24490e62b4d5e0370cf98e",
+  "summary": "A Go-based monolithic project featuring a test runner, schema validation, and MCP handlers, heavily utilizing automated agent-driven test generation.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/runner/assertion_test.go",
     "internal/mcp/handlers.go",
+    "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
     "internal/mcp/mcp_extra_test.go"
   ],
@@ -22,15 +22,13 @@
     "agent-based automated testing"
   ],
   "concerns": [
-    "proliferation of extra test directories (0005-0025) suggests fragmented or auto-generated test suites",
-    "uncommitted modified file alongside staged changes indicates potential git state instability",
-    "heavy reliance on automated agent commits may obscure actual code changes",
-    "test files dominating the recent activity might indicate core logic is undertested or legacy"
+    "high volume of agent-generated extra test files may lead to test bloat",
+    "scattered test directories across GOrchestra/glm-agents paths indicate complex CI/agent orchestration",
+    "1 staged file suggests incomplete commit or merge in progress"
   ],
   "suggestions": [
-    "consolidate the numerous GOrchestra/glm-agents extra test directories into a unified test suite",
-    "review and clean up the current git working tree to resolve the mixed staged/modified state",
-    "ensure core business logic in runner.go and handlers.go has equivalent non-agent-generated test coverage",
-    "document the purpose and orchestration of the glm-agents workflow"
+    "consolidate or clean up archived agent test directories to reduce repository clutter",
+    "review test coverage overlap between baseline and extra tests",
+    "ensure MCP handlers have comprehensive integration tests beyond unit tests"
   ]
 }

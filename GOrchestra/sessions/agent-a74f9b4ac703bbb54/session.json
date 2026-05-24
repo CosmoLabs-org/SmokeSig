@@ -1,0 +1,29 @@
+{
+  "branch": "agent-a74f9b4ac703bbb54",
+  "base_branch": "master",
+  "status": "merged",
+  "created": "2026-05-24T19:33:51-03:00",
+  "archived": "2026-05-24T19:35:52.984282-03:00",
+  "commits": [
+    {
+      "hash": "e4d8239",
+      "author": "GΛB",
+      "message": "chore: session review (score=8, issues=0)",
+      "date": 1779662115
+    },
+    {
+      "hash": "8d205f5",
+      "author": "GΛB",
+      "message": "feat(init): auto-include doc_integrity for CLI projects",
+      "date": 1779662031
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 16,
+  "lines_added": 19,
+  "lines_removed": 1536,
+  "diff_stat": ".review.json                                       |   4 +-\n .version-registry.json                             |  18 +-\n GOrchestra/intel/architecture.json                 |  33 +-\n .../sessions/agent-a38853e5f2a6379e0/HISTORY.md    |  25 -\n .../sessions/agent-a38853e5f2a6379e0/cleanup.json  |   5 -\n .../sessions/agent-a38853e5f2a6379e0/session.json  |  29 --\n .../sessions/agent-a3a1ec63530f110ce/cleanup.json  |   5 -\n GOrchestra/worktree-history.yaml                   |  12 -\n .../worktrees/agent-a38853e5f2a6379e0/session.json |  11 -\n .../worktrees/agent-a74f9b4ac703bbb54/session.json |  11 -\n cmd/audit.go                                       | 243 ---------\n cmd/audit_test.go                                  | 128 -----\n ...etup-session-end-sop-integrate-smokesig-run-.md |  33 --\n ...etup-upgrades-ux-askuserquestion-with-recomm.md |  33 --\n internal/audit/audit.go                            | 565 ---------------------\n internal/audit/audit_test.go                       | 400 ---------------\n 16 files changed, 19 insertions(+), 1536 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}
