@@ -2,6 +2,18 @@ package reporter
 
 import "time"
 
+// Verbosity controls how much detail reporters emit.
+type Verbosity int
+
+const (
+	// VerbosityQuiet suppresses per-test progress; only failures and final summary.
+	VerbosityQuiet Verbosity = -1
+	// VerbosityNormal is the default behavior.
+	VerbosityNormal Verbosity = 0
+	// VerbosityVerbose shows assertion-level detail, timing breakdown, and full error context.
+	VerbosityVerbose Verbosity = 1
+)
+
 // Reporter receives events during test execution.
 type Reporter interface {
 	PrereqStart(name string)
