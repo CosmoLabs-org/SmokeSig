@@ -6,7 +6,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -18,8 +20,12 @@ type OTelReporter struct {
 	headers    map[string]string
 	traceID    string
 	client     *http.Client
+	warnOut    io.Writer // warning output; defaults to os.Stderr
 	mu         sync.Mutex
 	spanIndex  uint64
+	wg         sync.WaitGroup
+	errsMu     sync.Mutex
+	errs       []error
 }
 
 // NewOTelReporter creates a reporter that exports spans to the given OTLP HTTP endpoint.
@@ -32,6 +38,7 @@ func NewOTelReporter(endpoint, service string, headers map[string]string) *OTelR
 		headers:  headers,
 		traceID:  hex.EncodeToString(tid[:]),
 		client:   &http.Client{Timeout: 5 * time.Second},
+		warnOut:  os.Stderr,
 	}
 }
 
@@ -73,7 +80,15 @@ func (o *OTelReporter) TestResult(r TestResultData) {
 		Attributes:    attrs,
 	}
 
-	go o.export(otlpPayload(o.service, []otlpSpan{span}))
+	o.wg.Add(1)
+	go func() {
+		defer o.wg.Done()
+		if err := o.export(otlpPayload(o.service, []otlpSpan{span})); err != nil {
+			o.errsMu.Lock()
+			o.errs = append(o.errs, err)
+			o.errsMu.Unlock()
+		}
+	}()
 }
 
 func (o *OTelReporter) Summary(s SuiteResultData) {
@@ -101,7 +116,22 @@ func (o *OTelReporter) Summary(s SuiteResultData) {
 		Attributes:    attrs,
 	}
 
-	go o.export(otlpPayload(o.service, []otlpSpan{span}))
+	// Wait for any in-flight TestResult exports to finish.
+	o.wg.Wait()
+
+	// Export summary span synchronously so warnings print after all test output.
+	if err := o.export(otlpPayload(o.service, []otlpSpan{span})); err != nil {
+		o.errsMu.Lock()
+		o.errs = append(o.errs, err)
+		o.errsMu.Unlock()
+	}
+
+	// Print all collected warnings to stderr.
+	o.errsMu.Lock()
+	defer o.errsMu.Unlock()
+	for _, e := range o.errs {
+		fmt.Fprintf(o.warnOut, "⚠️  Warning: failed to export telemetry: %v\n", e)
+	}
 }
 
 func (o *OTelReporter) nextSpanID() string {
@@ -113,16 +143,24 @@ func (o *OTelReporter) nextSpanID() string {
 	return hex.EncodeToString(sid[:])
 }
 
-func (o *OTelReporter) export(payload []byte) {
+func (o *OTelReporter) export(payload []byte) error {
 	req, err := http.NewRequest(http.MethodPost, o.endpoint, bytes.NewReader(payload))
 	if err != nil {
-		return
+		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	for k, v := range o.headers {
 		req.Header.Set(k, v)
 	}
-	o.client.Do(req) //nolint:errcheck — best-effort export
+	resp, err := o.client.Do(req)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("collector returned %s", resp.Status)
+	}
+	return nil
 }
 
 // OTLP JSON types

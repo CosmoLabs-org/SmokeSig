@@ -1,9 +1,11 @@
 package reporter
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -141,6 +143,68 @@ func TestPushReporter_Non200Response(t *testing.T) {
 	p := NewPushReporter(srv.URL, "key")
 	p.TestResult(TestResultData{Name: "test", Passed: true})
 	p.Summary(SuiteResultData{Project: "test", Total: 1, Passed: 1})
+}
+
+func TestPushReporter_WarnsOnServerError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer srv.Close()
+
+	var buf bytes.Buffer
+	p := NewPushReporter(srv.URL, "")
+	p.warnOut = &buf
+	p.TestResult(TestResultData{Name: "test", Passed: true})
+	p.Summary(SuiteResultData{Project: "test", Total: 1, Passed: 1})
+
+	got := buf.String()
+	if !strings.Contains(got, "Warning: failed to push results to") {
+		t.Errorf("expected push warning, got %q", got)
+	}
+	if !strings.Contains(got, "500 Internal Server Error") {
+		t.Errorf("expected status in warning, got %q", got)
+	}
+}
+
+func TestPushReporter_WarnsOnNetworkError(t *testing.T) {
+	var buf bytes.Buffer
+	p := NewPushReporter("http://127.0.0.1:1/nonexistent", "")
+	p.warnOut = &buf
+	p.TestResult(TestResultData{Name: "test", Passed: true})
+	p.Summary(SuiteResultData{Project: "test", Total: 1, Passed: 1})
+
+	got := buf.String()
+	if !strings.Contains(got, "Warning: failed to push results to") {
+		t.Errorf("expected push warning on network error, got %q", got)
+	}
+}
+
+func TestPushReporter_WarnsOnMalformedURL(t *testing.T) {
+	var buf bytes.Buffer
+	p := NewPushReporter("://not-valid", "")
+	p.warnOut = &buf
+	p.Summary(SuiteResultData{Project: "test", Total: 1, Passed: 1})
+
+	got := buf.String()
+	if !strings.Contains(got, "Warning: failed to push results to") {
+		t.Errorf("expected push warning on malformed URL, got %q", got)
+	}
+}
+
+func TestPushReporter_NoWarningOnSuccess(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusAccepted)
+	}))
+	defer srv.Close()
+
+	var buf bytes.Buffer
+	p := NewPushReporter(srv.URL, "")
+	p.warnOut = &buf
+	p.Summary(SuiteResultData{Project: "test", Total: 1, Passed: 1})
+
+	if buf.Len() > 0 {
+		t.Errorf("expected no warnings on success, got %q", buf.String())
+	}
 }
 
 func TestPushReporter_Timeout(t *testing.T) {
