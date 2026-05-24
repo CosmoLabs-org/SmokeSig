@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 489,
+    "build": 492,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T13:15:04Z",
+    "lastUpdated": "2026-05-24T20:47:42Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -139,6 +139,20 @@
           "internal/schema/export.go",
           "internal/schema/schema.go",
           "internal/schema/validate.go"
+        ]
+      },
+      {
+        "branch": "agent-a3a1ec63530f110ce",
+        "title": "Agent a3a1ec63530f110ce",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T17:47:42-03:00",
+        "files": [
+          ".review.json",
+          "CLAUDE.md",
+          "README.md",
+          "SPEC.md",
+          "docs/FEATURES.md"
         ]
       }
     ],
