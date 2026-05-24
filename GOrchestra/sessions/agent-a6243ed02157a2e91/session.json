@@ -1,0 +1,29 @@
+{
+  "branch": "agent-a6243ed02157a2e91",
+  "base_branch": "master",
+  "status": "conflict",
+  "created": "2026-05-24T10:14:34-03:00",
+  "archived": "2026-05-24T10:16:08.632356-03:00",
+  "commits": [
+    {
+      "hash": "08b36e9",
+      "author": "GΛB",
+      "message": "chore: session review (score=8, issues=0)",
+      "date": 1779628528
+    },
+    {
+      "hash": "0a79a7c",
+      "author": "GΛB",
+      "message": "feat(assertions): add doc_integrity check for stale documentation detection",
+      "date": 1779628474
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 32,
+  "lines_added": 1101,
+  "lines_removed": 797,
+  "diff_stat": ".review.json                                       |   4 +-\n .version-registry.json                             |  20 +-\n GOrchestra/intel/architecture.json                 |  26 +-\n .../sessions/agent-a7d898cf8dfb5d03d/cleanup.json  |   6 -\n .../sessions/agent-ab24f929759162165/HISTORY.md    |  25 -\n .../sessions/agent-ab24f929759162165/cleanup.json  |   5 -\n .../sessions/agent-ab24f929759162165/session.json  |  29 --\n GOrchestra/worktree-history.yaml                   |  12 -\n .../worktrees/agent-a6243ed02157a2e91/session.json |  11 -\n .../worktrees/agent-ab24f929759162165/session.json |  11 -\n ...iadb-doc-integrity-check-type-detect-stale-d.md |  26 +-\n docs/issues.yaml                                   |  22 +-\n docs/issues/BUG-002.yaml                           |   7 +-\n docs/issues/BUG-003.yaml                           |   7 +-\n docs/issues/BUG-004.yaml                           |   7 +-\n docs/issues/BUG-005.yaml                           |   7 +-\n docs/issues/BUG-006.yaml                           |   7 +-\n docs/issues/BUG-007.yaml                           |   7 +-\n docs/issues/BUG-008.yaml                           |   7 +-\n docs/issues/BUG-009.yaml                           |   7 +-\n docs/issues/BUG-010.yaml                           |   7 +-\n docs/issues/BUG-011.yaml                           |   7 +-\n docs/issues/FEAT-053.yaml                          |  61 ---\n docs/prompts/2026-05-24-smokesig-audit-followup.md |   2 +-\n internal/runner/assertion_doc_integrity.go         | 465 ++++++++++++++++++\n internal/runner/assertion_doc_integrity_test.go    | 544 +++++++++++++++++++++\n internal/runner/assertion_simulator.go             | 185 -------\n internal/runner/assertion_simulator_test.go        | 305 ------------\n internal/runner/runner.go                          |  20 +-\n internal/schema/export.go                          |  15 +-\n internal/schema/schema.go                          |  21 +-\n internal/schema/validate.go                        |  13 +-\n 32 files changed, 1101 insertions(+), 797 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}

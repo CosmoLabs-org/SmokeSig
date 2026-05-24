@@ -1,17 +1,20 @@
 ---
 id: FEAT-053
-title: "Doc-integrity check type: detect stale documentation vs actual CLI features"
 type: feature
-status: open
+created: "2026-05-24T12:00:00-03:00"
+updated: "2026-05-24T10:17:55.838699-03:00"
 priority: 50
-complexity: complex
-created: "2026-05-24"
-updated: "2026-05-24"
+status: closed
 origin:
-  feedback_id: "FB-011"
-  from_project: "WikipediaDB"
-  received: "2026-05-24"
-  converted: "2026-05-24"
+    feedback_id: FB-011
+    from_project: WikipediaDB
+    received: "2026-05-24"
+    converted: "2026-05-24"
+title: 'Doc-integrity check type: detect stale documentation vs actual CLI features'
+revisions:
+    - date: "2026-05-24"
+      action: closed
+
 ---
 
 # FEAT-053: Doc-integrity check type: detect stale documentation vs actual CLI features

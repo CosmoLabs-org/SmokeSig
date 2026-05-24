@@ -1,6 +1,6 @@
 version: "1.0"
 project: SmokeSig
-last_updated: 2026-05-24T10:04:09.117169-03:00
+last_updated: 2026-05-24T10:17:55.841337-03:00
 next_bug_id: 12
 next_feat_id: 53
 next_task_id: 2
@@ -250,7 +250,7 @@ issues:
       created_at: 2026-04-30T02:51:30.537901-03:00
     - id: FEAT-047
       type: feature
-      status: open
+      status: closed
       title: Simulator/emulator health assertions (BR-12)
       created_at: 2026-04-30T02:51:30.539845-03:00
     - id: FEAT-048
@@ -338,3 +338,8 @@ issues:
       title: Container runs as root with no USER directive in Dockerfile
       severity: high
       created_at: 2026-05-24T06:06:01.219683-03:00
+    - id: FEAT-053
+      type: feature
+      status: closed
+      title: 'Doc-integrity check type: detect stale documentation vs actual CLI features'
+      priority: 50
