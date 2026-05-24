@@ -21,7 +21,7 @@ cmd/
 internal/
 ├── schema/          # SmokeConfig structs, YAML parsing, validation
 ├── baseline/        # Performance baseline storage and comparison
-├── runner/          # Assertion engine (39 types), prereq runner, test execution
+├── runner/          # Assertion engine (45 types), prereq runner, test execution
 ├── reporter/        # Terminal (Lipgloss) + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push reporters
 ├── monorepo/        # Sub-config discovery for monorepo projects
 ├── dashboard/       # Portfolio dashboard (SQLite storage, API handlers, embedded UI)
@@ -31,7 +31,7 @@ internal/
 ## Key Design Decisions
 
 - **Minimal deps**: Cobra + Lipgloss + yaml.v3 + gjson. No Viper, no Bubbletea.
-- **Pure assertions**: All 29 assertion types are pure functions — no side effects.
+- **Pure assertions**: All 45 assertion types are pure functions — no side effects.
 - **Config inheritance**: `includes:` directive + Go templates (`{{ .Env.FOO }}`).
 - **Config-dir-relative**: Commands execute from the config file's directory, not cwd.
 - **All errors at once**: Validation returns all errors, not just the first.
@@ -105,6 +105,9 @@ smokesig version
 | mqtt_ping | `{broker, client_id?, username?, password_env?, timeout?}` | MQTT CONNECT/CONNACK wire protocol check |
 | ntp_check | `{server?, max_offset_ms?, timeout?}` | NTP time sync verification (UDP) |
 | k8s_resource | `{context?, namespace, kind, name, condition?, timeout?}` | Kubernetes resource state via kubectl |
+| ios_simulator | `{device_name?, os?, timeout?}` | Check if an iOS simulator is booted (xcrun simctl) |
+| android_emulator | `{serial?, timeout?}` | Check if an Android emulator has finished booting (adb) |
+| doc_integrity | `{binary, docs, check_examples?, ignore_commands?, timeout?}` | CLI documentation sync check (commands, flags, examples) |
 
 Plus `allow_failure: true` on Test for flaky/allowed-failure tests.
 

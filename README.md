@@ -8,7 +8,7 @@ Universal smoke test runner. Define lightweight "does it turn on?" checks in `.s
 
 Most smoke testing is either too heavy (full test frameworks, language-specific runtimes, complex setup) or too fragile (hand-rolled curl scripts that break silently). SmokeSig sits in the sweet spot: **one binary, one YAML file, zero code**.
 
-**40 assertion types, zero external dependencies.** SmokeSig speaks wire protocols directly — Redis RESP, PostgreSQL handshake, MySQL v10, MongoDB isMaster, Kafka metadata, MQTT CONNECT/CONNACK, LDAP BER, NTP UDP — all implemented as pure Go functions with no client library dependencies. Your smoke tests have no transitive deps to break.
+**45 assertion types, zero external dependencies.** SmokeSig speaks wire protocols directly — Redis RESP, PostgreSQL handshake, MySQL v10, MongoDB isMaster, Kafka metadata, MQTT CONNECT/CONNACK, LDAP BER, NTP UDP — all implemented as pure Go functions with no client library dependencies. Your smoke tests have no transitive deps to break.
 
 **Single binary, single config.** `go install` and you're running. No runtime, no plugins, no package ecosystem. The `.smokesig.yaml` config is human-readable and version-controllable. Teams onboard in minutes, not hours.
 
@@ -232,6 +232,8 @@ All assertions are optional and combinable within a single `expect` block.
 | Type | Field | Description |
 |------|-------|-------------|
 | Deep link | `deep_link: {url, android_package?, ios_bundle_id?}` | Mobile deep link / universal link verification |
+| iOS simulator | `ios_simulator: {device_name?, os?, timeout?}` | Check if an iOS simulator is booted |
+| Android emulator | `android_emulator: {serial?, timeout?}` | Check if an Android emulator has finished booting |
 | DNS resolve | `dns_resolve: {hostname, record_type?, expected_ip?}` | DNS resolution check (A, AAAA, TXT, MX, CNAME) |
 
 ### Messaging & Mail
@@ -247,6 +249,12 @@ All assertions are optional and combinable within a single `expect` block.
 | Version check | `version_check: {command, pattern}` | Shell command output matches regex |
 | JSON field | `json_field: {path, equals?, contains?, matches?}` | JSONPath assertion on stdout |
 | Credential check | `credential_check: {source, name, contains?}` | Verify credential accessible without leaking value |
+
+### Documentation & Quality
+
+| Type | Field | Description |
+|------|-------|-------------|
+| Doc integrity | `doc_integrity: {binary, docs, check_examples?, ignore_commands?, timeout?}` | CLI documentation sync check |
 
 ### Test Modifiers
 
