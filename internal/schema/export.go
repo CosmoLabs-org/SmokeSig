@@ -203,6 +203,116 @@ func ExportSchema() *SchemaOutput {
 					{Name: "timeout", Type: "duration", Required: false},
 				},
 			},
+			{
+				Name: "deep_link", YAML: "deep_link",
+				Fields: []FieldInfo{
+					{Name: "url", Type: "string", Required: true},
+					{Name: "android_package", Type: "string", Required: false},
+					{Name: "ios_bundle_id", Type: "string", Required: false},
+					{Name: "ios_associated_domains", Type: "[]string", Required: false},
+					{Name: "check_assetlinks", Type: "bool", Required: false},
+					{Name: "check_aasa", Type: "bool", Required: false},
+					{Name: "tier", Type: "int", Required: false},
+				},
+			},
+			{
+				Name: "dns_resolve", YAML: "dns_resolve",
+				Fields: []FieldInfo{
+					{Name: "hostname", Type: "string", Required: true},
+					{Name: "record_type", Type: "string (A|AAAA|TXT|MX|CNAME)", Required: false},
+					{Name: "expected_ip", Type: "string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "smtp_ping", YAML: "smtp_ping",
+				Fields: []FieldInfo{
+					{Name: "host", Type: "string", Required: true},
+					{Name: "port", Type: "int", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "docker_compose_healthy", YAML: "docker_compose_healthy",
+				Fields: []FieldInfo{
+					{Name: "compose_file", Type: "string", Required: false},
+					{Name: "services", Type: "[]string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "ping", YAML: "ping",
+				Fields: []FieldInfo{
+					{Name: "host", Type: "string", Required: true},
+					{Name: "count", Type: "int", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "mongo_ping", YAML: "mongo_ping",
+				Fields: []FieldInfo{
+					{Name: "host", Type: "string", Required: false},
+					{Name: "port", Type: "int", Required: false},
+					{Name: "username", Type: "string", Required: false},
+					{Name: "password_env", Type: "string", Required: false},
+				},
+			},
+			{
+				Name: "kafka_broker", YAML: "kafka_broker",
+				Fields: []FieldInfo{
+					{Name: "brokers", Type: "string", Required: true},
+					{Name: "topic", Type: "string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "ldap_bind", YAML: "ldap_bind",
+				Fields: []FieldInfo{
+					{Name: "host", Type: "string", Required: true},
+					{Name: "port", Type: "int", Required: false},
+					{Name: "bind_dn", Type: "string", Required: false},
+					{Name: "password_env", Type: "string", Required: false},
+					{Name: "use_tls", Type: "bool", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "mqtt_ping", YAML: "mqtt_ping",
+				Fields: []FieldInfo{
+					{Name: "broker", Type: "string", Required: true},
+					{Name: "client_id", Type: "string", Required: false},
+					{Name: "username", Type: "string", Required: false},
+					{Name: "password_env", Type: "string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "ntp_check", YAML: "ntp_check",
+				Fields: []FieldInfo{
+					{Name: "server", Type: "string", Required: false},
+					{Name: "max_offset_ms", Type: "int", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "k8s_resource", YAML: "k8s_resource",
+				Fields: []FieldInfo{
+					{Name: "context", Type: "string", Required: false},
+					{Name: "namespace", Type: "string", Required: true},
+					{Name: "kind", Type: "string", Required: true},
+					{Name: "name", Type: "string", Required: true},
+					{Name: "condition", Type: "string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "file_size", YAML: "file_size",
+				Fields: []FieldInfo{
+					{Name: "path", Type: "string", Required: true},
+					{Name: "min_bytes", Type: "int64", Required: false},
+					{Name: "max_bytes", Type: "int64", Required: false},
+				},
+			},
 		},
 	}
 }
