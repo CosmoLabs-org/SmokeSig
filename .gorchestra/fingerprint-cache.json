@@ -1,5 +1,5 @@
 {
-  "hash": "1de4f9ab9a1d9db605d93bec403d24f9e9ca92f85b8b6dc2fa2b9af3fd298991",
+  "hash": "644b182d1ec3af960b3d655e0803299df8bf6672d909e02ee05af24cdb3c8126",
   "project_name": "SmokeSig",
   "language": "go",
   "framework": "cli",
@@ -7,7 +7,6 @@
     "ClaudeDesktop",
     "GOrchestra",
     "GeminiAI",
-    "bin",
     "cmd",
     "docs",
     "examples",
@@ -28,5 +27,5 @@
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-09T19:44:48.232319-03:00"
+  "generated_at": "2026-05-24T05:39:56.502051-03:00"
 }

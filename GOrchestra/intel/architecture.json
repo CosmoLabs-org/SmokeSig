@@ -1,33 +1,36 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T05:06:25.872747-03:00",
+  "generated_at": "2026-05-24T07:50:20.840632-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T05:06:25.872747-03:00",
-  "last_analyzed_commit": "0c5caaa08d47297f3213f3567c428c14791fdbe9",
-  "summary": "A Go-based test runner and MCP orchestration tool heavily utilizing AI agents for extended test generation.",
-  "architecture": "monolith",
+  "expires_at": "2026-05-25T07:50:20.840632-03:00",
+  "last_analyzed_commit": "efff86b792b08b229607cad82c57975a82af17f5",
+  "summary": "A Go-based CLI orchestration tool featuring a parallel test runner, schema validation, and MCP integration, currently undergoing security hardening and test expansion.",
+  "architecture": "monolithic CLI tool with internal modular packages",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/mcp/handlers.go",
     "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
+    "internal/mcp/handlers.go",
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
-    "Test-Driven Development (TDD)",
-    "MCP (Model Context Protocol) Handler",
-    "Test Runner/Orchestrator",
-    "Schema Validation"
+    "Table-driven testing",
+    "Dependency injection (wire)",
+    "MCP (Model Context Protocol) handler pattern",
+    "Schema validation/export pattern",
+    "Test-per-agent directory structure"
   ],
   "concerns": [
-    "High volume of agent-generated extra tests (0005-0025) suggests potential flakiness or missing baseline coverage",
-    "Uncommitted modified and staged files in a post-release state (v0.21.1) could indicate rushed hotfixes",
-    "Deep nesting of generated test directories (GOrchestra/glm-agents/...) pollutes the repository structure"
+    "Highly fragmented test generation (many GOrchestra agent directories)",
+    "Security hardening recently applied suggests prior vulnerabilities in assertions and HTTP server",
+    "Incomplete smoke test renaming indicates ongoing refactoring churn",
+    "10 modified and 6 untracked files in git status suggest unstable working tree"
   ],
   "suggestions": [
-    "Consolidate or clean up the numerous agent-generated test directories to reduce repository clutter",
-    "Ensure the staged and modified files are properly committed or reverted to maintain a clean release state",
-    "Review baseline test coverage to reduce the need for continuous extra test generation by AI agents"
+    "Consolidate or clean up the numerous GOrchestra agent test directories",
+    "Ensure all 12 missing assertion types are fully covered by integration tests",
+    "Resolve the untracked and modified files to stabilize the repository state",
+    "Focus on the MCP handlers and runner logic for upcoming feature development"
   ]
 }
