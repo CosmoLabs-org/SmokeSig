@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.2] - 2026-05-24
+
+### Added
+- comprehensive 10-agent codebase audit (66.1/100) with 21 artifact files
+- ~35 new tests increasing coverage for cmd (31.3%), detector (71.6%), runner (76.5%)
+
+### Fixed
+- complete cosmo-smoke to SmokeSig rename across release pipeline
+- Docker Compose --compose-file flag silently ignored (append no-op)
+- DeepLink missing from hasStandaloneAssertions validation
+- IPv6 address formatting across 8 assertion types via net.JoinHostPort
+- race conditions in parallel mode (lifecycleEnv mutex, backgroundProcesses, WithTrace config cloning)
+- 12 missing assertion types added to ExportSchema
+- add 12 missing assertion types to ExportSchema (commit:52d12115)
+- complete cosmo-smoke rename and fix 6 critical bugs (commit:ea3effb9)
+
+### Security
+- HTTP server timeouts, constant-time API key comparison, error sanitization
+- Dockerfile hardened with non-root USER, HEALTHCHECK, EXPOSE, STOPSIGNAL
+- harden assertions, HTTP server, and parallel execution (commit:b04bc805)
+
 ## [0.21.1] - 2026-05-24
 
 ### Fixed
