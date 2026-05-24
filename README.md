@@ -4,6 +4,51 @@
 
 Universal smoke test runner. Define lightweight "does it turn on?" checks in `.smokesig.yaml` and run them with a single command — on any project, in any language.
 
+## Why SmokeSig?
+
+Most smoke testing is either too heavy (full test frameworks, language-specific runtimes, complex setup) or too fragile (hand-rolled curl scripts that break silently). SmokeSig sits in the sweet spot: **one binary, one YAML file, zero code**.
+
+**40 assertion types, zero external dependencies.** SmokeSig speaks wire protocols directly — Redis RESP, PostgreSQL handshake, MySQL v10, MongoDB isMaster, Kafka metadata, MQTT CONNECT/CONNACK, LDAP BER, NTP UDP — all implemented as pure Go functions with no client library dependencies. Your smoke tests have no transitive deps to break.
+
+**Single binary, single config.** `go install` and you're running. No runtime, no plugins, no package ecosystem. The `.smokesig.yaml` config is human-readable and version-controllable. Teams onboard in minutes, not hours.
+
+**31 project types, auto-detected.** Run `smokesig init` in any project directory. SmokeSig inspects marker files (`go.mod`, `package.json`, `Cargo.toml`, `Dockerfile`, `Chart.yaml`, and 26 others) and generates a tailored starter config. Supports languages, mobile, infrastructure, and static site generators.
+
+**MCP server for AI integration.** `smokesig mcp` starts a Model Context Protocol server exposing 7 tools — run tests, generate configs, validate YAML, explain assertion types, and more. Connect it to Claude Desktop or any MCP client and let AI agents write and run smoke tests. No other smoke test tool in the ecosystem offers this.
+
+**7 output formats.** Terminal (with Lipgloss styling), JSON, JUnit XML, TAP, Prometheus metrics, GitHub Actions annotations, and Backstage entity JSON. Comma-separate them: `--format terminal,junit,prometheus`. First goes to stdout, rest to auto-named files.
+
+**OpenTelemetry trace propagation and verification.** SmokeSig injects W3C `traceparent` headers into HTTP, gRPC, and WebSocket assertions, then the `otel_trace` assertion verifies traces arrived at your collector. Supports Jaeger, Tempo, Honeycomb, and Datadog backends. Smoke tests that validate your observability pipeline.
+
+**Monorepo support.** `--monorepo` discovers `.smokesig.yaml` files in subdirectories at any depth. Run your entire project portfolio's smoke tests with a single command.
+
+**Performance baselines and regression detection.** `--baseline` saves test timings and flags regressions when current runs exceed the baseline by a configurable threshold. Catch performance degradation in CI before it ships.
+
+**Goss migration built in.** Already using Goss? `smokesig migrate goss goss.yaml` converts your existing config to `.smokesig.yaml` format, mapping all core resource types to native assertions.
+
+### Example Output
+
+```
+  SmokeSig v0.21.1
+
+  my-api — Smoke tests for my-api
+
+  Prerequisites
+    [PASS]  Go installed                                          12ms
+
+  Tests
+    [PASS]  Compiles                                             1.2s
+    [PASS]  Health endpoint responds                              45ms
+    [PASS]  Redis is reachable                                     8ms
+    [PASS]  SSL cert valid 90+ days                               62ms
+    [PASS]  API responds within 500ms                            230ms
+    [PASS]  Config file exists                                     1ms
+    [PASS]  Go version is 1.22+                                   15ms
+    [SKIP]  Flaky external API                         (env CI unset)
+
+  Results: 7 passed, 0 failed, 1 skipped (1.57s)
+```
+
 ## Install
 
 **Go install:**
