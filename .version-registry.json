@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 477,
+    "build": 480,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T11:47:39Z",
+    "lastUpdated": "2026-05-24T11:48:19Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -86,6 +86,17 @@
           "internal/reporter/otel_test.go",
           "internal/reporter/push.go",
           "internal/reporter/push_test.go"
+        ]
+      },
+      {
+        "branch": "agent-a99e0c661b68d631f",
+        "title": "Agent a99e0c661b68d631f",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T08:48:19-03:00",
+        "files": [
+          ".review.json",
+          "SPEC.md"
         ]
       }
     ],

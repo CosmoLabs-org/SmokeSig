@@ -1,33 +1,33 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T08:47:10.312396-03:00",
+  "generated_at": "2026-05-24T08:47:48.162081-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T08:47:10.312396-03:00",
-  "last_analyzed_commit": "42608c1663c7bba26ba7cb2fda19e17153f7b512",
-  "summary": "A Go-based monolithic project utilizing an AI agent orchestration system (GOrchestra) to generate extensive test suites for a runner, schema validator, and MCP handlers.",
+  "expires_at": "2026-05-25T08:47:48.162082-03:00",
+  "last_analyzed_commit": "f9e815caa88b3bc8b2c8b05fe85101870bc96b1b",
+  "summary": "A Go-based monolithic testing framework featuring a schema validator, assertion runner, and MCP integration, currently cluttered by automated agent session artifacts.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/mcp/handlers.go",
     "internal/runner/assertion_test.go",
+    "internal/mcp/handlers.go",
     "internal/schema/schema_extra_test.go",
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
     "Test-Driven Development",
     "MCP (Model Context Protocol) Handler",
-    "Agent-based orchestration",
-    "Schema validation"
+    "Schema Validation",
+    "Assertion/Expectation Runner"
   ],
   "concerns": [
-    "High volume of auto-generated 'extra tests' from GOrchestra agents may bloat the codebase",
-    "Deeply nested agent-generated directories (GOrchestra/glm-agents/*) complicate repository navigation",
-    "Potential redundancy between baseline tests and agent-generated extra tests"
+    "High volume of auto-generated agent test directories (GOrchestra/glm-agents/*) polluting the repository structure",
+    "Session metadata commits cluttering git history",
+    "Potential test duplication between baseline and extra test files"
   ],
   "suggestions": [
-    "Consolidate or archive GOrchestra agent session artifacts outside the main source tree",
-    "Evaluate if agent-generated extra tests provide unique coverage versus the baseline tests",
-    "Establish a cleanup policy for merged agent branches to maintain a clean repository structure"
+    "Clean up or .gitignore the GOrchestra/glm-agents ephemeral directories",
+    "Consolidate overlapping test suites to reduce maintenance burden",
+    "Implement git history filtering to remove automated session metadata commits"
   ]
 }
