@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 465,
+    "build": 468,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T11:43:30Z",
+    "lastUpdated": "2026-05-24T11:44:51Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -34,6 +34,17 @@
           ".github/workflows/ci.yml",
           ".golangci.yml",
           ".review.json"
+        ]
+      },
+      {
+        "branch": "agent-a74a33a7dc25868e7",
+        "title": "Agent a74a33a7dc25868e7",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T08:44:51-03:00",
+        "files": [
+          ".review.json",
+          "CHANGELOG.md"
         ]
       }
     ],
