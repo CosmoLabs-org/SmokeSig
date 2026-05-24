@@ -18,14 +18,16 @@ var initCmd = &cobra.Command{
 }
 
 var (
-	forceOverwrite bool
-	fromRunning    string
+	forceOverwrite   bool
+	fromRunning      string
+	withDocIntegrity bool
 )
 
 func init() {
 	rootCmd.AddCommand(initCmd)
 	initCmd.Flags().BoolVarP(&forceOverwrite, "force", "f", false, "Overwrite existing .smokesig.yaml")
 	initCmd.Flags().StringVar(&fromRunning, "from-running", "", "Generate config by inspecting a running Docker container")
+	initCmd.Flags().BoolVar(&withDocIntegrity, "with-doc-integrity", false, "Include doc_integrity test even if CLI auto-detection does not trigger")
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
@@ -62,7 +64,10 @@ func runInit(cmd *cobra.Command, args []string) error {
 			fmt.Printf("Detected: %v\n", names)
 		}
 
-		cfg = detector.GenerateConfig(cwd, types)
+		opts := detector.ConfigOptions{
+			WithDocIntegrity: withDocIntegrity,
+		}
+		cfg = detector.GenerateConfigWithOptions(cwd, types, opts)
 	}
 
 	data, err := yaml.Marshal(cfg)

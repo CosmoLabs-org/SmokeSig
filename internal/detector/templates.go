@@ -34,9 +34,21 @@ func hasPkgScript(dir, script string) bool {
 // boolPtr returns a pointer to a bool literal.
 func boolPtr(b bool) *bool { return &b }
 
+// ConfigOptions controls optional features during config generation.
+type ConfigOptions struct {
+	// WithDocIntegrity forces inclusion of a doc_integrity test even if
+	// CLI auto-detection does not trigger.
+	WithDocIntegrity bool
+}
+
 // GenerateConfig creates a SmokeConfig from detected project types.
 // projectName is derived from the directory name.
 func GenerateConfig(dir string, types []ProjectType) *schema.SmokeConfig {
+	return GenerateConfigWithOptions(dir, types, ConfigOptions{})
+}
+
+// GenerateConfigWithOptions creates a SmokeConfig with additional options.
+func GenerateConfigWithOptions(dir string, types []ProjectType, opts ConfigOptions) *schema.SmokeConfig {
 	cfg := &schema.SmokeConfig{
 		Version: 1,
 		Project: filepath.Base(dir),
@@ -641,5 +653,46 @@ func GenerateConfig(dir string, types []ProjectType) *schema.SmokeConfig {
 		}
 	}
 
+	// Append doc_integrity test when a CLI binary is detected or forced via options.
+	appendDocIntegrity(cfg, dir, types, opts)
+
 	return cfg
+}
+
+// appendDocIntegrity adds a doc_integrity test to the config when a CLI binary
+// is detected or when WithDocIntegrity is set. If no documentation files exist,
+// the test is skipped (the caller should add docs first).
+func appendDocIntegrity(cfg *schema.SmokeConfig, dir string, types []ProjectType, opts ConfigOptions) {
+	cli := DetectCLI(dir, types)
+	if cli == nil && !opts.WithDocIntegrity {
+		return
+	}
+
+	docs := DetectDocFiles(dir)
+	if len(docs) == 0 {
+		// No doc files found — nothing to check integrity against.
+		return
+	}
+
+	binary := ""
+	if cli != nil {
+		binary = cli.Binary
+	} else {
+		// Forced via --with-doc-integrity but no CLI detected.
+		// Use directory name as a sensible default.
+		binary = "./" + filepath.Base(dir)
+	}
+
+	cfg.Tests = append(cfg.Tests, schema.Test{
+		Name: "Docs in sync",
+		Tags: []string{"docs", "ci"},
+		Expect: schema.Expect{
+			DocIntegrity: &schema.DocIntegrityCheck{
+				Binary:         binary,
+				Docs:           docs,
+				CheckExamples:  false,
+				IgnoreCommands: []string{"help", "completion"},
+			},
+		},
+	})
 }
