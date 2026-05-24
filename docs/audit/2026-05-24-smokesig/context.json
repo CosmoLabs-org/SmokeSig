@@ -1,0 +1,22 @@
+{
+  "project_name": "SmokeSig",
+  "version": "0.21.1",
+  "project_type": "structured",
+  "languages": ["go"],
+  "frameworks": ["cobra-cli"],
+  "build_systems": ["go", "make"],
+  "entry_points": ["main.go", "cmd/root.go"],
+  "file_count": 958,
+  "code_files": 178,
+  "test_files": 101,
+  "has_git": true,
+  "git_branch": "master",
+  "ci_passing": false,
+  "tests_passing": true,
+  "audit_model": {
+    "provider": "anthropic",
+    "model_id": "claude-opus-4-6",
+    "model_display": "Opus 4.6 (1M context)",
+    "timestamp": "2026-05-24T05:39:00-03:00"
+  }
+}

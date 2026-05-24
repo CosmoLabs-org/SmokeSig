@@ -1,0 +1,119 @@
+{
+  "audit_model": {
+    "provider": "anthropic",
+    "model_id": "claude-opus-4-6",
+    "model_display": "Opus 4.6 (1M context)",
+    "timestamp": "2026-05-24T05:39:00-03:00"
+  },
+  "overall_score": 66.1,
+  "maturity": "Mature",
+  "agents": {
+    "code-quality": {
+      "overall": 80,
+      "sub_scores": {
+        "architecture": 82,
+        "code_patterns": 78,
+        "tech_debt": 79,
+        "test_coverage": 81,
+        "maintainability": 83
+      }
+    },
+    "core-logic": {
+      "overall": 72,
+      "sub_scores": {
+        "correctness": 68,
+        "edge_cases": 72,
+        "performance": 78,
+        "error_handling": 75,
+        "security": 76
+      }
+    },
+    "frontend-ux": {
+      "overall": 78,
+      "sub_scores": {
+        "cli_ux": 72,
+        "terminal_output": 81,
+        "error_messages": 78,
+        "onboarding": 74,
+        "output_formats": 85
+      }
+    },
+    "competitive": {
+      "overall": 83,
+      "sub_scores": {
+        "feature_completeness": 88,
+        "differentiators": 92,
+        "market_gaps": 68,
+        "developer_experience": 85,
+        "ecosystem_integration": 82
+      }
+    },
+    "distribution": {
+      "overall": 35,
+      "sub_scores": {
+        "binary_distribution": 35,
+        "package_managers": 15,
+        "cicd_integration": 55,
+        "installation_ux": 40,
+        "versioning_releases": 45
+      }
+    },
+    "seo-content": {
+      "overall": 55,
+      "sub_scores": {
+        "readme_quality": 72,
+        "documentation_depth": 68,
+        "content_strategy": 35,
+        "discoverability": 40,
+        "example_quality": 82
+      }
+    },
+    "data-schema": {
+      "overall": 77,
+      "sub_scores": {
+        "config_schema": 78,
+        "type_safety": 82,
+        "data_integrity": 75,
+        "migration_support": 72,
+        "storage_design": 80
+      }
+    },
+    "infrastructure": {
+      "overall": 58,
+      "sub_scores": {
+        "container_quality": 52,
+        "cicd_pipeline": 60,
+        "build_system": 72,
+        "deployment": 55,
+        "observability": 68
+      }
+    },
+    "documentation": {
+      "overall": 60,
+      "sub_scores": {
+        "completeness": 72,
+        "accuracy": 58,
+        "onboarding": 82,
+        "api_documentation": 35,
+        "example_quality": 74
+      }
+    },
+    "roadmap-health": {
+      "overall": 63,
+      "sub_scores": {
+        "roadmap_structure": 62,
+        "issue_health": 55,
+        "strategic_direction": 82,
+        "tracking_gaps": 48,
+        "execution_velocity": 75
+      }
+    }
+  },
+  "meta": {
+    "agent_count": 10,
+    "mode": "fresh",
+    "project": "SmokeSig",
+    "version": "0.21.1",
+    "date": "2026-05-24"
+  }
+}

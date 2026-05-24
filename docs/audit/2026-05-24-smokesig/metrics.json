@@ -1,0 +1,18 @@
+{
+  "total_lines": 240420,
+  "go_lines": 35089,
+  "code_files": 77,
+  "test_files": 101,
+  "total_files": 958,
+  "todo_count": 11,
+  "fixme_count": 0,
+  "go_vet_errors": 9,
+  "commit_quality_score": 100,
+  "test_count": 1045,
+  "assertion_types": 40,
+  "output_formats": 7,
+  "project_detectors": 31,
+  "open_issues": 7,
+  "roadmap_items": 86,
+  "large_files_over_1mb": 23
+}
