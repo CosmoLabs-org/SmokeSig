@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T07:52:04.958118-03:00",
+  "generated_at": "2026-05-24T07:52:18.959054-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T07:52:04.958118-03:00",
-  "last_analyzed_commit": "aa5e20d0aafdb1d4d8b7d8617aa7f2134c974194",
-  "summary": "A Go-based assertion runner and MCP server project currently undergoing heavy automated test coverage expansion and schema hardening.",
+  "expires_at": "2026-05-25T07:52:18.959054-03:00",
+  "last_analyzed_commit": "f6cf8333a71a26bd12f7efedf64fb268150d85ad",
+  "summary": "A Go-based orchestration runner with MCP integration focused on assertion validation and schema management.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,22 +15,19 @@
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
+    "test-driven development",
     "MCP (Model Context Protocol) handler pattern",
-    "Test-Driven Development (TDD) via extensive extra tests",
-    "Assertion-based validation engine",
-    "Schema export/validation pattern",
-    "Monorepo agent-based task generation (GOrchestra/glm-agents)"
+    "assertion-based validation",
+    "schema export/registration"
   ],
   "concerns": [
-    "High volume of auto-generated test files (GOrchestra/glm-agents) may clutter the repository",
-    "Recent commit indicates 12 missing assertion types in schema export, pointing to schema drift",
-    "Mixed git status (modified, staged, untracked) suggests an incomplete commit or merge",
-    "Heavy reliance on _extra_test.go files indicates potential gaps in original test suites"
+    "high volume of agent-generated extra test files indicates possible flakiness or coverage gaps",
+    "recent fix for 12 missing assertion types suggests schema drift between implementation and exported definitions",
+    "scattered test directories across GOrchestra worktrees may lead to merge conflicts or stale tests"
   ],
   "suggestions": [
-    "Consolidate or archive the GOrchestra agent-generated test directories to reduce noise",
-    "Implement schema-to-assertion contract tests to prevent future type drift",
-    "Resolve the dirty git state before continuing development",
-    "Review and integrate valuable extra tests into the primary test files, removing redundant ones"
+    "consolidate extra tests into the main test suites to reduce file proliferation",
+    "add schema contract tests to prevent future assertion type drift",
+    "review MCP handler error paths for robustness"
   ]
 }

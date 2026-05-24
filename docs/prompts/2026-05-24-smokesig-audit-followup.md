@@ -19,19 +19,41 @@ type: audit-followup
 # Audit Followup: SmokeSig 2026-05-24
 
 ## Goal
-Execute Phase 0 (Critical Fixes) from the audit upgrade plan. The audit found 10 critical/high bugs and an incomplete project rename affecting the entire release pipeline.
+Continue Phase 1 (Documentation, CI hardening, UX polish) from the audit upgrade plan. Phase 0 critical fixes are complete as of v0.20.1.
 
-## Critical Bugs to Fix First
-1. Complete cosmo-smoke → SmokeSig rename in .goreleaser.yml, Dockerfile, smoke.yml, SPEC.md, STABILITY.md, FEATURES.md, examples/
-2. Fix Docker Compose `append` no-op — assertion_docker.go:65
-3. Fix SMTP double-handshake — assertion_smtp.go:38-62
-4. Add DeepLink to hasStandaloneAssertions — validate.go:226
-5. Update version fallback 0.13.0 → 0.21.1 — cmd/version.go:10
-6. Fix MCP assertion count 29 → 40 — internal/mcp/server.go:196
+## Completed This Session (v0.20.1)
+- Complete cosmo-smoke → SmokeSig rename (.goreleaser.yml, Dockerfile, smoke.yml, SPEC.md, STABILITY.md, FEATURES.md, examples/) ✅
+- Fix Docker Compose `append` no-op — assertion_docker.go:65 ✅
+- Add DeepLink to hasStandaloneAssertions — validate.go:226 ✅
+- Update version fallback 0.13.0 → 0.21.1 — cmd/version.go:10 ✅
+- Fix MCP assertion count 29 → 40 — internal/mcp/server.go:196 ✅
+- Add non-root USER to Dockerfile ✅
+- Add HTTP server timeouts to serve.go ✅
+- Use subtle.ConstantTimeCompare for API key — handler.go:30 ✅
+- Rebuild issue index (auto-rebuilt to 64 items) ✅
+- Update --format help to include gha, backstage — run.go:109 ✅
+- IPv6 fix with net.JoinHostPort ✅
+- Race condition fixes ✅
+- 12 missing types added to ExportSchema ✅
+- Test coverage improvements ✅
 
-## Quick Wins
-1. Add non-root USER to Dockerfile
-2. Add HTTP server timeouts to serve.go
-3. Use subtle.ConstantTimeCompare for API key — handler.go:30
-4. Rebuild issue index with all 52 issues
-5. Update --format help to include gha, backstage — run.go:109
+## Remaining Work
+
+### Bugs
+1. **BUG-004** Fix SMTP double-handshake — assertion_smtp.go:38-62 (sends EHLO twice; first response consumed and discarded before second exchange begins)
+
+### Documentation
+2. Rewrite SPEC.md from scratch covering all 40 assertion types (current version is outdated, references old name and missing ~11 types)
+3. Document MCP server (tools, resources, prompts), Dashboard API endpoints, and lifecycle hooks in dedicated docs
+4. Update FEATURES.md to v0.21.1 (add all new assertion types and features added since last update)
+
+### CI / Quality
+5. Add golangci-lint + security scanning (gosec or similar) to CI pipeline
+6. Clean CHANGELOG corruption — 8 malformed/duplicate entries detected
+
+### UX / Flags
+7. Add --verbose / --quiet flags to `smokesig run` for output verbosity control
+8. Add warning on push reporter and OTel reporter failures — BUG-008 (currently fails silently, user sees no indication the push/export failed)
+
+### Content / Marketing
+9. Content strategy: terminal screenshot for README hero, comparison pages (vs. other smoke test tools)
