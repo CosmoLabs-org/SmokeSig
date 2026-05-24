@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T07:52:18.959054-03:00",
+  "generated_at": "2026-05-24T08:42:17.504279-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T07:52:18.959054-03:00",
-  "last_analyzed_commit": "f6cf8333a71a26bd12f7efedf64fb268150d85ad",
-  "summary": "A Go-based orchestration runner with MCP integration focused on assertion validation and schema management.",
+  "expires_at": "2026-05-25T08:42:17.504279-03:00",
+  "last_analyzed_commit": "3777b8d09314e81abbf976732d4fbdebdacb98a8",
+  "summary": "A Go-based orchestration framework leveraging MCP for runner and schema validation, currently undergoing heavy automated test expansion.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -16,18 +16,18 @@
   ],
   "patterns": [
     "test-driven development",
-    "MCP (Model Context Protocol) handler pattern",
-    "assertion-based validation",
-    "schema export/registration"
+    "directory-based agent orchestration",
+    "model context protocol (MCP) integration",
+    "assertion-based validation"
   ],
   "concerns": [
-    "high volume of agent-generated extra test files indicates possible flakiness or coverage gaps",
-    "recent fix for 12 missing assertion types suggests schema drift between implementation and exported definitions",
-    "scattered test directories across GOrchestra worktrees may lead to merge conflicts or stale tests"
+    "proliferation of agent-specific test directories (GOrchestra/glm-agents/*) suggests brittle test generation",
+    "high volume of _extra_test.go files indicates potential test duplication or fragmented coverage",
+    "uncommitted modified and staged files in an active session state"
   ],
   "suggestions": [
-    "consolidate extra tests into the main test suites to reduce file proliferation",
-    "add schema contract tests to prevent future assertion type drift",
-    "review MCP handler error paths for robustness"
+    "consolidate fragmented extra tests into the main test suites to reduce maintenance burden",
+    "review and stabilize the GOrchestra agent generation workflow to prevent directory sprawl",
+    "commit or stash the pending changes to establish a clean baseline before further development"
   ]
 }

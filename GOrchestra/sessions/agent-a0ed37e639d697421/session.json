@@ -1,0 +1,29 @@
+{
+  "branch": "agent-a0ed37e639d697421",
+  "base_branch": "master",
+  "status": "merged",
+  "created": "2026-05-24T08:40:58-03:00",
+  "archived": "2026-05-24T08:42:48.690696-03:00",
+  "commits": [
+    {
+      "hash": "6c83b0e",
+      "author": "GΛB",
+      "message": "chore: session review (score=8, issues=0)",
+      "date": 1779622929
+    },
+    {
+      "hash": "d71f5af",
+      "author": "GΛB",
+      "message": "fix(smtp): remove double-handshake in SMTP assertion",
+      "date": 1779622858
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 0,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "diff_stat": "",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}

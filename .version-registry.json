@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 459,
+    "build": 462,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T10:52:21Z",
+    "lastUpdated": "2026-05-24T11:42:48Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -11,6 +11,20 @@
     "sync_method": "git_history_analysis"
   },
   "releaseContext": {
+    "pendingFeatures": [
+      {
+        "branch": "agent-a0ed37e639d697421",
+        "title": "Agent a0ed37e639d697421",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T08:42:48-03:00",
+        "files": [
+          ".review.json",
+          "internal/runner/assertion_dns_smtp_test.go",
+          "internal/runner/assertion_smtp.go"
+        ]
+      }
+    ],
     "lastRelease": {
       "version": "0.21.2",
       "date": "2026-05-24T07:51:56.606844-03:00",
