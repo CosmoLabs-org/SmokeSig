@@ -1,20 +1,11 @@
 version: "1.0"
-project: cosmo-smoke
-last_updated: 2026-05-15T13:06:58.323684-03:00
+project: SmokeSig
+last_updated: 2026-05-18T02:55:43.937583-03:00
 next_bug_id: 2
 next_feat_id: 53
 next_task_id: 2
 next_imp_id: 1
 issues:
-    - id: FEAT-052
-      type: feature
-      status: open
-      title: Wire SmokeSig as external dependency (replaces cosmo-smoke)
-      created_at: 2026-05-15T13:06:58.321243-03:00
-    - id: ""
-      type: ""
-      status: ""
-      title: ""
     - id: FEAT-001
       type: feature
       status: done
@@ -282,3 +273,8 @@ issues:
       status: open
       title: Interactive TUI test runner (BR-09)
       created_at: 2026-04-30T02:51:30.550114-03:00
+    - id: FEAT-052
+      type: feature
+      status: open
+      title: Wire SmokeSig as external dependency (replaces cosmo-smoke)
+      created_at: 2026-05-15T13:06:58.321243-03:00

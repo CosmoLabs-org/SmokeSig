@@ -4,5 +4,8 @@
   },
   "feedback": {
     "SmokeSig": 10
+  },
+  "idea": {
+    "SmokeSig": 20
   }
 }
