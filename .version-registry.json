@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 486,
+    "build": 489,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T11:49:39Z",
+    "lastUpdated": "2026-05-24T13:15:04Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -123,6 +123,22 @@
           "README.md",
           "docs/COMPARISON.md",
           "examples/demo/.smokesig.yaml"
+        ]
+      },
+      {
+        "branch": "agent-ab24f929759162165",
+        "title": "Agent ab24f929759162165",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T10:15:04-03:00",
+        "files": [
+          ".review.json",
+          "internal/runner/assertion_simulator.go",
+          "internal/runner/assertion_simulator_test.go",
+          "internal/runner/runner.go",
+          "internal/schema/export.go",
+          "internal/schema/schema.go",
+          "internal/schema/validate.go"
         ]
       }
     ],
