@@ -1,0 +1,65 @@
+# golangci-lint configuration for SmokeSig
+# Gradual adoption: CI runs with --new-from-rev to catch new issues only.
+
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - typecheck
+    - misspell
+    - goconst
+    - gocyclo
+    - revive
+    - gosec
+
+linters-settings:
+  gocyclo:
+    # The codebase has large assertion/switch functions; keep threshold generous.
+    min-complexity: 30
+
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+
+  misspell:
+    locale: US
+
+  revive:
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: dot-imports
+      - name: error-return
+      - name: error-strings
+      - name: exported
+      - name: increment-decrement
+      - name: range
+      - name: receiver-naming
+      - name: var-declaration
+
+  gosec:
+    excludes:
+      # Subprocess launching is intentional in a test runner.
+      - G204
+      # Unhandled errors on Close() — acceptable in CLI tool teardown.
+      - G104
+
+issues:
+  # Show all issues, don't cap per-linter.
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  exclude-rules:
+    # Test files: relax error checking and security linters.
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - goconst
