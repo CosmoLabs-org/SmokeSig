@@ -1,10 +1,10 @@
 id: BUG-008
 type: bug
 created_at: 2026-05-24T06:05:23.800468-03:00
-updated_at: 2026-05-24T06:05:26.350653-03:00
+updated_at: 2026-05-24T10:04:08.660231-03:00
 source: local
 severity: high
-status: open
+status: closed
 origin:
     session: 2026
 title: Push and OTel reporters silently swallow all errors
@@ -13,3 +13,6 @@ fix_direction: Add fmt.Fprintf(os.Stderr) warning in internal/reporter/push.go w
 affected_files:
     - internal/reporter/push.go
     - internal/reporter/otel.go
+revisions:
+    - date: "2026-05-24"
+      action: closed

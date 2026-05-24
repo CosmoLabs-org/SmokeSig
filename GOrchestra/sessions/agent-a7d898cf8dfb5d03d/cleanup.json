@@ -1,0 +1,6 @@
+{
+  "timestamp": "2026-05-24T11:49:41Z",
+  "worktree": "agent-a7d898cf8dfb5d03d",
+  "status": "failed",
+  "error": "cleanup failed (retried once): failed to force remove worktree: error: failed to delete '/Users/gabstudio/PROJECTS/SmokeSig-worktrees/agent-a7d898cf8dfb5d03d': Directory not empty\n"
+}
