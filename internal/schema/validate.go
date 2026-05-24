@@ -180,6 +180,14 @@ func Validate(cfg *SmokeConfig) error {
 					errs = append(errs, fmt.Sprintf("%s: file_size.min_bytes must be <= max_bytes", prefix))
 				}
 			}
+		if e := t.Expect.DocIntegrity; e != nil {
+			if e.Binary == "" {
+				errs = append(errs, fmt.Sprintf("%s: doc_integrity.binary is required", prefix))
+			}
+			if len(e.Docs) == 0 {
+				errs = append(errs, fmt.Sprintf("%s: doc_integrity.docs is required (at least one doc file)", prefix))
+			}
+		}
 	}
 	if cfg.OTel.Enabled && cfg.OTel.JaegerURL == "" {
 		errs = append(errs, "otel.jaeger_url is required when otel is enabled")
@@ -254,7 +262,8 @@ func hasStandaloneAssertions(e Expect) bool {
 		e.NTP != nil ||
 		e.K8sResource != nil ||
 		e.FileSize != nil ||
-		e.DeepLink != nil
+		e.DeepLink != nil ||
+		e.DocIntegrity != nil
 }
 
 // validateBackgroundHook checks that background hooks have valid configuration.

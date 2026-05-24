@@ -144,6 +144,7 @@ type Expect struct {
 	MQTT             *MQTTCheck             `yaml:"mqtt_ping,omitempty"`
 	NTP              *NTPCheck              `yaml:"ntp_check,omitempty"`
 	K8sResource      *K8sResourceCheck      `yaml:"k8s_resource,omitempty"`
+	DocIntegrity     *DocIntegrityCheck     `yaml:"doc_integrity,omitempty"`
 	Extract          string                 `yaml:"extract,omitempty"` // Variable name to capture from stdout_matches
 }
 
@@ -381,6 +382,15 @@ type NTPCheck struct {
 	Server       string   `yaml:"server,omitempty"`
 	MaxOffsetMs  int      `yaml:"max_offset_ms,omitempty"`
 	Timeout      Duration `yaml:"timeout,omitempty"`
+}
+
+// DocIntegrityCheck verifies CLI documentation stays in sync with actual commands and flags.
+type DocIntegrityCheck struct {
+	Binary         string   `yaml:"binary" json:"binary"`
+	Docs           []string `yaml:"docs" json:"docs"`
+	CheckExamples  bool     `yaml:"check_examples" json:"check_examples,omitempty"`
+	IgnoreCommands []string `yaml:"ignore_commands" json:"ignore_commands,omitempty"`
+	Timeout        Duration `yaml:"timeout" json:"timeout,omitempty"`
 }
 
 // K8sResourceCheck verifies a Kubernetes resource exists and optionally meets a condition.
