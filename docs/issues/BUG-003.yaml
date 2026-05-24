@@ -1,0 +1,14 @@
+id: BUG-003
+type: bug
+created_at: 2026-05-24T06:04:26.463322-03:00
+updated_at: 2026-05-24T06:04:28.997103-03:00
+source: local
+severity: critical
+status: open
+origin:
+    session: 2026
+title: Docker Compose --compose-file flag silently ignored (append no-op)
+description: assertion_docker.go:65 uses append([]string{...}) with no values — a no-op confirmed by go vet. The custom compose file path is never applied to the args slice.
+fix_direction: Change args = append([]string{compose, -f, check.ComposeFile, ps, --format, json}) to args = []string{compose, -f, check.ComposeFile, ps, --format, json} at assertion_docker.go:65. Add test in assertion_test.go verifying ComposeFile is passed to docker.
+affected_files:
+    - internal/runner/assertion_docker.go

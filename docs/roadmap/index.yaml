@@ -1,8 +1,28 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-05-15T15:06:38.896953-03:00
-next_id: 87
+last_updated: 2026-05-24T06:06:19.381201-03:00
+next_id: 92
 items:
+    - id: ROAD-091
+      title: Doc-integrity assertion type for stale documentation detection
+      status: captured
+      created_at: 2026-05-24T06:06:19.377146-03:00
+    - id: ROAD-090
+      title: Portfolio adoption tracking dashboard
+      status: captured
+      created_at: 2026-05-24T06:06:17.418526-03:00
+    - id: ROAD-089
+      title: Push reporter webhook/Slack/PagerDuty notifications
+      status: captured
+      created_at: 2026-05-24T06:06:14.696346-03:00
+    - id: ROAD-088
+      title: Rebuild issue index with all 52 tracked issues
+      status: captured
+      created_at: 2026-05-24T06:06:12.647215-03:00
+    - id: ROAD-087
+      title: Fix CHANGELOG corruption — remove leaked issue YAML from 8 entries
+      status: captured
+      created_at: 2026-05-24T06:06:10.435584-03:00
     - id: ROAD-086
       title: Wasm plugin system for custom assertions via wazero
       status: captured

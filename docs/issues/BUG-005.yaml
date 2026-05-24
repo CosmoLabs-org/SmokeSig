@@ -1,0 +1,14 @@
+id: BUG-005
+type: bug
+created_at: 2026-05-24T06:04:53.0679-03:00
+updated_at: 2026-05-24T06:04:55.638293-03:00
+source: local
+severity: critical
+status: open
+origin:
+    session: 2026
+title: DeepLink missing from hasStandaloneAssertions — validation incorrectly requires run command
+description: 'validate.go hasStandaloneAssertions() does not include t.Expect.DeepLink. Tests with only deep_link: and no run: fail with ''run command is required''.'
+fix_direction: Add t.Expect.DeepLink != nil check to internal/schema/validate.go hasStandaloneAssertions() function around line 226. Add TestValidate_DeepLinkStandalone in validate_extra_test.go.
+affected_files:
+    - internal/schema/validate.go

@@ -1,0 +1,14 @@
+id: BUG-004
+type: bug
+created_at: 2026-05-24T06:04:41.578179-03:00
+updated_at: 2026-05-24T06:04:43.920928-03:00
+source: local
+severity: critical
+status: open
+origin:
+    session: 2026
+title: SMTP double-handshake causes protocol desync
+description: assertion_smtp.go:38-62 manually reads the SMTP 220 greeting, then creates smtp.NewClient which internally reads the greeting again. Protocol desync.
+fix_direction: Remove manual greeting read in internal/runner/assertion_smtp.go lines 38-56 and let smtp.NewClient handle the 220 greeting. Add TestCheckSMTP_Handshake in assertion_dns_smtp_test.go to verify single greeting consumption.
+affected_files:
+    - internal/runner/assertion_smtp.go

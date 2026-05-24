@@ -1,0 +1,15 @@
+id: BUG-008
+type: bug
+created_at: 2026-05-24T06:05:23.800468-03:00
+updated_at: 2026-05-24T06:05:26.350653-03:00
+source: local
+severity: high
+status: open
+origin:
+    session: 2026
+title: Push and OTel reporters silently swallow all errors
+description: internal/reporter/push.go:83-98 swallows all HTTP errors with no log. internal/reporter/otel.go:76 fires spans in goroutines with no WaitGroup — spans lost on exit.
+fix_direction: Add fmt.Fprintf(os.Stderr) warning in internal/reporter/push.go when POST fails. Add sync.WaitGroup field and Close() method to OTelReporter in internal/reporter/otel.go. Call Close() in cmd/run.go after Summary().
+affected_files:
+    - internal/reporter/push.go
+    - internal/reporter/otel.go

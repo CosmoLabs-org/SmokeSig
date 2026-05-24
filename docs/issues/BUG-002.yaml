@@ -1,0 +1,17 @@
+id: BUG-002
+type: bug
+created_at: 2026-05-24T06:03:41.546891-03:00
+updated_at: 2026-05-24T06:03:43.966009-03:00
+source: local
+severity: critical
+status: open
+origin:
+    session: 2026
+title: GoReleaser/Dockerfile/CI use stale cosmo-smoke module path
+description: The entire release pipeline references the old cosmo-smoke module path. GoReleaser ldflags (.goreleaser.yml:18), Dockerfile ldflags (Dockerfile:7), reusable CI workflow (smoke.yml:55), Homebrew formula, Docker image tags all use the pre-rename path. Version injection is broken — all release binaries show 0.13.0.
+fix_direction: Find-and-replace cosmo-smoke with SmokeSig across .goreleaser.yml, Dockerfile, .github/workflows/smoke.yml. Update binary name from smoke to smokesig. Update Docker image tags and Homebrew formula.
+affected_files:
+    - .goreleaser.yml
+    - Dockerfile
+    - .github/workflows/smoke.yml
+    - .github/workflows/ci.yml

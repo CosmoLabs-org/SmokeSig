@@ -1,0 +1,14 @@
+id: BUG-011
+type: bug
+created_at: 2026-05-24T06:06:01.219683-03:00
+updated_at: 2026-05-24T06:06:03.555049-03:00
+source: local
+severity: high
+status: open
+origin:
+    session: 2026
+title: Container runs as root with no USER directive in Dockerfile
+description: Dockerfile has no non-root USER — container runs as root. Also missing HEALTHCHECK, EXPOSE 8080, LABEL metadata, and STOPSIGNAL SIGTERM.
+fix_direction: 'In Dockerfile after COPY --from=builder: add RUN adduser -D smoke, USER smoke, HEALTHCHECK CMD [/usr/local/bin/smokesig, version], EXPOSE 8080, STOPSIGNAL SIGTERM. Test with docker build -t smokesig:test .'
+affected_files:
+    - Dockerfile

@@ -1,0 +1,15 @@
+id: BUG-006
+type: bug
+created_at: 2026-05-24T06:05:03.549812-03:00
+updated_at: 2026-05-24T06:05:05.839652-03:00
+source: local
+severity: high
+status: open
+origin:
+    session: 2026
+title: Race condition on r.lifecycleEnv in parallel test execution
+description: runner.go:310 writes r.lifecycleEnv without synchronization while runParallel launches concurrent goroutines. backgroundProcesses (lifecycle.go:24) is a global slice with no mutex.
+fix_direction: Add sync.RWMutex to Runner struct in internal/runner/runner.go protecting lifecycleEnv. Move backgroundProcesses from package-level to Runner instance in internal/runner/lifecycle.go. Add TestRunner_ParallelLifecycleEnv race test.
+affected_files:
+    - internal/runner/runner.go
+    - internal/runner/lifecycle.go

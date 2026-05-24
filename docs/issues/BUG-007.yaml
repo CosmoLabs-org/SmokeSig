@@ -1,0 +1,15 @@
+id: BUG-007
+type: bug
+created_at: 2026-05-24T06:05:13.463847-03:00
+updated_at: 2026-05-24T06:05:16.082787-03:00
+source: local
+severity: high
+status: open
+origin:
+    session: 2026
+title: HTTP server has no timeouts and API key uses timing-vulnerable comparison
+description: cmd/serve.go:155 creates http.Server with no timeouts — vulnerable to slowloris. handler.go:30 uses == for API key. handler.go:55,72,123 leak internal errors.
+fix_direction: Add ReadTimeout/WriteTimeout/ReadHeaderTimeout to http.Server in cmd/serve.go. Use crypto/subtle.ConstantTimeCompare in internal/dashboard/handler.go:30. Wrap err.Error() in generic message in handler.go responses.
+affected_files:
+    - cmd/serve.go
+    - internal/dashboard/handler.go
