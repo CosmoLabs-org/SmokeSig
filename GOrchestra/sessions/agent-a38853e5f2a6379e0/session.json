@@ -1,0 +1,29 @@
+{
+  "branch": "agent-a38853e5f2a6379e0",
+  "base_branch": "master",
+  "status": "merged",
+  "created": "2026-05-24T19:33:47-03:00",
+  "archived": "2026-05-24T19:35:14.305504-03:00",
+  "commits": [
+    {
+      "hash": "9bfe180",
+      "author": "GΛB",
+      "message": "chore: session review (score=8, issues=0)",
+      "date": 1779662074
+    },
+    {
+      "hash": "ff204f5",
+      "author": "GΛB",
+      "message": "feat(audit): add smokesig audit command for config gap analysis",
+      "date": 1779662027
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 0,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "diff_stat": "",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}
