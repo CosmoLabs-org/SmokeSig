@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/smtp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,7 +24,7 @@ func CheckSMTP(check *schema.SMTPCheck) AssertionResult {
 		timeout = 10 * time.Second
 	}
 
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	conn, err := net.DialTimeout("tcp", addr, timeout)
 	if err != nil {
 		return AssertionResult{

@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,7 +26,7 @@ func CheckPortListening(port int, protocol, host string) AssertionResult {
 	if host == "" {
 		host = "localhost"
 	}
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	conn, err := net.DialTimeout(protocol, addr, 5*time.Second)
 	if err != nil {
 		return AssertionResult{Type: "port_listening", Expected: addr, Actual: err.Error(), Passed: false}
@@ -307,9 +308,11 @@ func CheckJSONField(jsonStr string, check *schema.JSONFieldCheck) []AssertionRes
 
 // CheckHTTPWithTrace is like CheckHTTP but injects a traceparent header.
 func CheckHTTPWithTrace(check *schema.HTTPCheck, span *SpanContext) []AssertionResult {
-	if check.Headers == nil {
-		check.Headers = make(map[string]string)
+	clone := *check
+	clone.Headers = make(map[string]string, len(check.Headers)+1)
+	for k, v := range check.Headers {
+		clone.Headers[k] = v
 	}
-	check.Headers["traceparent"] = span.Traceparent()
-	return CheckHTTP(check)
+	clone.Headers["traceparent"] = span.Traceparent()
+	return CheckHTTP(&clone)
 }

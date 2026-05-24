@@ -68,9 +68,11 @@ func CheckGRPCHealth(check *schema.GRPCHealthCheck) AssertionResult {
 
 // CheckGRPCHealthWithTrace is like CheckGRPCHealth but injects traceparent into metadata.
 func CheckGRPCHealthWithTrace(check *schema.GRPCHealthCheck, span *SpanContext) AssertionResult {
-	if check.Metadata == nil {
-		check.Metadata = make(map[string]string)
+	clone := *check
+	clone.Metadata = make(map[string]string, len(check.Metadata)+1)
+	for k, v := range check.Metadata {
+		clone.Metadata[k] = v
 	}
-	check.Metadata["traceparent"] = span.Traceparent()
-	return CheckGRPCHealth(check)
+	clone.Metadata["traceparent"] = span.Traceparent()
+	return CheckGRPCHealth(&clone)
 }

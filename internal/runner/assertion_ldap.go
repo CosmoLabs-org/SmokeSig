@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
@@ -20,7 +21,7 @@ func CheckLDAPBind(check *schema.LDAPCheck) AssertionResult {
 			port = 389
 		}
 	}
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	timeout := check.Timeout.Duration
 	if timeout == 0 {
 		timeout = 5 * time.Second

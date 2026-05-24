@@ -157,8 +157,8 @@ func TestCheckWebSocket_TraceparentInjected(t *testing.T) {
 	if !result.Passed {
 		t.Errorf("expected pass, got: %s", result.Actual)
 	}
-	// The traceparent was injected into check.Headers before the call
-	if check.Headers["traceparent"] != span.Traceparent() {
-		t.Errorf("headers traceparent = %q, want %q", check.Headers["traceparent"], span.Traceparent())
+	// The original check.Headers must NOT be mutated (clone behavior)
+	if check.Headers != nil && check.Headers["traceparent"] != "" {
+		t.Errorf("original check.Headers was mutated: traceparent = %q, want empty", check.Headers["traceparent"])
 	}
 }

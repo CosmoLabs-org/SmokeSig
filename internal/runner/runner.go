@@ -58,6 +58,7 @@ type Runner struct {
 	TraceHealth   *TraceHealthTracker
 	Vars          *VarStore
 	lifecycleEnv  map[string]string
+	lifecycleMu   sync.RWMutex
 }
 
 // Run executes all tests per the options and returns the suite result.
@@ -287,10 +288,12 @@ func (r *Runner) runTest(t schema.Test, opts RunOptions) TestResult {
 }
 
 func (r *Runner) runTestWithHooks(t schema.Test, opts RunOptions) TestResult {
+	r.lifecycleMu.RLock()
 	env := make(map[string]string, len(r.lifecycleEnv))
 	for k, v := range r.lifecycleEnv {
 		env[k] = v
 	}
+	r.lifecycleMu.RUnlock()
 
 	if len(r.Config.Lifecycle.BeforeEach) > 0 {
 		var err error
@@ -307,7 +310,9 @@ func (r *Runner) runTestWithHooks(t schema.Test, opts RunOptions) TestResult {
 	for k, v := range env {
 		r.Vars.Set(k, v)
 	}
+	r.lifecycleMu.Lock()
 	r.lifecycleEnv = env
+	r.lifecycleMu.Unlock()
 
 	result := r.runTest(t, opts)
 

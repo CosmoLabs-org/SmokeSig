@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -27,7 +28,7 @@ func (h *handler) handleResults(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.apiKey != "" {
-		if r.Header.Get("X-API-Key") != h.apiKey {
+		if subtle.ConstantTimeCompare([]byte(r.Header.Get("X-API-Key")), []byte(h.apiKey)) != 1 {
 			http.Error(w, `{"error":"unauthorized"}`, http.StatusForbidden)
 			return
 		}
@@ -52,7 +53,7 @@ func (h *handler) handleResults(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := h.store.InsertRun(peek.Project, raw); err != nil {
-		http.Error(w, `{"error":"`+err.Error()+`"}`, http.StatusInternalServerError)
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
 		return
 	}
 
@@ -69,7 +70,7 @@ func (h *handler) handleProjects(w http.ResponseWriter, r *http.Request) {
 
 	projects, err := h.store.GetProjects()
 	if err != nil {
-		http.Error(w, `{"error":"`+err.Error()+`"}`, http.StatusInternalServerError)
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
 		return
 	}
 
@@ -120,7 +121,7 @@ func (h *handler) handleProjectHistory(w http.ResponseWriter, r *http.Request) {
 
 	runs, err := h.store.GetProjectHistory(name, limit)
 	if err != nil {
-		http.Error(w, `{"error":"`+err.Error()+`"}`, http.StatusInternalServerError)
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
 		return
 	}
 

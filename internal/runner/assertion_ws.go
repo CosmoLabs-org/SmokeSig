@@ -306,9 +306,11 @@ func CheckWebSocket(check *schema.WebSocketCheck) AssertionResult {
 
 // CheckWebSocketWithTrace is like CheckWebSocket but injects a traceparent header.
 func CheckWebSocketWithTrace(check *schema.WebSocketCheck, span *SpanContext) AssertionResult {
-	if check.Headers == nil {
-		check.Headers = make(map[string]string)
+	clone := *check
+	clone.Headers = make(map[string]string, len(check.Headers)+1)
+	for k, v := range check.Headers {
+		clone.Headers[k] = v
 	}
-	check.Headers["traceparent"] = span.Traceparent()
-	return CheckWebSocket(check)
+	clone.Headers["traceparent"] = span.Traceparent()
+	return CheckWebSocket(&clone)
 }

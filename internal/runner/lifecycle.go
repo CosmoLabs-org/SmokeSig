@@ -8,6 +8,7 @@ import (
 	"net"
 	"os/exec"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -21,7 +22,10 @@ type BackgroundProcess struct {
 	Port int
 }
 
-var backgroundProcesses []BackgroundProcess
+var (
+	backgroundProcesses []BackgroundProcess
+	bgProcMu            sync.Mutex
+)
 
 // RunLifecycleHooks executes a sequence of lifecycle hooks.
 // Hooks run sequentially via "sh -c <command>".
@@ -77,11 +81,13 @@ func RunLifecycleHooks(ctx context.Context, hooks []schema.LifecycleHook, env ma
 				continue
 			}
 
+			bgProcMu.Lock()
 			backgroundProcesses = append(backgroundProcesses, BackgroundProcess{
 				Pid:  cmd.Process.Pid,
 				Cmd:  cmd,
 				Port: hook.WaitForPort,
 			})
+			bgProcMu.Unlock()
 
 			if hook.WaitForPort > 0 {
 				startupTimeout := hook.StartupTimeout.Duration
@@ -186,16 +192,24 @@ func waitForPort(ctx context.Context, port int, timeout time.Duration) error {
 // CleanupBackgroundProcesses kills all tracked background processes.
 // Sends SIGTERM, waits briefly, then SIGKILL if still alive.
 func CleanupBackgroundProcesses() {
-	for _, bp := range backgroundProcesses {
+	bgProcMu.Lock()
+	procs := make([]BackgroundProcess, len(backgroundProcesses))
+	copy(procs, backgroundProcesses)
+	bgProcMu.Unlock()
+
+	for _, bp := range procs {
 		if bp.Cmd != nil && bp.Cmd.Process != nil {
 			bp.Cmd.Process.Signal(syscall.SIGTERM)
 		}
 	}
 	time.Sleep(100 * time.Millisecond)
-	for _, bp := range backgroundProcesses {
+	for _, bp := range procs {
 		if bp.Cmd != nil && bp.Cmd.Process != nil {
 			bp.Cmd.Process.Signal(syscall.SIGKILL)
 		}
 	}
+
+	bgProcMu.Lock()
 	backgroundProcesses = nil
+	bgProcMu.Unlock()
 }

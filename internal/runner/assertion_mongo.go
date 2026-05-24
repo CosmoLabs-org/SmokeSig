@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
@@ -19,7 +20,7 @@ func CheckMongoPing(check *schema.MongoCheck) AssertionResult {
 	if port == 0 {
 		port = 27017
 	}
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 
 	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
 	if err != nil {

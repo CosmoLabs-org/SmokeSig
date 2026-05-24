@@ -3,6 +3,7 @@ package runner
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +20,7 @@ func CheckRedisPing(check *schema.RedisCheck) AssertionResult {
 	if port == 0 {
 		port = 6379
 	}
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
 	if err != nil {
 		return AssertionResult{Type: "redis_ping", Expected: addr, Actual: err.Error(), Passed: false}
@@ -65,7 +66,7 @@ func CheckMemcachedVersion(check *schema.MemcachedCheck) AssertionResult {
 	if port == 0 {
 		port = 11211
 	}
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
 	if err != nil {
 		return AssertionResult{Type: "memcached_version", Expected: addr, Actual: err.Error(), Passed: false}
@@ -98,7 +99,7 @@ func CheckPostgresPing(check *schema.PostgresCheck) AssertionResult {
 	if port == 0 {
 		port = 5432
 	}
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
 	if err != nil {
 		return AssertionResult{Type: "postgres_ping", Expected: addr, Actual: err.Error(), Passed: false}
@@ -135,7 +136,7 @@ func CheckMySQLPing(check *schema.MySQLCheck) AssertionResult {
 	if port == 0 {
 		port = 3306
 	}
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
 	if err != nil {
 		return AssertionResult{Type: "mysql_ping", Expected: addr, Actual: err.Error(), Passed: false}
