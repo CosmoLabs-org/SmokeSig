@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 468,
+    "build": 471,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T11:44:51Z",
+    "lastUpdated": "2026-05-24T11:45:34Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -45,6 +45,17 @@
         "files": [
           ".review.json",
           "CHANGELOG.md"
+        ]
+      },
+      {
+        "branch": "agent-a6b26de28c7df3acc",
+        "title": "Agent a6b26de28c7df3acc",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T08:45:34-03:00",
+        "files": [
+          ".review.json",
+          "docs/FEATURES.md"
         ]
       }
     ],
