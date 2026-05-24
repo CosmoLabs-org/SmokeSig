@@ -1,54 +1,13 @@
 {
   "score": 8,
   "passed": true,
-  "reviewed_at": "2026-04-30T19:27:37Z",
-  "reviewed_sha": "9ffda38469fa5b73df603a6b7124a29382abe1d5",
-  "reviewer": "opus",
-  "origin": "unknown",
-  "iterations": 3,
+  "reviewed_at": "2026-05-24T08:44:13-03:00",
+  "reviewed_sha": "6f3b5d743e485c464d0bd357d60054160a4c4409",
+  "reviewer": "session",
+  "origin": "agent-tool",
+  "iterations": 1,
   "fixes_applied": 0,
-  "issues_remaining": 3,
-  "summary": "Score 8/10, 3 issues",
-  "schema_version": 1,
-  "prior_issues": [
-    {
-      "severity": "blocking",
-      "file": "",
-      "line": 0,
-      "description": "MergeConfigs uses truthy checks for boolean fields (FailFast, Parallel, Monorepo, TracePropagation, OTel.Enabled). If the base config has fail_fast: true, the overlay cannot explicitly set it to false. The zero-value ambiguity makes 'disable this setting' impossible. This will cause surprising behavior when extending a base that enables fail_fast or parallel.",
-      "has_fix": false,
-      "round": 2
-    },
-    {
-      "severity": "blocking",
-      "file": "",
-      "line": 0,
-      "description": "MergeConfigs boolean zero-value ambiguity: FailFast, Parallel, Monorepo, TracePropagation, OTel.Enabled are unconditionally overwritten from overlay. If base has fail_fast:true and overlay omits it, the zero-value false silently overrides. Fix requires *bool or explicit presence tracking.",
-      "has_fix": false,
-      "round": 3
-    },
-    {
-      "severity": "blocking",
-      "file": "",
-      "line": 0,
-      "description": "Remote configs fetched via extends skip template processing: loadWithDepthAndResolver calls processTemplate on local file data but Parse() only (no processTemplate) on remote data fetched in the extends branch. Remote configs with {{ .Env.X }} templates will fail or produce literal braces.",
-      "has_fix": false,
-      "round": 3
-    },
-    {
-      "severity": "blocking",
-      "file": "",
-      "line": 0,
-      "description": "fetchHTTP parameter 'url' shadows the net/url import — confusing to readers, fragile under future edits that may need url.Parse inside that function",
-      "has_fix": false,
-      "round": 3
-    }
-  ],
-  "prior_shas": [
-    "7728e908abc4cc4cbcb55ef378ccec74cf36a0ef",
-    "58f8b19672317aff55951572debfea9c35a2bf32",
-    "9ffda38469fa5b73df603a6b7124a29382abe1d5"
-  ],
-  "min_score_across_rounds": 8,
-  "has_prior_min_score": true
+  "issues_remaining": 0,
+  "summary": "Reviewed by the current Claude Code session (BUG-504).",
+  "schema_version": 1
 }
