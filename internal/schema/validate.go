@@ -42,13 +42,13 @@ func Validate(cfg *SmokeConfig) error {
 		}
 		if t.Retry != nil {
 			if t.Retry.Count < 1 {
-				errs = append(errs, fmt.Sprintf("test[%d] retry.count must be >= 1", i))
+				errs = append(errs, fmt.Sprintf("tests[%d] retry.count must be >= 1", i))
 			}
 			if t.Retry.Backoff.Duration <= 0 {
-				errs = append(errs, fmt.Sprintf("test[%d] retry.backoff must be > 0", i))
+				errs = append(errs, fmt.Sprintf("tests[%d] retry.backoff must be > 0", i))
 			}
 			if t.Retry.RetryOnTraceOnly && t.Expect.OTelTrace == nil {
-				errs = append(errs, fmt.Sprintf("test[%d] retry.retry_on_trace_only requires otel_trace assertion", i))
+				errs = append(errs, fmt.Sprintf("tests[%d] retry.retry_on_trace_only requires otel_trace assertion", i))
 			}
 		}
 		if t.Expect.DockerContainer != nil && t.Expect.DockerContainer.Name == "" {
@@ -253,7 +253,8 @@ func hasStandaloneAssertions(e Expect) bool {
 		e.MQTT != nil ||
 		e.NTP != nil ||
 		e.K8sResource != nil ||
-		e.FileSize != nil
+		e.FileSize != nil ||
+		e.DeepLink != nil
 }
 
 // validateBackgroundHook checks that background hooks have valid configuration.

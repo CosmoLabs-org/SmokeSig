@@ -106,7 +106,7 @@ func init() {
 	runCmd.Flags().StringVarP(&configFile, "file", "f", ".smokesig.yaml", "Config file path")
 	runCmd.Flags().StringSliceVar(&tags, "tag", nil, "Include only tests with these tags")
 	runCmd.Flags().StringSliceVar(&excludeTags, "exclude-tag", nil, "Exclude tests with these tags")
-	runCmd.Flags().StringVar(&format, "format", "terminal", "Output format(s), comma-separated (terminal,json,junit,tap,prometheus)")
+	runCmd.Flags().StringVar(&format, "format", "terminal", "Output format(s), comma-separated (terminal,json,junit,tap,prometheus,gha,backstage)")
 	runCmd.Flags().BoolVar(&failFast, "fail-fast", false, "Stop on first failure")
 	runCmd.Flags().StringVar(&timeout, "timeout", "", "Per-test timeout override (e.g. 30s)")
 	runCmd.Flags().BoolVar(&dryRun, "dry-run", false, "List tests without running")

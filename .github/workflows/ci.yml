@@ -1,4 +1,4 @@
-# CI for cosmo-smoke itself: build, test, self-smoke.
+# CI for SmokeSig: build, test, self-smoke.
 # Runs on every push and PR targeting master.
 
 on:
@@ -28,9 +28,8 @@ jobs:
       - name: Unit tests
         run: go test ./...
 
-      - name: Install smoke (self)
+      - name: Install smokesig (self)
         run: go install .
 
       - name: Self-smoke
-        # Runs the .smoke.yaml in the repo root — verifies the binary works end-to-end
-        run: smoke run
+        run: smokesig run

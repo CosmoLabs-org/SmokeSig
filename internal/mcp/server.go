@@ -18,7 +18,7 @@ type Server struct {
 func NewServer() *Server {
 	mcpServer := server.NewMCPServer(
 		"smokesig",
-		"0.9.0",
+		"0.21.1",
 		server.WithToolCapabilities(true),
 	)
 
@@ -194,7 +194,7 @@ func smokeExplainTool() mcplib.Tool {
 
 func smokeGenerateTestTool() mcplib.Tool {
 	return mcplib.NewTool("smoke_generate_test",
-		mcplib.WithDescription("Generate a single smoke test YAML snippet. Provide what you want to test and get back valid YAML to add to .smokesig.yaml. Supports all 29 assertion types."),
+		mcplib.WithDescription("Generate a single smoke test YAML snippet. Provide what you want to test and get back valid YAML to add to .smokesig.yaml. Supports all 40 assertion types."),
 		mcplib.WithString("name",
 			mcplib.Description("Test name"),
 			mcplib.Required(),

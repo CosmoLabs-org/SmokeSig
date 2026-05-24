@@ -1,6 +1,6 @@
-# cosmo-smoke Schema Specification
+# SmokeSig Schema Specification
 
-Reference for the `.smoke.yaml` config format. All fields are documented with types, defaults, and behavior.
+Reference for the `.smokesig.yaml` config format. All fields are documented with types, defaults, and behavior.
 
 ---
 

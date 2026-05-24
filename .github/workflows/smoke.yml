@@ -1,10 +1,10 @@
-# Reusable workflow — run cosmo-smoke in any repo.
+# Reusable workflow — run SmokeSig in any repo.
 #
 # Usage in another repo:
 #
 #   jobs:
 #     smoke:
-#       uses: CosmoLabs-org/cosmo-smoke/.github/workflows/smoke.yml@v1
+#       uses: CosmoLabs-org/SmokeSig/.github/workflows/smoke.yml@v1
 #       with:
 #         smoke-version: latest
 #         working-directory: .
@@ -15,11 +15,11 @@ on:
   workflow_call:
     inputs:
       smoke-version:
-        description: "cosmo-smoke version to install (e.g. v1.0.0 or 'latest')"
+        description: "SmokeSig version to install (e.g. v1.0.0 or 'latest')"
         type: string
         default: "latest"
       working-directory:
-        description: "Directory that contains .smoke.yaml (relative to repo root)"
+        description: "Directory that contains .smokesig.yaml (relative to repo root)"
         type: string
         default: "."
       tags:
@@ -43,18 +43,18 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          # cosmo-smoke targets Go 1.22+; 1.23 is widely available on runners
+          # SmokeSig targets Go 1.22+; 1.23 is widely available on runners
           go-version: "1.23"
           cache: false  # nothing to cache — we only install a binary
 
-      - name: Install smoke
+      - name: Install smokesig
         env:
           SMOKE_VERSION: ${{ inputs.smoke-version }}
         run: |
           if [ "$SMOKE_VERSION" = "latest" ]; then
-            go install github.com/CosmoLabs-org/cosmo-smoke@latest
+            go install github.com/CosmoLabs-org/SmokeSig@latest
           else
-            go install "github.com/CosmoLabs-org/cosmo-smoke@${SMOKE_VERSION}"
+            go install "github.com/CosmoLabs-org/SmokeSig@${SMOKE_VERSION}"
           fi
 
       - name: Run smoke tests
@@ -74,8 +74,8 @@ jobs:
 
           # Write JSON results for the artifact step; exit code carries pass/fail
           # shellcheck disable=SC2086
-          smoke run --format json $ARGS | tee smoke-results.json
-          # Propagate smoke's exit code, not tee's
+          smokesig run --format json $ARGS | tee smoke-results.json
+          # Propagate smokesig's exit code, not tee's
           exit "${PIPESTATUS[0]}"
 
       - name: Upload results artifact

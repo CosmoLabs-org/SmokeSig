@@ -62,7 +62,7 @@ func CheckDockerComposeHealthy(check *schema.DockerComposeCheck) AssertionResult
 
 	args := []string{"compose", "ps", "--format", "json"}
 	if check.ComposeFile != "" {
-		args = append([]string{"compose", "-f", check.ComposeFile, "ps", "--format", "json"})
+		args = []string{"compose", "-f", check.ComposeFile, "ps", "--format", "json"}
 	}
 
 	out, err := exec.CommandContext(ctx, "docker", args...).Output()

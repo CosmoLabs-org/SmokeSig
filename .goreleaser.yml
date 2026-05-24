@@ -15,8 +15,8 @@ builds:
       - amd64
       - arm64
     ldflags:
-      - -s -w -X github.com/CosmoLabs-org/cosmo-smoke/cmd.Version={{.Version}}
-    binary: smoke
+      - -s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version={{.Version}}
+    binary: smokesig
 
 archives:
   - format: tar.gz
@@ -48,31 +48,32 @@ brews:
       owner: CosmoLabs-org
       name: homebrew-tap
     directory: Formula
-    homepage: "https://github.com/CosmoLabs-org/cosmo-smoke"
+    homepage: "https://github.com/CosmoLabs-org/SmokeSig"
     description: "Universal smoke test runner — does it turn on?"
     test: |
-      system "#{bin}/smoke version"
+      system "#{bin}/smokesig version"
     install: |
-      bin.install "smoke"
+      bin.install "smokesig"
 
 dockers:
   - dockerfile: Dockerfile
-    build_templates:
-      - "Dockerfile"
+    extra_files:
+      - go.mod
+      - go.sum
     image_templates:
-      - "cosmolabs/cosmo-smoke:{{ .Version }}"
-      - "cosmolabs/cosmo-smoke:latest"
+      - "cosmolabs/smokesig:{{ .Version }}"
+      - "cosmolabs/smokesig:latest"
     goos: linux
     goarch: amd64
   - dockerfile: Dockerfile
     image_templates:
-      - "cosmolabs/cosmo-smoke:{{ .Version }}-arm64"
-      - "cosmolabs/cosmo-smoke:latest-arm64"
+      - "cosmolabs/smokesig:{{ .Version }}-arm64"
+      - "cosmolabs/smokesig:latest-arm64"
     goos: linux
     goarch: arm64
 
 release:
   github:
     owner: CosmoLabs-org
-    name: cosmo-smoke
+    name: SmokeSig
   prerelease: auto
