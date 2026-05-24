@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 483,
+    "build": 486,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T11:48:59Z",
+    "lastUpdated": "2026-05-24T11:49:39Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -110,6 +110,19 @@
           "docs/DASHBOARD.md",
           "docs/LIFECYCLE.md",
           "docs/MCP.md"
+        ]
+      },
+      {
+        "branch": "agent-a7d898cf8dfb5d03d",
+        "title": "Agent a7d898cf8dfb5d03d",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T08:49:39-03:00",
+        "files": [
+          ".review.json",
+          "README.md",
+          "docs/COMPARISON.md",
+          "examples/demo/.smokesig.yaml"
         ]
       }
     ],
