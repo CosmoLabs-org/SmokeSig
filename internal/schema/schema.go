@@ -146,6 +146,7 @@ type Expect struct {
 	K8sResource      *K8sResourceCheck      `yaml:"k8s_resource,omitempty"`
 	IOSSimulator     *IOSSimulatorCheck     `yaml:"ios_simulator,omitempty"`
 	AndroidEmulator  *AndroidEmulatorCheck  `yaml:"android_emulator,omitempty"`
+	DocIntegrity     *DocIntegrityCheck     `yaml:"doc_integrity,omitempty"`
 	Extract          string                 `yaml:"extract,omitempty"` // Variable name to capture from stdout_matches
 }
 
@@ -396,6 +397,15 @@ type IOSSimulatorCheck struct {
 type AndroidEmulatorCheck struct {
 	Serial  string   `yaml:"serial" json:"serial,omitempty"`   // optional ADB serial for specific device
 	Timeout Duration `yaml:"timeout" json:"timeout,omitempty"`
+}
+
+// DocIntegrityCheck verifies CLI documentation stays in sync with actual commands and flags.
+type DocIntegrityCheck struct {
+	Binary         string   `yaml:"binary" json:"binary"`
+	Docs           []string `yaml:"docs" json:"docs"`
+	CheckExamples  bool     `yaml:"check_examples" json:"check_examples,omitempty"`
+	IgnoreCommands []string `yaml:"ignore_commands" json:"ignore_commands,omitempty"`
+	Timeout        Duration `yaml:"timeout" json:"timeout,omitempty"`
 }
 
 // K8sResourceCheck verifies a Kubernetes resource exists and optionally meets a condition.

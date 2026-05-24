@@ -763,6 +763,16 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 		}
 	}
 
+	if t.Expect.DocIntegrity != nil {
+		diResults := CheckDocIntegrity(t.Expect.DocIntegrity, r.ConfigDir)
+		for _, a := range diResults {
+			assertions = append(assertions, a)
+			if !a.Passed {
+				allPassed = false
+			}
+		}
+	}
+
 	duration := time.Since(start)
 
 	if t.Expect.ResponseTimeMs != nil {

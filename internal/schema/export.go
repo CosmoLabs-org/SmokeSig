@@ -328,6 +328,16 @@ func ExportSchema() *SchemaOutput {
 					{Name: "timeout", Type: "duration", Required: false},
 				},
 			},
+			{
+				Name: "doc_integrity", YAML: "doc_integrity",
+				Fields: []FieldInfo{
+					{Name: "binary", Type: "string", Required: true},
+					{Name: "docs", Type: "[]string", Required: true},
+					{Name: "check_examples", Type: "bool", Required: false},
+					{Name: "ignore_commands", Type: "[]string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
 		},
 	}
 }
