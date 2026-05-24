@@ -1,34 +1,33 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T08:45:02.464612-03:00",
+  "generated_at": "2026-05-24T08:46:27.15076-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T08:45:02.464612-03:00",
-  "last_analyzed_commit": "7fb363be5883c26fff86f398f54f9130f5991c8a",
-  "summary": "A Go-based monolithic project featuring a test runner, schema validation, and MCP handlers, heavily augmented by automated AI agent-generated tests.",
+  "expires_at": "2026-05-25T08:46:27.150761-03:00",
+  "last_analyzed_commit": "9cef56c7480398e0890507e15606a735614ad07c",
+  "summary": "A Go-based testing and validation framework orchestrated by AI agents, focusing on schema validation, test running, and MCP integration.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/mcp/handlers.go",
     "internal/runner/assertion_test.go",
+    "internal/mcp/handlers.go",
     "internal/schema/schema_extra_test.go",
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
     "Test-Driven Development",
-    "MCP (Model Context Protocol) Handler",
-    "Assertion/Validation Pipeline",
-    "Schema Validation",
-    "Agent-Based Code Generation"
+    "Agent-Based Orchestration",
+    "Model Context Protocol (MCP) Integration",
+    "Schema Validation"
   ],
   "concerns": [
-    "High volume of auto-generated agent test directories (GOrchestra/glm-agents/*) polluting the repository structure",
-    "Potential test bloat with numerous *_extra_test.go files",
-    "Clean git status combined with automated session commits suggests heavy CI/agent automation with minimal human oversight"
+    "High volume of auto-generated/orchestrated test directories (GOrchestra/glm-agents) polluting the repository",
+    "Staged but uncommitted changes indicating potential workflow interruption",
+    "Heavy reliance on automated agent sessions might obscure manual code ownership"
   ],
   "suggestions": [
-    "Consolidate or archive the GOrchestra agent session directories to reduce repository noise",
-    "Evaluate if the extensive extra tests provide marginal value over the baseline tests",
-    "Ensure core logic in runner.go and handlers.go remains decoupled from auto-generated test artifacts"
+    "Clean up or archive the numerous GOrchestra agent directories to reduce repository noise",
+    "Commit or revert the currently staged file to maintain a clean git state",
+    "Establish a clear policy for merging automated agent test outputs into the main codebase"
   ]
 }
