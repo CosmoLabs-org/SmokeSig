@@ -1,12 +1,115 @@
 package runner
 
 import (
+	"fmt"
+	"net"
 	"runtime"
 	"testing"
 	"time"
 
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
+
+// fakeSMTP starts a minimal SMTP server on a random port. It sends a 220
+// greeting, reads the EHLO, responds 250, then waits for QUIT. This mirrors
+// the real protocol just enough to validate CheckSMTP's single-handshake flow.
+func fakeSMTP(t *testing.T) (port int, stop func()) {
+	t.Helper()
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("listen: %v", err)
+	}
+	port = ln.Addr().(*net.TCPAddr).Port
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		conn, err := ln.Accept()
+		if err != nil {
+			return // listener closed
+		}
+		defer conn.Close()
+		conn.SetDeadline(time.Now().Add(5 * time.Second))
+
+		// Send greeting — smtp.NewClient expects to read this first.
+		fmt.Fprintf(conn, "220 fake-smtp ready\r\n")
+
+		buf := make([]byte, 1024)
+
+		// Read EHLO (sent by smtp.NewClient internally)
+		n, err := conn.Read(buf)
+		if err != nil {
+			return
+		}
+		_ = string(buf[:n]) // e.g. "EHLO ..."
+
+		// Respond to EHLO
+		fmt.Fprintf(conn, "250 ok\r\n")
+
+		// Read the second EHLO from client.Hello("smoke-test.local")
+		n, err = conn.Read(buf)
+		if err != nil {
+			return
+		}
+		_ = string(buf[:n])
+		fmt.Fprintf(conn, "250 ok\r\n")
+
+		// Read QUIT
+		conn.Read(buf)
+		fmt.Fprintf(conn, "221 bye\r\n")
+	}()
+
+	return port, func() {
+		ln.Close()
+		<-done
+	}
+}
+
+func TestCheckSMTP_Handshake(t *testing.T) {
+	port, stop := fakeSMTP(t)
+	defer stop()
+
+	result := CheckSMTP(&schema.SMTPCheck{
+		Host:    "127.0.0.1",
+		Port:    port,
+		Timeout: schema.Duration{Duration: 5 * time.Second},
+	})
+	if !result.Passed {
+		t.Errorf("CheckSMTP: expected pass, got %q", result.Actual)
+	}
+	if result.Type != "smtp_ping" {
+		t.Errorf("type = %q, want smtp_ping", result.Type)
+	}
+}
+
+func TestCheckSMTP_ConnectionRefused(t *testing.T) {
+	// Use a port that nothing listens on
+	result := CheckSMTP(&schema.SMTPCheck{
+		Host:    "127.0.0.1",
+		Port:    19, // chargen — almost certainly not running
+		Timeout: schema.Duration{Duration: 1 * time.Second},
+	})
+	if result.Passed {
+		t.Error("CheckSMTP on closed port: expected fail")
+	}
+	if result.Type != "smtp_ping" {
+		t.Errorf("type = %q, want smtp_ping", result.Type)
+	}
+}
+
+func TestCheckSMTP_DefaultPort(t *testing.T) {
+	// Verify defaults are applied (port 25, 10s timeout) without connecting
+	result := CheckSMTP(&schema.SMTPCheck{
+		Host: "127.0.0.1",
+	})
+	// Will fail to connect on port 25 — we just care it doesn't panic and reports failure
+	if result.Passed {
+		t.Skip("port 25 actually responded — unusual in test env")
+	}
+	if result.Type != "smtp_ping" {
+		t.Errorf("type = %q, want smtp_ping", result.Type)
+	}
+}
 
 func TestCheckDNS_Localhost(t *testing.T) {
 	result := CheckDNS(&schema.DNSCheck{

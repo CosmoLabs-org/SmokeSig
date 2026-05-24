@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/smtp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
@@ -38,28 +37,9 @@ func CheckSMTP(check *schema.SMTPCheck) AssertionResult {
 
 	conn.SetDeadline(time.Now().Add(timeout))
 
-	// Read server greeting (220 ...)
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-	if err != nil {
-		return AssertionResult{
-			Type:     "smtp_ping",
-			Expected: "220 greeting",
-			Actual:   fmt.Sprintf("read greeting failed: %v", err),
-			Passed:   false,
-		}
-	}
-	greeting := strings.TrimSpace(string(buf[:n]))
-	if !strings.HasPrefix(greeting, "220") {
-		return AssertionResult{
-			Type:     "smtp_ping",
-			Expected: "220 greeting",
-			Actual:   greeting,
-			Passed:   false,
-		}
-	}
-
-	// Send EHLO
+	// smtp.NewClient reads the greeting banner and sends EHLO internally.
+	// Do NOT manually read the greeting — that would consume the 220 line
+	// and leave NewClient waiting on the next server response (BUG-004).
 	client, err := smtp.NewClient(conn, host)
 	if err != nil {
 		return AssertionResult{
