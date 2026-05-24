@@ -46,7 +46,7 @@ func withOTelExport(rep reporter.Reporter, cfg *schema.SmokeConfig) reporter.Rep
 // OTel export and push report if configured. Returns the reporter and any opened
 // files that must be closed (in reverse order) after the run completes.
 func buildReporter(formatStr string, cfg *schema.SmokeConfig) (reporter.Reporter, func(), error) {
-	rep, closers, err := reporter.Chain(formatStr, os.Stdout)
+	rep, closers, err := reporter.ChainWithVerbosity(formatStr, os.Stdout, verbosity)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -99,6 +99,9 @@ var (
 	reportAPIKey   string
 	baselineFlag   bool
 	baselineThresh float64
+	verbose        bool
+	quiet          bool
+	verbosity      reporter.Verbosity
 )
 
 func init() {
@@ -119,6 +122,9 @@ func init() {
 	runCmd.Flags().StringVar(&reportAPIKey, "report-api-key", "", "API key for report-url endpoint (X-API-Key header)")
 	runCmd.Flags().BoolVar(&baselineFlag, "baseline", false, "Save and compare test timings against baseline")
 	runCmd.Flags().Float64Var(&baselineThresh, "baseline-threshold", 50, "Regression threshold %% (flag if current > baseline * (1+threshold/100))")
+	runCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Show assertion details, timing per assertion, and full error context")
+	runCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "Minimal output: only failures and final summary")
+	runCmd.MarkFlagsMutuallyExclusive("verbose", "quiet")
 }
 
 // loadConfig reads the config file, applies environment overrides and CLI flags.
@@ -149,6 +155,14 @@ func loadConfig() (*schema.SmokeConfig, error) {
 }
 
 func runSmoke(cmd *cobra.Command, args []string) error {
+	// Resolve verbosity from flags (mutual exclusion enforced by Cobra)
+	verbosity = reporter.VerbosityNormal
+	if verbose {
+		verbosity = reporter.VerbosityVerbose
+	} else if quiet {
+		verbosity = reporter.VerbosityQuiet
+	}
+
 	cfg, err := loadConfig()
 	if err != nil {
 		return fmt.Errorf("loading config: %w", err)

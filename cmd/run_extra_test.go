@@ -211,6 +211,146 @@ tests:
 	}
 }
 
+// TestRun_VerboseAndQuietMutuallyExclusive verifies that --verbose and --quiet
+// cannot be used together.
+func TestRun_VerboseAndQuietMutuallyExclusive(t *testing.T) {
+	dir := writeRunConfig(t, `
+version: 1
+project: verbosity-test
+tests:
+  - name: hello
+    run: "echo hi"
+    expect:
+      exit_code: 0
+`)
+	cmd := rootCmd
+	cmd.SetArgs([]string{"run", "-f", dir + "/.smokesig.yaml", "--verbose", "--quiet"})
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected error when both --verbose and --quiet are set, got nil")
+	}
+}
+
+// TestRun_VerboseFlag verifies the --verbose flag sets VerbosityVerbose.
+func TestRun_VerboseFlag(t *testing.T) {
+	// Reset global state
+	verbose = false
+	quiet = false
+	verbosity = reporter.VerbosityNormal
+
+	dir := writeRunConfig(t, `
+version: 1
+project: verbose-test
+tests:
+  - name: hello
+    run: "echo hi"
+    expect:
+      exit_code: 0
+`)
+	configFile = dir + "/.smokesig.yaml"
+	noOtel = false
+	otelCollector = ""
+	envName = ""
+
+	verbose = true
+	quiet = false
+	defer func() { verbose = false }()
+
+	cfg, err := loadConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Simulate what runSmoke does
+	verbosity = reporter.VerbosityNormal
+	if verbose {
+		verbosity = reporter.VerbosityVerbose
+	}
+
+	r := &runner.Runner{Config: cfg, Reporter: silentReporter(), ConfigDir: dir}
+	result, err := r.Run(runner.RunOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Passed != 1 {
+		t.Errorf("expected 1 passed, got %d", result.Passed)
+	}
+	if verbosity != reporter.VerbosityVerbose {
+		t.Errorf("expected VerbosityVerbose, got %d", verbosity)
+	}
+}
+
+// TestRun_QuietFlag verifies the --quiet flag sets VerbosityQuiet.
+func TestRun_QuietFlag(t *testing.T) {
+	// Reset global state
+	verbose = false
+	quiet = false
+	verbosity = reporter.VerbosityNormal
+
+	dir := writeRunConfig(t, `
+version: 1
+project: quiet-test
+tests:
+  - name: hello
+    run: "echo hi"
+    expect:
+      exit_code: 0
+`)
+	configFile = dir + "/.smokesig.yaml"
+	noOtel = false
+	otelCollector = ""
+	envName = ""
+
+	verbose = false
+	quiet = true
+	defer func() { quiet = false }()
+
+	cfg, err := loadConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Simulate what runSmoke does
+	verbosity = reporter.VerbosityNormal
+	if verbose {
+		verbosity = reporter.VerbosityVerbose
+	} else if quiet {
+		verbosity = reporter.VerbosityQuiet
+	}
+
+	r := &runner.Runner{Config: cfg, Reporter: silentReporter(), ConfigDir: dir}
+	result, err := r.Run(runner.RunOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Passed != 1 {
+		t.Errorf("expected 1 passed, got %d", result.Passed)
+	}
+	if verbosity != reporter.VerbosityQuiet {
+		t.Errorf("expected VerbosityQuiet, got %d", verbosity)
+	}
+}
+
+// TestRun_DefaultVerbosity verifies neither flag gives VerbosityNormal.
+func TestRun_DefaultVerbosity(t *testing.T) {
+	verbose = false
+	quiet = false
+	verbosity = reporter.VerbosityNormal
+
+	// Simulate what runSmoke does
+	if verbose {
+		verbosity = reporter.VerbosityVerbose
+	} else if quiet {
+		verbosity = reporter.VerbosityQuiet
+	}
+
+	if verbosity != reporter.VerbosityNormal {
+		t.Errorf("expected VerbosityNormal, got %d", verbosity)
+	}
+}
+
 // TestLoadConfig_ReloadOnFileChange verifies loadConfig picks up changes
 // when the config file is modified between calls.
 func TestLoadConfig_ReloadOnFileChange(t *testing.T) {

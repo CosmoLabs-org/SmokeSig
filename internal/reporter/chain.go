@@ -28,6 +28,13 @@ var formats = map[string]formatEntry{
 // directory. Returns the reporter, any opened files (creation order, close
 // in reverse), or an error.
 func Chain(format string, stdout io.Writer) (Reporter, []io.Closer, error) {
+	return ChainWithVerbosity(format, stdout, VerbosityNormal)
+}
+
+// ChainWithVerbosity is like Chain but applies the given verbosity to the
+// terminal reporter. Non-terminal reporters (json, junit, etc.) are
+// unaffected — they always emit full data.
+func ChainWithVerbosity(format string, stdout io.Writer, v Verbosity) (Reporter, []io.Closer, error) {
 	names := parseFormats(format)
 	if len(names) == 0 {
 		return nil, nil, fmt.Errorf("no output format specified")
@@ -43,11 +50,11 @@ func Chain(format string, stdout io.Writer) (Reporter, []io.Closer, error) {
 	var closers []io.Closer
 
 	for i, name := range names {
-		entry := formats[name]
 		var w io.Writer
 		if i == 0 {
 			w = stdout
 		} else {
+			entry := formats[name]
 			f, err := os.Create(entry.filename)
 			if err != nil {
 				for j := len(closers) - 1; j >= 0; j-- {
@@ -58,7 +65,11 @@ func Chain(format string, stdout io.Writer) (Reporter, []io.Closer, error) {
 			closers = append(closers, f)
 			w = f
 		}
-		reporters = append(reporters, entry.factory(w))
+		if name == "terminal" {
+			reporters = append(reporters, NewTerminalWithVerbosity(w, v))
+		} else {
+			reporters = append(reporters, formats[name].factory(w))
+		}
 	}
 
 	if len(reporters) == 1 {
