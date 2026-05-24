@@ -1,33 +1,34 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T08:47:48.162081-03:00",
+  "generated_at": "2026-05-24T08:48:30.917926-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T08:47:48.162082-03:00",
-  "last_analyzed_commit": "f9e815caa88b3bc8b2c8b05fe85101870bc96b1b",
-  "summary": "A Go-based monolithic testing framework featuring a schema validator, assertion runner, and MCP integration, currently cluttered by automated agent session artifacts.",
+  "expires_at": "2026-05-25T08:48:30.917926-03:00",
+  "last_analyzed_commit": "bc5146c68d0a0d4f016ff5ff163ff4d9641e6df7",
+  "summary": "A Go-based monolithic project leveraging an automated agent orchestration system (GOrchestra) to extensively test an MCP handler and assertion runner.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/runner/assertion_test.go",
     "internal/mcp/handlers.go",
+    "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
     "Test-Driven Development",
-    "MCP (Model Context Protocol) Handler",
-    "Schema Validation",
-    "Assertion/Expectation Runner"
+    "MCP (Model Context Protocol) handler pattern",
+    "Assertion-based validation",
+    "Agent-driven automated testing",
+    "Session-based workflow orchestration"
   ],
   "concerns": [
-    "High volume of auto-generated agent test directories (GOrchestra/glm-agents/*) polluting the repository structure",
-    "Session metadata commits cluttering git history",
-    "Potential test duplication between baseline and extra test files"
+    "High volume of auto-generated extra test files scattered across agent directories",
+    "Potential test duplication between root and GOrchestra/glm-agents paths",
+    "Clean git status combined with recent session archives suggests heavy automated commit churn"
   ],
   "suggestions": [
-    "Clean up or .gitignore the GOrchestra/glm-agents ephemeral directories",
-    "Consolidate overlapping test suites to reduce maintenance burden",
-    "Implement git history filtering to remove automated session metadata commits"
+    "Consolidate or garbage-collect archived agent test directories to reduce repository bloat",
+    "Ensure root-level extra tests and agent-generated extra tests do not overlap in coverage",
+    "Monitor automated agent session commits to prevent excessive noise in the git history"
   ]
 }
