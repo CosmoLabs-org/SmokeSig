@@ -116,3 +116,113 @@ tests:
 		t.Errorf("expected failed > 0, got %+v", resp.Tests)
 	}
 }
+
+// TestWriteHealthError verifies writeHealthError sets the correct status code,
+// Content-Type header, and JSON body.
+func TestWriteHealthError(t *testing.T) {
+	w := httptest.NewRecorder()
+	writeHealthError(w, 500, "test error")
+
+	if w.Code != 500 {
+		t.Errorf("status code = %d, want 500", w.Code)
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Errorf("Content-Type = %q, want application/json", ct)
+	}
+
+	var resp map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if resp["error"] != "test error" {
+		t.Errorf("error field = %q, want 'test error'", resp["error"])
+	}
+}
+
+// TestWriteHealthError_404 exercises a 404 error code path.
+func TestWriteHealthError_404(t *testing.T) {
+	w := httptest.NewRecorder()
+	writeHealthError(w, http.StatusNotFound, "not found")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status code = %d, want 404", w.Code)
+	}
+	var resp map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if resp["error"] != "not found" {
+		t.Errorf("error field = %q, want 'not found'", resp["error"])
+	}
+}
+
+// TestBuildHandler_PostAlsoRuns verifies that buildHandler runs smoke tests
+// regardless of HTTP method (no method restriction in the handler).
+func TestBuildHandler_PostAlsoRuns(t *testing.T) {
+	cfgPath := writeTempConfig(t, `
+version: 1
+project: handler-post
+tests:
+  - name: pass
+    run: "true"
+    expect:
+      exit_code: 0
+`)
+	handler := buildHandler(cfgPath)
+
+	req := httptest.NewRequest(http.MethodPost, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	// Handler runs tests on any method — POST should also get a valid JSON response.
+	if w.Code != http.StatusOK {
+		t.Errorf("POST: status = %d, want 200 — body: %s", w.Code, w.Body.String())
+	}
+}
+
+// TestBuildHandler_MissingConfig verifies that a missing config file yields a
+// non-200 error response (500) rather than a panic.
+func TestBuildHandler_MissingConfig(t *testing.T) {
+	handler := buildHandler("/tmp/nonexistent_smokesig_serve_config.yaml")
+
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	if w.Code == http.StatusOK {
+		t.Error("expected non-200 status for missing config, got 200")
+	}
+
+	var resp map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if resp["error"] == "" {
+		t.Error("expected non-empty error field in response body")
+	}
+}
+
+// TestBuildHandler_HealthyConfig exercises the full 200 path with a passing config.
+func TestBuildHandler_HealthyConfig(t *testing.T) {
+	cfgPath := writeTempConfig(t, `
+version: 1
+project: handler-healthy
+tests:
+  - name: echo-test
+    run: "echo hello"
+    expect:
+      exit_code: 0
+`)
+	handler := buildHandler(cfgPath)
+
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("health status = %d, want 200 — body: %s", w.Code, w.Body.String())
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Errorf("Content-Type = %q, want application/json", ct)
+	}
+}

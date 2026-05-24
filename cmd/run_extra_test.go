@@ -269,6 +269,92 @@ tests:
 	}
 }
 
+// TestLoadConfig_FileNotFound returns an error when the config file is absent.
+func TestLoadConfig_FileNotFound(t *testing.T) {
+	configFile = "/tmp/nonexistent_smokesig_test_xyz.yaml"
+	noOtel = false
+	otelCollector = ""
+	envName = ""
+	_, err := loadConfig()
+	if err == nil {
+		t.Fatal("expected error for non-existent file, got nil")
+	}
+}
+
+// TestLoadConfig_InvalidYAML returns an error for malformed YAML.
+func TestLoadConfig_InvalidYAML(t *testing.T) {
+	tmp := t.TempDir()
+	path := tmp + "/.smokesig.yaml"
+	os.WriteFile(path, []byte("{{invalid yaml"), 0644)
+	configFile = path
+	noOtel = false
+	otelCollector = ""
+	envName = ""
+	_, err := loadConfig()
+	if err == nil {
+		t.Fatal("expected error for invalid YAML, got nil")
+	}
+}
+
+// TestLoadConfig_ValidConfig loads a minimal valid config and checks the project name.
+func TestLoadConfig_ValidConfig(t *testing.T) {
+	tmp := t.TempDir()
+	path := tmp + "/.smokesig.yaml"
+	os.WriteFile(path, []byte("version: 1\nproject: test\ntests:\n  - name: hello\n    run: echo hi\n    expect:\n      exit_code: 0\n"), 0644)
+	configFile = path
+	noOtel = false
+	otelCollector = ""
+	envName = ""
+	cfg, err := loadConfig()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if cfg.Project != "test" {
+		t.Errorf("project = %q, want test", cfg.Project)
+	}
+}
+
+// TestLoadConfig_NoOtelDisablesTracing verifies noOtel=true turns off otel in config.
+func TestLoadConfig_NoOtelDisablesTracing(t *testing.T) {
+	tmp := t.TempDir()
+	path := tmp + "/.smokesig.yaml"
+	os.WriteFile(path, []byte("version: 1\nproject: otel-off\notel:\n  enabled: true\n  jaeger_url: http://jaeger:16686\ntests:\n  - name: t1\n    run: echo ok\n    expect:\n      exit_code: 0\n"), 0644)
+	configFile = path
+	noOtel = true
+	otelCollector = ""
+	envName = ""
+	defer func() { noOtel = false }()
+	cfg, err := loadConfig()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if cfg.OTel.Enabled {
+		t.Error("expected OTel.Enabled=false when --no-otel is set")
+	}
+}
+
+// TestLoadConfig_OtelCollectorOverride verifies --otel-collector sets JaegerURL and enables OTel.
+func TestLoadConfig_OtelCollectorOverride(t *testing.T) {
+	tmp := t.TempDir()
+	path := tmp + "/.smokesig.yaml"
+	os.WriteFile(path, []byte("version: 1\nproject: otel-on\ntests:\n  - name: t1\n    run: echo ok\n    expect:\n      exit_code: 0\n"), 0644)
+	configFile = path
+	noOtel = false
+	otelCollector = "http://custom-collector:16686"
+	envName = ""
+	defer func() { otelCollector = "" }()
+	cfg, err := loadConfig()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !cfg.OTel.Enabled {
+		t.Error("expected OTel.Enabled=true when --otel-collector is set")
+	}
+	if cfg.OTel.JaegerURL != "http://custom-collector:16686" {
+		t.Errorf("JaegerURL = %q, want http://custom-collector:16686", cfg.OTel.JaegerURL)
+	}
+}
+
 // TestTraceHealth_PersistsAcrossRunners verifies that a shared TraceHealthTracker
 // accumulates results across multiple Runner instances (simulating watch cycles).
 func TestTraceHealth_PersistsAcrossRunners(t *testing.T) {

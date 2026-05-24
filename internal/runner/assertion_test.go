@@ -568,6 +568,50 @@ func TestCheckProcessRunning_EmptyName(t *testing.T) {
 	}
 }
 
+func TestCheckProcessRunning_ShellRunning(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("pgrep not available on Windows")
+	}
+	// Try common processes that should be running in any test environment.
+	for _, name := range []string{"zsh", "bash", "sh", "sshd", "loginwindow"} {
+		r := CheckProcessRunning(name)
+		if r.Passed {
+			return
+		}
+	}
+	t.Skip("no common process found running via pgrep -x (environment-dependent)")
+}
+
+func TestCheckProcessRunning_LinuxInit(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("init/systemd only on Linux")
+	}
+	// systemd-journald or init should always be running on Linux
+	r := CheckProcessRunning("init")
+	// init may not be the exact name in all distros; just verify type and no panic
+	if r.Type != "process_running" {
+		t.Errorf("type = %q, want process_running", r.Type)
+	}
+}
+
+func TestCheckProcessRunning_ActualField(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("pgrep not available on Windows")
+	}
+	// A missing process must set Actual to "not found"
+	r := CheckProcessRunning("zzz_nonexistent_process_xyz")
+	if r.Actual != "not found" {
+		t.Errorf("Actual = %q, want \"not found\"", r.Actual)
+	}
+}
+
+func TestCheckProcessRunning_ExpectedField(t *testing.T) {
+	r := CheckProcessRunning("myprocess")
+	if r.Expected != "myprocess" {
+		t.Errorf("Expected = %q, want \"myprocess\"", r.Expected)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // CheckHTTP
 // ---------------------------------------------------------------------------

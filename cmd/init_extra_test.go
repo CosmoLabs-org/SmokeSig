@@ -127,6 +127,43 @@ func TestInit_DetectGoProject(t *testing.T) {
 	}
 }
 
+// TestCountProcessTests_None — no tests have PortListening set; expect 0.
+func TestCountProcessTests_None(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Tests: []schema.Test{
+			{Name: "build", Run: "go build ./..."},
+			{Name: "version", Run: "go version"},
+		},
+	}
+	if got := countProcessTests(cfg); got != 0 {
+		t.Errorf("expected 0, got %d", got)
+	}
+}
+
+// TestCountProcessTests_Some — 2 of 3 tests have PortListening; expect 2.
+func TestCountProcessTests_Some(t *testing.T) {
+	port1 := schema.PortCheck{Port: 8080}
+	port2 := schema.PortCheck{Port: 5432}
+	cfg := &schema.SmokeConfig{
+		Tests: []schema.Test{
+			{Name: "web", Expect: schema.Expect{PortListening: &port1}},
+			{Name: "no-port", Run: "echo hi"},
+			{Name: "db", Expect: schema.Expect{PortListening: &port2}},
+		},
+	}
+	if got := countProcessTests(cfg); got != 2 {
+		t.Errorf("expected 2, got %d", got)
+	}
+}
+
+// TestCountProcessTests_Empty — config with no tests; expect 0.
+func TestCountProcessTests_Empty(t *testing.T) {
+	cfg := &schema.SmokeConfig{}
+	if got := countProcessTests(cfg); got != 0 {
+		t.Errorf("expected 0, got %d", got)
+	}
+}
+
 // TestInit_DetectNodeProject detects a Node project from package.json.
 func TestInit_DetectNodeProject(t *testing.T) {
 	dir := t.TempDir()
