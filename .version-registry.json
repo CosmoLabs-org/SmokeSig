@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 462,
+    "build": 465,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T11:42:48Z",
+    "lastUpdated": "2026-05-24T11:43:30Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -22,6 +22,18 @@
           ".review.json",
           "internal/runner/assertion_dns_smtp_test.go",
           "internal/runner/assertion_smtp.go"
+        ]
+      },
+      {
+        "branch": "agent-ab0de35ea45afa9ec",
+        "title": "Agent ab0de35ea45afa9ec",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-24T08:43:30-03:00",
+        "files": [
+          ".github/workflows/ci.yml",
+          ".golangci.yml",
+          ".review.json"
         ]
       }
     ],
