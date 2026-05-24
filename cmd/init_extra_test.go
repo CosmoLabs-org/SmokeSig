@@ -164,6 +164,131 @@ func TestCountProcessTests_Empty(t *testing.T) {
 	}
 }
 
+// TestInit_GoCLI_IncludesDocIntegrity checks that Go CLI projects get a doc_integrity test.
+func TestInit_GoCLI_IncludesDocIntegrity(t *testing.T) {
+	dir := t.TempDir()
+	origDir, _ := os.Getwd()
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	os.WriteFile("go.mod", []byte("module github.com/example/mycli\ngo 1.22\n"), 0644)
+	os.MkdirAll("cmd", 0755)
+	os.WriteFile("README.md", []byte("# My CLI\n"), 0644)
+
+	forceOverwrite = false
+	fromRunning = ""
+	withDocIntegrity = false
+
+	if err := runInit(nil, nil); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dir, ".smokesig.yaml"))
+	if err != nil {
+		t.Fatalf("reading .smokesig.yaml: %v", err)
+	}
+
+	var cfg schema.SmokeConfig
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		t.Fatalf("parsing .smokesig.yaml: %v", err)
+	}
+
+	found := false
+	for _, tc := range cfg.Tests {
+		if tc.Expect.DocIntegrity != nil {
+			found = true
+			if tc.Expect.DocIntegrity.Binary != "./mycli" {
+				t.Errorf("binary = %q, want %q", tc.Expect.DocIntegrity.Binary, "./mycli")
+			}
+			break
+		}
+	}
+	if !found {
+		t.Error("expected doc_integrity test for Go CLI project")
+	}
+}
+
+// TestInit_WithDocIntegrityFlag forces doc_integrity even for non-CLI projects.
+func TestInit_WithDocIntegrityFlag(t *testing.T) {
+	dir := t.TempDir()
+	origDir, _ := os.Getwd()
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	os.WriteFile("Dockerfile", []byte("FROM alpine\n"), 0644)
+	os.WriteFile("README.md", []byte("# Docs\n"), 0644)
+
+	forceOverwrite = false
+	fromRunning = ""
+	withDocIntegrity = true
+
+	if err := runInit(nil, nil); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dir, ".smokesig.yaml"))
+	if err != nil {
+		t.Fatalf("reading .smokesig.yaml: %v", err)
+	}
+
+	var cfg schema.SmokeConfig
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		t.Fatalf("parsing .smokesig.yaml: %v", err)
+	}
+
+	found := false
+	for _, tc := range cfg.Tests {
+		if tc.Expect.DocIntegrity != nil {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected doc_integrity test when --with-doc-integrity flag is set")
+	}
+}
+
+// TestInit_NonCLI_NoDocIntegrity confirms non-CLI projects without the flag get no doc_integrity.
+func TestInit_NonCLI_NoDocIntegrity(t *testing.T) {
+	dir := t.TempDir()
+	origDir, _ := os.Getwd()
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	os.WriteFile("Dockerfile", []byte("FROM alpine\n"), 0644)
+	os.WriteFile("README.md", []byte("# Docs\n"), 0644)
+
+	forceOverwrite = false
+	fromRunning = ""
+	withDocIntegrity = false
+
+	if err := runInit(nil, nil); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dir, ".smokesig.yaml"))
+	if err != nil {
+		t.Fatalf("reading .smokesig.yaml: %v", err)
+	}
+
+	var cfg schema.SmokeConfig
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		t.Fatalf("parsing .smokesig.yaml: %v", err)
+	}
+
+	for _, tc := range cfg.Tests {
+		if tc.Expect.DocIntegrity != nil {
+			t.Error("non-CLI project without flag should not have doc_integrity test")
+		}
+	}
+}
+
 // TestInit_DetectNodeProject detects a Node project from package.json.
 func TestInit_DetectNodeProject(t *testing.T) {
 	dir := t.TempDir()

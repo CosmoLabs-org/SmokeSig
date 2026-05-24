@@ -234,3 +234,171 @@ func Detect(dir string) []ProjectType {
 func HasBun(dir string) bool {
 	return exists(dir, "bun.lock")
 }
+
+// CLIInfo describes a detected CLI binary in the project.
+type CLIInfo struct {
+	Binary string // path to the binary (e.g., "./myapp", "./bin/cli")
+}
+
+// DetectCLI inspects the project directory for indicators that the project
+// produces a CLI binary. It checks Go, Node, Python, and Rust conventions.
+// Returns nil if no CLI binary is detected.
+func DetectCLI(dir string, types []ProjectType) *CLIInfo {
+	for _, t := range types {
+		switch t {
+		case Go:
+			if info := detectGoCLI(dir); info != nil {
+				return info
+			}
+		case Node:
+			if info := detectNodeCLI(dir); info != nil {
+				return info
+			}
+		case Python:
+			if info := detectPythonCLI(dir); info != nil {
+				return info
+			}
+		case Rust:
+			if info := detectRustCLI(dir); info != nil {
+				return info
+			}
+		}
+	}
+	return nil
+}
+
+// detectGoCLI checks for Go CLI indicators: cmd/ directory or main.go at root.
+// Binary name is derived from the go.mod module path.
+func detectGoCLI(dir string) *CLIInfo {
+	hasCmd := exists(dir, "cmd")
+	hasMain := exists(dir, "main.go")
+	if !hasCmd && !hasMain {
+		return nil
+	}
+	// Derive binary name from go.mod module path
+	binary := filepath.Base(dir)
+	data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
+	if err == nil {
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "module ") {
+				mod := strings.TrimPrefix(line, "module ")
+				mod = strings.TrimSpace(mod)
+				if idx := strings.LastIndex(mod, "/"); idx >= 0 {
+					binary = mod[idx+1:]
+				} else {
+					binary = mod
+				}
+				break
+			}
+		}
+	}
+	return &CLIInfo{Binary: "./" + binary}
+}
+
+// detectNodeCLI checks for a "bin" field in package.json.
+func detectNodeCLI(dir string) *CLIInfo {
+	data, err := os.ReadFile(filepath.Join(dir, "package.json"))
+	if err != nil {
+		return nil
+	}
+	// "bin" can be a string or an object
+	var pkg struct {
+		Bin  json.RawMessage `json:"bin"`
+		Name string          `json:"name"`
+	}
+	if err := json.Unmarshal(data, &pkg); err != nil || pkg.Bin == nil {
+		return nil
+	}
+	// Check if bin is a non-empty value
+	raw := strings.TrimSpace(string(pkg.Bin))
+	if raw == "" || raw == "null" || raw == "{}" || raw == `""` {
+		return nil
+	}
+	binary := pkg.Name
+	if binary == "" {
+		binary = filepath.Base(dir)
+	}
+	return &CLIInfo{Binary: binary}
+}
+
+// detectPythonCLI checks for [project.scripts] in pyproject.toml.
+func detectPythonCLI(dir string) *CLIInfo {
+	data, err := os.ReadFile(filepath.Join(dir, "pyproject.toml"))
+	if err != nil {
+		return nil
+	}
+	content := string(data)
+	if !strings.Contains(content, "[project.scripts]") {
+		return nil
+	}
+	// Derive binary name from project name if available
+	binary := filepath.Base(dir)
+	for _, line := range strings.Split(content, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "name") && strings.Contains(line, "=") {
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				name := strings.TrimSpace(parts[1])
+				name = strings.Trim(name, `"'`)
+				if name != "" {
+					binary = name
+				}
+			}
+			break
+		}
+	}
+	return &CLIInfo{Binary: binary}
+}
+
+// detectRustCLI checks for [[bin]] in Cargo.toml.
+func detectRustCLI(dir string) *CLIInfo {
+	data, err := os.ReadFile(filepath.Join(dir, "Cargo.toml"))
+	if err != nil {
+		return nil
+	}
+	content := string(data)
+	// Check for explicit [[bin]] section or src/main.rs (default binary)
+	hasBin := strings.Contains(content, "[[bin]]")
+	hasMain := exists(dir, "src/main.rs")
+	if !hasBin && !hasMain {
+		return nil
+	}
+	// Derive binary name from [package] name
+	binary := filepath.Base(dir)
+	for _, line := range strings.Split(content, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "name") && strings.Contains(line, "=") {
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				name := strings.TrimSpace(parts[1])
+				name = strings.Trim(name, `"'`)
+				if name != "" {
+					binary = name
+				}
+			}
+			break
+		}
+	}
+	return &CLIInfo{Binary: "./" + binary}
+}
+
+// commonDocFiles lists documentation files that doc_integrity should check.
+var commonDocFiles = []string{
+	"README.md",
+	"CLAUDE.md",
+	"docs/USAGE.md",
+	"SPEC.md",
+}
+
+// DetectDocFiles returns the subset of common documentation files that
+// actually exist in the given directory.
+func DetectDocFiles(dir string) []string {
+	var found []string
+	for _, f := range commonDocFiles {
+		if exists(dir, f) {
+			found = append(found, f)
+		}
+	}
+	return found
+}
