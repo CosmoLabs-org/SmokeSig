@@ -253,6 +253,8 @@ func hasStandaloneAssertions(e Expect) bool {
 		e.MQTT != nil ||
 		e.NTP != nil ||
 		e.K8sResource != nil ||
+		e.IOSSimulator != nil ||
+		e.AndroidEmulator != nil ||
 		e.FileSize != nil ||
 		e.DeepLink != nil
 }
