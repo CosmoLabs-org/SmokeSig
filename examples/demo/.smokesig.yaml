@@ -1,0 +1,212 @@
+# SmokeSig Demo — Showcases assertion type breadth
+#
+# This config demonstrates many of SmokeSig's 40 assertion types.
+# Most tests target commonly available services and system state.
+# Adjust hostnames and ports to match your environment.
+
+version: 1
+project: demo-showcase
+description: "SmokeSig assertion type showcase"
+
+settings:
+  timeout: 15s
+  fail_fast: false
+
+prerequisites:
+  - name: "curl installed"
+    check: "curl --version"
+    hint: "Install curl for HTTP tests"
+
+tests:
+  # --- Process assertions ---
+
+  - name: "Echo returns successfully"
+    run: "echo 'hello smokesig'"
+    expect:
+      exit_code: 0
+      stdout_contains: "hello smokesig"
+    tags: [process]
+
+  - name: "Date output matches pattern"
+    run: "date +%Y-%m-%d"
+    expect:
+      exit_code: 0
+      stdout_matches: "^\\d{4}-\\d{2}-\\d{2}$"
+    tags: [process]
+
+  # --- File & environment ---
+
+  - name: "README exists"
+    run: "echo check"
+    expect:
+      file_exists: "../../README.md"
+    tags: [file]
+
+  - name: "HOME is set"
+    run: "echo check"
+    expect:
+      env_exists: "HOME"
+    tags: [env]
+
+  # --- Network ---
+
+  - name: "DNS resolves github.com"
+    run: "echo check"
+    expect:
+      dns_resolve:
+        hostname: "github.com"
+        record_type: "A"
+    tags: [network]
+
+  - name: "GitHub is reachable"
+    run: "echo check"
+    expect:
+      url_reachable:
+        url: "https://github.com"
+        timeout: 10s
+        status_code: 200
+    tags: [network, http]
+
+  - name: "GitHub API responds with JSON"
+    run: "echo check"
+    expect:
+      http:
+        url: "https://api.github.com"
+        method: GET
+        status_code: 200
+        header_contains: { "content-type": "application/json" }
+    tags: [http, api]
+
+  - name: "GitHub API responds under 2s"
+    run: "curl -sf https://api.github.com"
+    expect:
+      exit_code: 0
+      response_time_ms: 2000
+    tags: [perf]
+
+  # --- SSL/TLS ---
+
+  - name: "GitHub SSL cert valid 30+ days"
+    run: "echo check"
+    expect:
+      ssl_cert:
+        host: "github.com"
+        min_days_remaining: 30
+    tags: [ssl, security]
+
+  # --- Tool versions ---
+
+  - name: "Go is 1.21+"
+    run: "echo check"
+    expect:
+      version_check:
+        command: "go version"
+        pattern: "go1\\.(2[1-9]|[3-9]\\d)"
+    tags: [env, tools]
+    allow_failure: true
+
+  - name: "Git is installed"
+    run: "echo check"
+    expect:
+      version_check:
+        command: "git --version"
+        pattern: "git version \\d+\\.\\d+"
+    tags: [env, tools]
+
+  # --- JSON field extraction ---
+
+  - name: "GitHub API returns valid JSON structure"
+    run: "curl -sf https://api.github.com"
+    expect:
+      exit_code: 0
+      json_field:
+        path: "current_user_url"
+        contains: "api.github.com"
+    tags: [api, json]
+
+  # --- Docker (conditional) ---
+
+  - name: "Docker daemon running"
+    run: "echo check"
+    expect:
+      process_running: "dockerd"
+    tags: [docker, infra]
+    allow_failure: true
+    skip_if:
+      env_unset: "DOCKER_HOST"
+
+  # --- Database protocols (conditional, typical dev ports) ---
+
+  - name: "PostgreSQL accepting connections"
+    run: "echo check"
+    expect:
+      postgres_ping:
+        host: "localhost"
+        port: 5432
+    tags: [database, infra]
+    allow_failure: true
+    retry:
+      count: 2
+      backoff: 1s
+
+  - name: "Redis accepting connections"
+    run: "echo check"
+    expect:
+      redis_ping:
+        host: "localhost"
+        port: 6379
+    tags: [database, infra]
+    allow_failure: true
+
+  - name: "MySQL accepting connections"
+    run: "echo check"
+    expect:
+      mysql_ping:
+        host: "localhost"
+        port: 3306
+    tags: [database, infra]
+    allow_failure: true
+
+  # --- Messaging ---
+
+  - name: "SMTP server responds"
+    run: "echo check"
+    expect:
+      smtp_ping:
+        host: "localhost"
+        port: 25
+        timeout: 5s
+    tags: [messaging, infra]
+    allow_failure: true
+
+  # --- Credentials ---
+
+  - name: "PATH credential accessible"
+    run: "echo check"
+    expect:
+      credential_check:
+        source: "env"
+        name: "PATH"
+    tags: [env, security]
+
+  # --- Ping ---
+
+  - name: "Localhost responds to ping"
+    run: "echo check"
+    expect:
+      ping:
+        host: "127.0.0.1"
+        count: 1
+        timeout: 5s
+    tags: [network]
+
+  # --- NTP ---
+
+  - name: "System clock in sync"
+    run: "echo check"
+    expect:
+      ntp_check:
+        server: "pool.ntp.org"
+        max_offset_ms: 1000
+    tags: [infra, time]
+    allow_failure: true
