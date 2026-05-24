@@ -57,16 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FEAT-036: Distribution tooling — goreleaser, Docker, Homebrew
 - FEAT-044: Flakiness detector — smoke stress command with worker pool
 - FEAT-038: Test chaining with data extraction (extract, VarStore, chain detection)
-- # FEAT-038: Test chaining with data extraction (BR-08)
-
-**Type**: feature
-**Status**: closed
-**Plan**: docs/planning-mode/2026-04-30-phase1-test-chaining.md
-**Created**: 2026-04-30
-
-## Description
-
-Enable extracting values from one test (extract: field on json_field, stdout_matches) and injecting into subsequent tests via {{ .Vars.name }} templating. Sensitive vars masked. Chained tests run sequentially. ~500 lines. Biggest functional gap for API testing workflows.
 - wire chain detection to force sequential execution for chained tests
 - wire chain detection to force sequential execution (commit:b76cf89b)
 
@@ -91,15 +81,6 @@ Enable extracting values from one test (extract: field on json_field, stdout_mat
 ## [0.17.0] - 2026-04-30
 
 ### Added
-- # FEAT-040: Setup/teardown lifecycle hooks (BR-10)
-
-**Type**: feature
-**Status**: closed
-**Created**: 2026-04-30
-
-## Description
-
-Extend prerequisites: with after_all (guaranteed execution on failure/SIGINT), before_each/after_each per-test hooks, always_run flag, environment passing (capture KEY=VALUE from stdout). Context-based timeouts. Signal interception. ~500 lines extending prereq.go.
 - GitHub Actions native output reporter (--format gha)
 - Setup/teardown lifecycle hooks (before_all, after_all, before_each, after_each, env_pass)
 - Remote config inheritance via extends URL with HTTP caching
@@ -132,18 +113,10 @@ Extend prerequisites: with after_all (guaranteed execution on failure/SIGINT), b
 - Replaced 29 manual loops with slices.Contains in detector tests
 - replace manual loops with slices.Contains (commit:4f4f94b0)
 
-## [v0.13.0] - 2026-04-21
+## [0.13.0] - 2026-04-21
 
 ### Added
-- # FEAT-013: Mobile deep link assertion
-
-**Type**: feature
-**Status**: closed
-**Created**: 2026-04-21
-
-## Description
-
-Two-tier progressive deep link assertion for Android, iOS, React Native, Flutter. Tier 1: zero-dep HTTP/config checks. Tier 2: adb/xcrun resolution when available. Design: docs/brainstorming/2026-04-21-mobile-deep-link-assertion.md
+- FEAT-013: Mobile deep link assertion
 - Add 22 project types for universal auto-detection (Java, .NET, Ruby, PHP, Deno, Terraform, Helm, Kustomize, Serverless, Zig, Elixir, Scala, Swift, Dart, Hugo, Astro, Jekyll, Make, CMake, Haskell, Lua)
 - Add DNS resolution assertion (dns_resolve) supporting A, AAAA, TXT, MX, CNAME records
 - Add SMTP ping assertion (smtp_ping) with EHLO handshake verification
@@ -176,17 +149,7 @@ Two-tier progressive deep link assertion for Android, iOS, React Native, Flutter
 - add performance baseline tracking (commit:7557d744)
 
 ### Fixed
-- # BUG-001: Watch mode reporter state reset
-
-**Type**: bug
-**Status**: closed
-**Severity**: medium
-**Created**: 2026-04-19
-
-## Description
-
-Watch mode accumulates reporter state across re-runs. File-based reporter (and potentially others) may grow unbounded as results accumulate on each watch cycle. Needs investigation to determine if accumulation is in reporter layer, runner layer, or watch orchestration.
-- watch mode reporter state reset
+- BUG-001: Watch mode reporter state reset
 - recreate reporters per watch cycle to prevent state accumulation (commit:b224f524)
 
 ## [0.11.0] - 2026-04-19
@@ -206,17 +169,7 @@ Watch mode accumulates reporter state across re-runs. File-based reporter (and p
 ## [0.9.0] - 2026-04-19
 
 ### Added
-- # FEAT-010: Make run field optional for network-only tests
-
-**Type**: feature
-**Status**: closed
-**Created**: 2026-04-18
-
-## Description
-
-Currently tests require a run field even when only using network assertions (url_reachable, service_reachable, s3_bucket, redis_ping, etc.). Users must add run: 'true' as a dummy. Relax validation: if expect contains at least one network/storage assertion, run can be omitted. The test would skip command execution and only evaluate assertions.
-
-Origin: session-end: validation review
+- FEAT-010: Make run field optional for network-only tests
 - Trace-aware retry: only retry when otel_trace assertion fails (ROAD-037)
 - Multi-backend trace verification: Jaeger, Tempo, Honeycomb, Datadog (ROAD-036)
 - Export smoke results as OTLP telemetry to OTel collector (ROAD-035)
@@ -243,31 +196,13 @@ Origin: session-end: validation review
 - add skip_if conditional execution and env config merge (commit:4b426ba8)
 - add Goss-to-cosmo-smoke migration tool (ROAD-024) (commit:c4226da8)
 
-## [0.6.0] - 2026-04-18
-
-### Added
-- add WebSocket assertion, monorepo discovery, gRPC build tag, optional run field (commit:089eac65)
-- add pre-commit hook integration (commit:7c7f2483)
-- implement v0.6 connect-and-verify assertions (commit:4a515fa5)
-- add url_reachable, service_reachable, s3_bucket, version_check types (commit:6edb4502)
-- add skip_if conditional execution and env config merge (commit:4b426ba8)
-- add Goss-to-cosmo-smoke migration tool (ROAD-024) (commit:c4226da8)
-
 ## [0.5.0] - 2026-04-18
 
 ### Added
 - smoke migrate goss: one-command Goss to cosmo-smoke migration with core 7 key mapping, --distro/--strict/--stats flags
 - skip_if: conditional test execution via env_unset, env_equals, file_missing conditions
 - Multi-environment configs via --env flag with deep-merge onto base config
-- # FEAT-009: Pre-commit hook integration
-
-**Type**: feature
-**Status**: closed
-**Created**: 2026-04-18
-
-## Description
-
-Pre-commit framework hook for smoke run integration
+- FEAT-009: Pre-commit hook integration
 - WebSocket connect-send-expect assertion (stdlib-only)
 - Monorepo sub-config auto-discovery with --monorepo flag
 - Optional gRPC module via build tag (-tags grpc)
@@ -282,7 +217,7 @@ Pre-commit framework hook for smoke run integration
 ### Changed
 - Split assertion.go into per-domain files
 
-## [v0.4.0] - 2026-04-17
+## [0.4.0] - 2026-04-17
 
 ### Added
 - Add --watch mode for continuous testing with fsnotify and 500ms debounce
@@ -297,24 +232,8 @@ Pre-commit framework hook for smoke run integration
 ## [0.3.0] - 2026-04-16
 
 ### Added
-- # FEAT-006: TAP output format
-
-**Type**: feature
-**Status**: closed
-**Created**: 2026-04-16
-
-## Description
-
-Test Anything Protocol output for broader CI compatibility. Simpler than JUnit, widely supported.
-- # FEAT-005: Process running assertion
-
-**Type**: feature
-**Status**: closed
-**Created**: 2026-04-16
-
-## Description
-
-New assertion: process_running. Check if process exists by name or pattern. Syntax: process_running: 'nginx'. For daemon/service smoke tests.
+- FEAT-006: TAP output format
+- FEAT-005: Process running assertion
 - add grpc_health assertion via standard health protocol (commit:67532938)
 - add redis_ping and memcached_version assertions (commit:ec481107)
 - add ssl_cert assertion for TLS certificate validation (commit:1ddd7880)
