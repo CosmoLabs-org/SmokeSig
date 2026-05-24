@@ -1,9 +1,9 @@
 {
   "repository": {
-    "version": "0.21.0",
+    "version": "0.21.1",
     "build": 447,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-24T08:05:32Z",
+    "lastUpdated": "2026-05-24T08:06:14Z",
     "derived_from": "git tag"
   },
   "metadata": {
