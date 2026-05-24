@@ -20,7 +20,7 @@ Universal smoke test runner for any project, any language.
 | Feature | Status | Description |
 |---------|--------|-------------|
 | **YAML config** | ✅ | Single `.smokesig.yaml` file defines all tests |
-| **40 assertion types** | ✅ ⭐ | Process, file, env, network, database, Docker, storage, tool verification, mobile, infrastructure, messaging |
+| **45 assertion types** | ✅ ⭐ | Process, file, env, network, database, Docker, storage, tool verification, mobile, infrastructure, messaging |
 | **Multiple assertions per test** | ✅ | All assertions in an `expect` block must pass |
 | **Prerequisites** | ✅ | Pre-flight checks that abort the run if they fail |
 | **Lifecycle hooks** | ✅ | `before_all`, `after_all`, `before_each`, `after_each` with background process support |
@@ -121,6 +121,14 @@ Universal smoke test runner for any project, any language.
 | Type | Status | Description |
 |------|--------|-------------|
 | `deep_link` | ✅ ⭐ | Mobile deep link / universal link verification (Android assetlinks, iOS AASA, two-tier resolution) |
+| `ios_simulator` | ✅ | Check if an iOS simulator is booted (xcrun simctl, filter by device name and OS) |
+| `android_emulator` | ✅ | Check if an Android emulator has finished booting (adb sys.boot_completed) |
+
+### Documentation & Quality
+
+| Type | Status | Description |
+|------|--------|-------------|
+| `doc_integrity` | ✅ | CLI documentation sync check (undocumented commands, stale references, missing flags, example validation) |
 
 ---
 
@@ -245,7 +253,7 @@ SmokeSig/
 ├── cmd/                # CLI commands (run, stress, init, validate, schema, serve, mcp, migrate, version)
 ├── internal/
 │   ├── schema/         # SmokeConfig structs, YAML parsing, validation
-│   ├── runner/         # Assertion engine (40 types), prereq runner, test execution, stress testing
+│   ├── runner/         # Assertion engine (45 types), prereq runner, test execution, stress testing
 │   ├── reporter/       # Terminal + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push + OTel reporters
 │   ├── dashboard/      # SQLite storage, REST API, embedded HTML frontend
 │   ├── monorepo/       # Sub-config discovery for monorepo projects

@@ -1,6 +1,6 @@
 # SmokeSig Specification
 
-Technical specification for SmokeSig, the universal smoke test runner. This document covers the `.smokesig.yaml` configuration format, all 40 assertion types, CLI commands, output formats, and runtime behavior.
+Technical specification for SmokeSig, the universal smoke test runner. This document covers the `.smokesig.yaml` configuration format, all 45 assertion types, CLI commands, output formats, and runtime behavior.
 
 ---
 
@@ -1062,6 +1062,71 @@ expect:
     name: "api-server"
     condition: "Available"
     timeout: 60s
+```
+
+---
+
+### 41. ios_simulator
+
+Check if an iOS simulator is booted. Runs `xcrun simctl list devices -j`, parses the JSON output, and filters by device name and OS version. Standalone assertion --- does not require `run`.
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `device_name` | string | no | --- | Filter by simulator device name (e.g., `iPhone 15 Pro`). |
+| `os` | string | no | --- | Filter by iOS version (e.g., `17.0`). |
+| `timeout` | duration | no | `10s` | Timeout for the `xcrun simctl` command. |
+
+```yaml
+expect:
+  ios_simulator:
+    device_name: "iPhone 15 Pro"
+    os: "17.0"
+    timeout: 15s
+```
+
+---
+
+### 42. android_emulator
+
+Check if an Android emulator has finished booting. Runs `adb shell getprop sys.boot_completed` and verifies the output is `1`. Standalone assertion --- does not require `run`.
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `serial` | string | no | --- | ADB serial for a specific device (e.g., `emulator-5554`). When omitted, uses the default connected device. |
+| `timeout` | duration | no | `10s` | Timeout for the `adb` command. |
+
+```yaml
+expect:
+  android_emulator:
+    serial: "emulator-5554"
+    timeout: 10s
+```
+
+---
+
+### 43. doc_integrity
+
+Check if CLI documentation is in sync with actual commands and flags. Runs `binary --help` to discover subcommands, `binary <cmd> --help` for each subcommand's flags, then parses the specified markdown documentation files for references. Reports: undocumented commands, stale doc references, undocumented flags, and failed doc examples. Standalone assertion --- does not require `run`.
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `binary` | string | yes | --- | Path to the CLI binary to inspect. |
+| `docs` | []string | yes | --- | List of documentation files to scan for command/flag references. |
+| `check_examples` | bool | no | `false` | Run fenced code blocks from docs as shell commands and verify they succeed. |
+| `ignore_commands` | []string | no | `[]` | Subcommands to exclude from the sync check (e.g., `help`, `completion`). |
+| `timeout` | duration | no | `30s` | Timeout for binary inspection and example execution. |
+
+```yaml
+expect:
+  doc_integrity:
+    binary: ./bin/myapp
+    docs:
+      - README.md
+      - CLAUDE.md
+    check_examples: true
+    ignore_commands:
+      - help
+      - completion
 ```
 
 ---
