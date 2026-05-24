@@ -1,12 +1,21 @@
 ---
-status: PENDING
-type: audit-followup
+created: "2026-05-24T12:00:00-03:00"
+goals_completed: 0
+goals_total: 0
 priority: high
+related_prompts: []
 requires_reading:
-  - docs/audit/2026-05-24-smokesig/brief.md
-  - docs/audit/2026-05-24-smokesig/risk-map.md
-  - docs/audit/2026-05-24-smokesig/upgrade-plan.md
+    - docs/audit/2026-05-24-smokesig/brief.md
+    - docs/audit/2026-05-24-smokesig/risk-map.md
+    - docs/audit/2026-05-24-smokesig/upgrade-plan.md
+schema_version: 1
+started: "2026-05-24"
+status: STARTED
+tags: []
+title: 'Audit Followup: SmokeSig 2026-05-24'
+type: audit-followup
 ---
+
 # Audit Followup: SmokeSig 2026-05-24
 
 ## Goal

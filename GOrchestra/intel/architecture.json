@@ -1,36 +1,36 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-24T07:50:20.840632-03:00",
+  "generated_at": "2026-05-24T07:52:04.958118-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-25T07:50:20.840632-03:00",
-  "last_analyzed_commit": "efff86b792b08b229607cad82c57975a82af17f5",
-  "summary": "A Go-based CLI orchestration tool featuring a parallel test runner, schema validation, and MCP integration, currently undergoing security hardening and test expansion.",
-  "architecture": "monolithic CLI tool with internal modular packages",
+  "expires_at": "2026-05-25T07:52:04.958118-03:00",
+  "last_analyzed_commit": "aa5e20d0aafdb1d4d8b7d8617aa7f2134c974194",
+  "summary": "A Go-based assertion runner and MCP server project currently undergoing heavy automated test coverage expansion and schema hardening.",
+  "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
+    "internal/mcp/handlers.go",
     "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
-    "internal/mcp/handlers.go",
     "internal/mcp/mcp_extra_test.go"
   ],
   "patterns": [
-    "Table-driven testing",
-    "Dependency injection (wire)",
     "MCP (Model Context Protocol) handler pattern",
-    "Schema validation/export pattern",
-    "Test-per-agent directory structure"
+    "Test-Driven Development (TDD) via extensive extra tests",
+    "Assertion-based validation engine",
+    "Schema export/validation pattern",
+    "Monorepo agent-based task generation (GOrchestra/glm-agents)"
   ],
   "concerns": [
-    "Highly fragmented test generation (many GOrchestra agent directories)",
-    "Security hardening recently applied suggests prior vulnerabilities in assertions and HTTP server",
-    "Incomplete smoke test renaming indicates ongoing refactoring churn",
-    "10 modified and 6 untracked files in git status suggest unstable working tree"
+    "High volume of auto-generated test files (GOrchestra/glm-agents) may clutter the repository",
+    "Recent commit indicates 12 missing assertion types in schema export, pointing to schema drift",
+    "Mixed git status (modified, staged, untracked) suggests an incomplete commit or merge",
+    "Heavy reliance on _extra_test.go files indicates potential gaps in original test suites"
   ],
   "suggestions": [
-    "Consolidate or clean up the numerous GOrchestra agent test directories",
-    "Ensure all 12 missing assertion types are fully covered by integration tests",
-    "Resolve the untracked and modified files to stabilize the repository state",
-    "Focus on the MCP handlers and runner logic for upcoming feature development"
+    "Consolidate or archive the GOrchestra agent-generated test directories to reduce noise",
+    "Implement schema-to-assertion contract tests to prevent future type drift",
+    "Resolve the dirty git state before continuing development",
+    "Review and integrate valuable extra tests into the primary test files, removing redundant ones"
   ]
 }
