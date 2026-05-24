@@ -144,6 +144,8 @@ type Expect struct {
 	MQTT             *MQTTCheck             `yaml:"mqtt_ping,omitempty"`
 	NTP              *NTPCheck              `yaml:"ntp_check,omitempty"`
 	K8sResource      *K8sResourceCheck      `yaml:"k8s_resource,omitempty"`
+	IOSSimulator     *IOSSimulatorCheck     `yaml:"ios_simulator,omitempty"`
+	AndroidEmulator  *AndroidEmulatorCheck  `yaml:"android_emulator,omitempty"`
 	Extract          string                 `yaml:"extract,omitempty"` // Variable name to capture from stdout_matches
 }
 
@@ -381,6 +383,19 @@ type NTPCheck struct {
 	Server       string   `yaml:"server,omitempty"`
 	MaxOffsetMs  int      `yaml:"max_offset_ms,omitempty"`
 	Timeout      Duration `yaml:"timeout,omitempty"`
+}
+
+// IOSSimulatorCheck verifies an iOS simulator is booted and ready.
+type IOSSimulatorCheck struct {
+	DeviceName string   `yaml:"device_name" json:"device_name,omitempty"` // optional filter by device name
+	OS         string   `yaml:"os" json:"os,omitempty"`                   // optional filter by OS version
+	Timeout    Duration `yaml:"timeout" json:"timeout,omitempty"`
+}
+
+// AndroidEmulatorCheck verifies an Android emulator has completed booting.
+type AndroidEmulatorCheck struct {
+	Serial  string   `yaml:"serial" json:"serial,omitempty"`   // optional ADB serial for specific device
+	Timeout Duration `yaml:"timeout" json:"timeout,omitempty"`
 }
 
 // K8sResourceCheck verifies a Kubernetes resource exists and optionally meets a condition.

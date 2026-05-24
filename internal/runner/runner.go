@@ -747,6 +747,22 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 		}
 	}
 
+	if t.Expect.IOSSimulator != nil {
+		a := CheckIOSSimulator(t.Expect.IOSSimulator)
+		assertions = append(assertions, a)
+		if !a.Passed {
+			allPassed = false
+		}
+	}
+
+	if t.Expect.AndroidEmulator != nil {
+		a := CheckAndroidEmulator(t.Expect.AndroidEmulator)
+		assertions = append(assertions, a)
+		if !a.Passed {
+			allPassed = false
+		}
+	}
+
 	duration := time.Since(start)
 
 	if t.Expect.ResponseTimeMs != nil {

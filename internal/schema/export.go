@@ -313,6 +313,21 @@ func ExportSchema() *SchemaOutput {
 					{Name: "max_bytes", Type: "int64", Required: false},
 				},
 			},
+			{
+				Name: "ios_simulator", YAML: "ios_simulator",
+				Fields: []FieldInfo{
+					{Name: "device_name", Type: "string", Required: false},
+					{Name: "os", Type: "string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
+			{
+				Name: "android_emulator", YAML: "android_emulator",
+				Fields: []FieldInfo{
+					{Name: "serial", Type: "string", Required: false},
+					{Name: "timeout", Type: "duration", Required: false},
+				},
+			},
 		},
 	}
 }
