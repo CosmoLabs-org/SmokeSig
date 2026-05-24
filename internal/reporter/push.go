@@ -3,7 +3,10 @@ package reporter
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -13,6 +16,7 @@ type PushReporter struct {
 	endpoint string
 	apiKey   string
 	client   *http.Client
+	warnOut  io.Writer // warning output; defaults to os.Stderr
 	prereqs  []PrereqResultData
 	tests    []TestResultData
 }
@@ -23,6 +27,7 @@ func NewPushReporter(endpoint, apiKey string) *PushReporter {
 		endpoint: endpoint,
 		apiKey:   apiKey,
 		client:   &http.Client{Timeout: 10 * time.Second},
+		warnOut:  os.Stderr,
 	}
 }
 
@@ -79,11 +84,13 @@ func (p *PushReporter) Summary(s SuiteResultData) {
 
 	body, err := json.Marshal(out)
 	if err != nil {
+		fmt.Fprintf(p.warnOut, "⚠️  Warning: failed to push results to %s: %v\n", p.endpoint, err)
 		return
 	}
 
 	req, err := http.NewRequest(http.MethodPost, p.endpoint, bytes.NewReader(body))
 	if err != nil {
+		fmt.Fprintf(p.warnOut, "⚠️  Warning: failed to push results to %s: %v\n", p.endpoint, err)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -93,7 +100,11 @@ func (p *PushReporter) Summary(s SuiteResultData) {
 
 	resp, err := p.client.Do(req)
 	if err != nil {
+		fmt.Fprintf(p.warnOut, "⚠️  Warning: failed to push results to %s: %v\n", p.endpoint, err)
 		return
 	}
-	resp.Body.Close()
+	defer resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		fmt.Fprintf(p.warnOut, "⚠️  Warning: failed to push results to %s: server returned %s\n", p.endpoint, resp.Status)
+	}
 }

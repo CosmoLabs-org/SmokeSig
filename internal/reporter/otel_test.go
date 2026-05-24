@@ -1,10 +1,12 @@
 package reporter
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -153,9 +155,82 @@ func TestOTelReporter_CustomHeaders(t *testing.T) {
 }
 
 func TestOTelReporter_CollectorUnreachable_NoPanic(t *testing.T) {
+	var buf bytes.Buffer
 	r := NewOTelReporter("http://127.0.0.1:1/v1/traces", "smoke-test", nil)
+	r.warnOut = &buf // capture warnings so they don't pollute test output
 	// Should not panic when collector is unreachable
 	r.TestResult(TestResultData{Name: "test1", Passed: true})
 	r.Summary(SuiteResultData{Project: "myapp", Total: 1, Passed: 1})
-	time.Sleep(100 * time.Millisecond)
+}
+
+func TestOTelReporter_WarnsOnCollectorError(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	r := NewOTelReporter(ts.URL+"/v1/traces", "smoke-test", nil)
+	r.warnOut = &buf
+	r.TestResult(TestResultData{Name: "test1", Passed: true, Duration: 50 * time.Millisecond})
+	r.Summary(SuiteResultData{Project: "myapp", Total: 1, Passed: 1})
+
+	got := buf.String()
+	if !strings.Contains(got, "Warning: failed to export telemetry") {
+		t.Errorf("expected telemetry warning, got %q", got)
+	}
+	if !strings.Contains(got, "500 Internal Server Error") {
+		t.Errorf("expected status in warning, got %q", got)
+	}
+}
+
+func TestOTelReporter_WarnsOnUnreachableCollector(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewOTelReporter("http://127.0.0.1:1/v1/traces", "smoke-test", nil)
+	r.warnOut = &buf
+	r.TestResult(TestResultData{Name: "test1", Passed: true, Duration: 50 * time.Millisecond})
+	r.Summary(SuiteResultData{Project: "myapp", Total: 1, Passed: 1})
+
+	got := buf.String()
+	if !strings.Contains(got, "Warning: failed to export telemetry") {
+		t.Errorf("expected telemetry warning on unreachable collector, got %q", got)
+	}
+}
+
+func TestOTelReporter_NoWarningOnSuccess(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	r := NewOTelReporter(ts.URL+"/v1/traces", "smoke-test", nil)
+	r.warnOut = &buf
+	r.TestResult(TestResultData{Name: "test1", Passed: true, Duration: 50 * time.Millisecond})
+	r.Summary(SuiteResultData{Project: "myapp", Total: 1, Passed: 1})
+
+	if buf.Len() > 0 {
+		t.Errorf("expected no warnings on success, got %q", buf.String())
+	}
+}
+
+func TestOTelReporter_MultipleTestFailuresCollected(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	r := NewOTelReporter(ts.URL+"/v1/traces", "smoke-test", nil)
+	r.warnOut = &buf
+	r.TestResult(TestResultData{Name: "test1", Passed: true, Duration: 10 * time.Millisecond})
+	r.TestResult(TestResultData{Name: "test2", Passed: false, Duration: 10 * time.Millisecond})
+	r.Summary(SuiteResultData{Project: "myapp", Total: 2, Passed: 1, Failed: 1})
+
+	got := buf.String()
+	// Should have warnings for test1 export + test2 export + summary export = 3
+	count := strings.Count(got, "Warning: failed to export telemetry")
+	if count < 3 {
+		t.Errorf("expected at least 3 telemetry warnings (2 tests + 1 summary), got %d in: %q", count, got)
+	}
 }
