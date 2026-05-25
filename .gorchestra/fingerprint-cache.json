@@ -1,6 +1,6 @@
 {
-  "hash": "67357ed775670e2bc9d3d3baa032a930f2ed862ad6ddaeb45215a867569ef116",
-  "project_name": "_glm-agent-0027-sanitize-tests",
+  "hash": "ed4f0da1a3ab864139d641fd72f6de78aa72adab3b5c5329a48f88686bb0d03b",
+  "project_name": "SmokeSig",
   "language": "go",
   "framework": "cli",
   "directories": [
@@ -27,5 +27,5 @@
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-25T15:50:02.591359-03:00"
+  "generated_at": "2026-05-25T16:00:15.735075-03:00"
 }
