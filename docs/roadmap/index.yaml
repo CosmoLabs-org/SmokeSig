@@ -1,6 +1,6 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-05-25T03:51:17.142764-03:00
+last_updated: 2026-05-25T03:57:32.893158-03:00
 next_id: 92
 items:
     - id: ROAD-091
@@ -41,8 +41,9 @@ items:
       created_at: 2026-05-15T15:06:30.616382-03:00
     - id: ROAD-084
       title: Push reporter — send results to webhook/Slack/PagerDuty on failure
-      status: captured
+      status: completed
       priority: 55
+      completed_in: v0.21.2
       created_at: 2026-05-15T15:06:30.470479-03:00
     - id: ROAD-083
       title: Portfolio-wide smoke test adoption — wire .smokesig.yaml across CosmoLabs projects
