@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.21.2",
-    "build": 500,
+    "build": 503,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-25T06:56:40Z",
+    "lastUpdated": "2026-05-25T06:57:23Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -182,6 +182,21 @@
           "internal/detector/cli_detect_test.go",
           "internal/detector/detector.go",
           "internal/detector/templates.go"
+        ]
+      },
+      {
+        "branch": "agent-aba7688a11f304459",
+        "title": "Agent aba7688a11f304459",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-25T03:57:23-03:00",
+        "files": [
+          ".review.json",
+          "cmd/run.go",
+          "internal/reporter/webhook.go",
+          "internal/reporter/webhook_test.go",
+          "internal/schema/schema.go",
+          "internal/schema/validate.go"
         ]
       }
     ],
