@@ -13,6 +13,7 @@ tests:
 
   - name: "Tests pass"
     run: "go test -short ./..."
+    timeout: 120s
     expect:
       exit_code: 0
     tags: [test]
