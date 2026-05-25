@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-05-25
+
+### Added
+- add Slack and PagerDuty webhook notifications (commit:7bcb9c0b)
+- add smokesig audit command for config gap analysis (commit:b8f2590a)
+- auto-include doc_integrity for CLI projects (commit:8d205f5e)
+- add ios_simulator and android_emulator health checks (commit:256bb5ce)
+- add doc_integrity check for stale documentation detection (commit:0a79a7ca)
+- add --verbose and --quiet flags for output verbosity (commit:71dcb87b)
+
+### Fixed
+- increase test suite timeout to 120s in self-smoke config (commit:11354dbc)
+- surface warnings on push and OTel export failures (commit:36ac0bb8)
+- remove double-handshake in SMTP assertion (commit:aae967c3)
+
 ## [0.21.2] - 2026-05-24
 
 ### Added
