@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-25T14:34:12.652788-03:00",
+  "generated_at": "2026-05-25T14:58:00.302968-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-26T14:34:12.652788-03:00",
-  "last_analyzed_commit": "bb1334bdd3fa87b55c00abd82e5a9432221a13d8",
-  "summary": "A Go-based testing and validation framework with MCP integration and extensive automated test generation.",
+  "expires_at": "2026-05-26T14:58:00.302968-03:00",
+  "last_analyzed_commit": "a7416d0319ae578d0f5f13557ed8c52f8236a7bf",
+  "summary": "A Go-based testing and validation framework featuring a custom runner, schema validation, MCP integration, and webhook reporting.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -21,13 +21,13 @@
     "webhook reporting"
   ],
   "concerns": [
-    "high volume of agent-generated extra test files indicates potential test maintenance burden",
-    "test suite timeout increased to 120s suggests flaky or slow integration tests",
-    "scattered test directories across multiple agent runs may lead to code duplication"
+    "high volume of auto-generated extra tests (glm-agents) cluttering the repository",
+    "test suite timeout increased to 120s indicating potential performance or flakiness issues",
+    "uncommitted changes (2 modified, 1 staged) in an active release cycle (v0.22.0)"
   ],
   "suggestions": [
-    "consolidate agent-generated extra tests into the main test suites to reduce duplication",
-    "investigate and optimize slow tests causing the 120s timeout increase",
-    "review MCP handler implementations for robustness and error handling"
+    "consolidate or archive the numerous GOrchestra/glm-agents test directories to reduce repository noise",
+    "investigate root cause of test timeouts to improve CI/CD reliability",
+    "commit or stash the pending changes before proceeding with further development"
   ]
 }
