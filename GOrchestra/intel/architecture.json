@@ -1,33 +1,36 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-25T14:58:00.302968-03:00",
+  "generated_at": "2026-05-25T14:58:27.097101-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-26T14:58:00.302968-03:00",
-  "last_analyzed_commit": "a7416d0319ae578d0f5f13557ed8c52f8236a7bf",
-  "summary": "A Go-based testing and validation framework featuring a custom runner, schema validation, MCP integration, and webhook reporting.",
+  "expires_at": "2026-05-26T14:58:27.097101-03:00",
+  "last_analyzed_commit": "fc6c06828a144cb3ae593458cc147d92446c106a",
+  "summary": "A Go-based monolithic CLI tool featuring a test runner, schema validation, MCP integration, and webhook reporting, currently undergoing heavy automated test expansion.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/mcp/handlers.go",
-    "internal/runner/runner_test.go",
     "internal/runner/assertion_test.go",
-    "internal/schema/schema_extra_test.go"
+    "internal/schema/schema_extra_test.go",
+    "internal/reporter/webhook_test.go"
   ],
   "patterns": [
     "test-driven development",
     "MCP (Model Context Protocol) handler pattern",
-    "assertion-based validation",
-    "webhook reporting"
+    "standard Go project layout",
+    "webhook reporting pattern",
+    "assertion-based validation"
   ],
   "concerns": [
-    "high volume of auto-generated extra tests (glm-agents) cluttering the repository",
-    "test suite timeout increased to 120s indicating potential performance or flakiness issues",
-    "uncommitted changes (2 modified, 1 staged) in an active release cycle (v0.22.0)"
+    "high volume of agent-generated extra test files indicates potential test bloat or automated scaffolding overhead",
+    "deeply nested agent directories (GOrchestra/glm-agents/) pollute the repository tree",
+    "1 staged file during analysis suggests incomplete or interrupted workflow",
+    "heavy reliance on _extra_test.go files may indicate gaps in primary test coverage"
   ],
   "suggestions": [
-    "consolidate or archive the numerous GOrchestra/glm-agents test directories to reduce repository noise",
-    "investigate root cause of test timeouts to improve CI/CD reliability",
-    "commit or stash the pending changes before proceeding with further development"
+    "consolidate or archive agent-generated test directories to reduce repository noise",
+    "evaluate if extra tests can be merged into standard test files for better maintainability",
+    "review the MCP handlers implementation for production readiness given recent test additions",
+    "ensure the staged change is properly committed or stashed to maintain a clean working tree"
   ]
 }
