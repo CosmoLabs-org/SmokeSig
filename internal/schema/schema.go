@@ -12,16 +12,25 @@ import (
 
 // SmokeConfig is the top-level configuration parsed from .smokesig.yaml.
 type SmokeConfig struct {
-	Version     int             `yaml:"version"`
-	Project     string          `yaml:"project"`
-	Description string          `yaml:"description,omitempty"`
-	Extends     string          `yaml:"extends,omitempty"`
-	Includes    []string        `yaml:"includes,omitempty"`
-	Settings    Settings        `yaml:"settings,omitempty"`
-	OTel        OTelConfig      `yaml:"otel,omitempty"`
-	Prereqs     []Prerequisite  `yaml:"prerequisites,omitempty"`
-	Lifecycle   LifecycleConfig `yaml:"lifecycle,omitempty"`
-	Tests       []Test          `yaml:"tests"`
+	Version       int              `yaml:"version"`
+	Project       string           `yaml:"project"`
+	Description   string           `yaml:"description,omitempty"`
+	Extends       string           `yaml:"extends,omitempty"`
+	Includes      []string         `yaml:"includes,omitempty"`
+	Settings      Settings         `yaml:"settings,omitempty"`
+	OTel          OTelConfig       `yaml:"otel,omitempty"`
+	Notifications []Notification   `yaml:"notifications,omitempty"`
+	Prereqs       []Prerequisite   `yaml:"prerequisites,omitempty"`
+	Lifecycle     LifecycleConfig  `yaml:"lifecycle,omitempty"`
+	Tests         []Test           `yaml:"tests"`
+}
+
+// Notification configures a webhook notification destination.
+type Notification struct {
+	URL       string `yaml:"url"`
+	Format    string `yaml:"format"`              // slack, pagerduty, json
+	On        string `yaml:"on,omitempty"`         // failure (default), always, change
+	APIKeyEnv string `yaml:"api_key_env,omitempty"` // env var name for API key (e.g. PagerDuty routing key)
 }
 
 // Settings controls global test behavior.

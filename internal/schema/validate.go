@@ -196,6 +196,21 @@ func Validate(cfg *SmokeConfig) error {
 		errs = append(errs, "otel.jaeger_url must start with http:// or https://")
 	}
 
+	for i, n := range cfg.Notifications {
+		prefix := fmt.Sprintf("notifications[%d]", i)
+		if n.URL == "" {
+			errs = append(errs, fmt.Sprintf("%s: url is required", prefix))
+		}
+		if n.Format == "" {
+			errs = append(errs, fmt.Sprintf("%s: format is required", prefix))
+		} else if n.Format != "slack" && n.Format != "pagerduty" && n.Format != "json" {
+			errs = append(errs, fmt.Sprintf("%s: format must be slack, pagerduty, or json", prefix))
+		}
+		if n.On != "" && n.On != "failure" && n.On != "always" && n.On != "change" {
+			errs = append(errs, fmt.Sprintf("%s: on must be failure, always, or change", prefix))
+		}
+	}
+
 	for i, h := range cfg.Lifecycle.BeforeAll {
 		if h.Command == "" {
 			errs = append(errs, fmt.Sprintf("lifecycle.before_all[%d]: command is required", i))
