@@ -52,6 +52,7 @@ func buildReporter(formatStr string, cfg *schema.SmokeConfig) (reporter.Reporter
 	}
 	rep = withOTelExport(rep, cfg)
 	rep = withPushReport(rep)
+	rep = withConfigNotifications(rep, cfg)
 	closeAll := func() {
 		for i := len(closers) - 1; i >= 0; i-- {
 			if err := closers[i].Close(); err != nil {
@@ -62,7 +63,8 @@ func buildReporter(formatStr string, cfg *schema.SmokeConfig) (reporter.Reporter
 	return rep, closeAll, nil
 }
 
-// withPushReport wraps the reporter with a PushReporter if --report-url is set.
+// withPushReport wraps the reporter with a PushReporter or WebhookReporter
+// depending on whether --webhook-format is set.
 func withPushReport(rep reporter.Reporter) reporter.Reporter {
 	if reportURL == "" {
 		return rep
@@ -71,8 +73,42 @@ func withPushReport(rep reporter.Reporter) reporter.Reporter {
 		fmt.Fprintf(os.Stderr, "warning: invalid report-url: %v\n", err)
 		return rep
 	}
+	if webhookFormat != "" {
+		wh := reporter.NewWebhookReporter(
+			reportURL,
+			reportAPIKey,
+			reporter.WebhookFormat(webhookFormat),
+			reporter.WebhookCondition(webhookOn),
+		)
+		return reporter.NewMultiReporter(rep, wh)
+	}
 	push := reporter.NewPushReporter(reportURL, reportAPIKey)
 	return reporter.NewMultiReporter(rep, push)
+}
+
+// withConfigNotifications wraps the reporter with WebhookReporters from
+// config-file notification entries.
+func withConfigNotifications(rep reporter.Reporter, cfg *schema.SmokeConfig) reporter.Reporter {
+	if len(cfg.Notifications) == 0 {
+		return rep
+	}
+	reporters := []reporter.Reporter{rep}
+	for _, n := range cfg.Notifications {
+		apiKey := ""
+		if n.APIKeyEnv != "" {
+			apiKey = os.Getenv(n.APIKeyEnv)
+		}
+		on := reporter.WebhookCondition(n.On)
+		if on == "" {
+			on = reporter.WebhookOnFailure
+		}
+		wh := reporter.NewWebhookReporter(n.URL, apiKey, reporter.WebhookFormat(n.Format), on)
+		reporters = append(reporters, wh)
+	}
+	if len(reporters) == 1 {
+		return rep
+	}
+	return reporter.NewMultiReporter(reporters...)
 }
 
 var runCmd = &cobra.Command{
@@ -83,20 +119,22 @@ var runCmd = &cobra.Command{
 }
 
 var (
-	configFile   string
-	tags         []string
-	excludeTags  []string
-	format       string
-	failFast     bool
-	timeout      string
-	dryRun       bool
-	watch        bool
-	envName      string
-	monorepoMode bool
-	otelCollector string
-	noOtel       bool
+	configFile     string
+	tags           []string
+	excludeTags    []string
+	format         string
+	failFast       bool
+	timeout        string
+	dryRun         bool
+	watch          bool
+	envName        string
+	monorepoMode   bool
+	otelCollector  string
+	noOtel         bool
 	reportURL      string
 	reportAPIKey   string
+	webhookFormat  string
+	webhookOn      string
 	baselineFlag   bool
 	baselineThresh float64
 	verbose        bool
@@ -120,6 +158,8 @@ func init() {
 	runCmd.Flags().BoolVar(&noOtel, "no-otel", false, "Disable otel trace propagation for this run")
 	runCmd.Flags().StringVar(&reportURL, "report-url", "", "POST results to this URL after run")
 	runCmd.Flags().StringVar(&reportAPIKey, "report-api-key", "", "API key for report-url endpoint (X-API-Key header)")
+	runCmd.Flags().StringVar(&webhookFormat, "webhook-format", "", "Webhook payload format: slack, pagerduty, or json (requires --report-url)")
+	runCmd.Flags().StringVar(&webhookOn, "webhook-on", "failure", "When to send webhook: failure, always, or change")
 	runCmd.Flags().BoolVar(&baselineFlag, "baseline", false, "Save and compare test timings against baseline")
 	runCmd.Flags().Float64Var(&baselineThresh, "baseline-threshold", 50, "Regression threshold %% (flag if current > baseline * (1+threshold/100))")
 	runCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Show assertion details, timing per assertion, and full error context")
