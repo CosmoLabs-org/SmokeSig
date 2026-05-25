@@ -1,10 +1,12 @@
 id: ROAD-087
 created_at: 2026-05-24T06:06:10.435584-03:00
-updated_at: 2026-05-24T06:06:10.449442-03:00
+updated_at: 2026-05-24T23:17:16.629388-03:00
 title: Fix CHANGELOG corruption — remove leaked issue YAML from 8 entries
 description: CHANGELOG.md has 8 instances where full issue YAML content leaked into changelog entries across v0.20.0, v0.17.0, v0.13.0, v0.11.1, v0.9.0, v0.5.0, v0.3.0. Audit finding.
-status: captured
+status: completed
 tags:
     - audit-hydrated
+completed_in: v0.21.2
+completed_at: 2026-05-24T23:17:16.629384-03:00
 origin:
     session: 2026

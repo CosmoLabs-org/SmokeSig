@@ -21,14 +21,14 @@ tests:
     run: "go run . --help"
     expect:
       exit_code: 0
-      stdout_contains: "smoke"
+      stdout_contains: "smokesig"
     tags: [runtime]
 
   - name: "Version command"
     run: "go run . version"
     expect:
       exit_code: 0
-      stdout_contains: "smoke"
+      stdout_contains: "smokesig"
     tags: [runtime]
 
   - name: "Run command exists"
@@ -42,5 +42,36 @@ tests:
     run: "go run . init --help"
     expect:
       exit_code: 0
-      stdout_contains: ".smoke.yaml"
+      stdout_contains: ".smokesig.yaml"
     tags: [runtime]
+
+  - name: "Audit command exists"
+    run: "go run . audit --help"
+    expect:
+      exit_code: 0
+      stdout_contains: "audit"
+    tags: [runtime]
+
+  - name: "Docker image builds"
+    run: "docker build -t smokesig-test ."
+    expect:
+      exit_code: 0
+      docker_image_exists:
+        image: "smokesig-test"
+    tags: [docker]
+    allow_failure: true
+
+  - name: "Docs in sync with CLI"
+    tags: [docs, ci]
+    expect:
+      doc_integrity:
+        binary: ./smokesig
+        docs:
+          - README.md
+          - CLAUDE.md
+          - SPEC.md
+        check_examples: false
+        ignore_commands:
+          - help
+          - completion
+    allow_failure: true

@@ -1,10 +1,12 @@
 id: ROAD-088
 created_at: 2026-05-24T06:06:12.647215-03:00
-updated_at: 2026-05-24T06:06:12.660205-03:00
+updated_at: 2026-05-24T23:17:16.743666-03:00
 title: Rebuild issue index with all 52 tracked issues
 description: docs/issues/index.yaml only contains FEAT-001 through FEAT-012. The remaining 40 issues need to be added for tooling accuracy. Audit finding.
-status: captured
+status: completed
 tags:
     - audit-hydrated
+completed_in: v0.21.2
+completed_at: 2026-05-24T23:17:16.743661-03:00
 origin:
     session: 2026

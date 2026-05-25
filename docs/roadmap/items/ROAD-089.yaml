@@ -1,10 +1,12 @@
 id: ROAD-089
 created_at: 2026-05-24T06:06:14.696346-03:00
-updated_at: 2026-05-24T06:06:14.704712-03:00
+updated_at: 2026-05-25T03:51:17.070724-03:00
 title: Push reporter webhook/Slack/PagerDuty notifications
 description: ROAD-084 exists but needs a linked feature issue. Add webhook, Slack, and PagerDuty notification support when smoke test status changes. Audit finding from competitive analysis.
-status: captured
+status: completed
 tags:
     - audit-hydrated
+completed_in: v0.21.2
+completed_at: 2026-05-25T03:51:17.070718-03:00
 origin:
     session: 2026
