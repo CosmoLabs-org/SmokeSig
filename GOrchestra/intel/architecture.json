@@ -1,33 +1,33 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-25T07:21:53.271463-03:00",
+  "generated_at": "2026-05-25T14:34:12.652788-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-26T07:21:53.271463-03:00",
-  "last_analyzed_commit": "d607e6bfd57908ba475d765d7942e5e2b395b84f",
-  "summary": "A Go-based CLI tool featuring a test runner, schema validation, webhook reporting, and MCP integration, heavily utilizing automated agent workflows for test generation.",
-  "architecture": "monolithic cli-tool",
+  "expires_at": "2026-05-26T14:34:12.652788-03:00",
+  "last_analyzed_commit": "bb1334bdd3fa87b55c00abd82e5a9432221a13d8",
+  "summary": "A Go-based testing and validation framework with MCP integration and extensive automated test generation.",
+  "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/mcp/handlers.go",
+    "internal/runner/runner_test.go",
     "internal/runner/assertion_test.go",
-    "internal/schema/schema_extra_test.go",
-    "internal/reporter/webhook_test.go"
+    "internal/schema/schema_extra_test.go"
   ],
   "patterns": [
-    "Test-Driven Development (TDD)",
-    "Agent-driven code generation (GOrchestra/glm-agents)",
-    "MCP (Model Context Protocol) integration",
-    "Standard Go project layout (cmd/, internal/)"
+    "test-driven development",
+    "MCP (Model Context Protocol) handler pattern",
+    "assertion-based validation",
+    "webhook reporting"
   ],
   "concerns": [
-    "Heavy reliance on automated agent-generated test patches may lead to brittle or redundant test suites",
-    "Uncommitted changes (11 modified, 1 staged, 1 untracked) indicate a dirty working tree",
-    "Proliferation of '*_extra_test.go' files suggests fragmented test organization"
+    "high volume of agent-generated extra test files indicates potential test maintenance burden",
+    "test suite timeout increased to 120s suggests flaky or slow integration tests",
+    "scattered test directories across multiple agent runs may lead to code duplication"
   ],
   "suggestions": [
-    "Consolidate scattered extra test files into their corresponding standard test files to improve maintainability",
-    "Commit or stash the current working tree changes to establish a clean baseline",
-    "Review agent-generated tests for actual value versus simple coverage inflation"
+    "consolidate agent-generated extra tests into the main test suites to reduce duplication",
+    "investigate and optimize slow tests causing the 120s timeout increase",
+    "review MCP handler implementations for robustness and error handling"
   ]
 }
