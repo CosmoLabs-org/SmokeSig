@@ -1,0 +1,29 @@
+{
+  "branch": "_glm-agent-0027-sanitize-tests",
+  "base_branch": "master",
+  "status": "conflict",
+  "created": "2026-05-25T15:52:08-03:00",
+  "archived": "2026-05-25T15:55:49.36444-03:00",
+  "commits": [
+    {
+      "hash": "c9fb2c9",
+      "author": "GΛB",
+      "message": "chore: session review (score=9, issues=0)",
+      "date": 1779735216
+    },
+    {
+      "hash": "8c3ef1d",
+      "author": "GΛB",
+      "message": "feat(observer): add string sanitization and key phrase extraction",
+      "date": 1779735128
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 5,
+  "lines_added": 287,
+  "lines_removed": 10,
+  "diff_stat": ".gorchestra/fingerprint-cache.json |   6 +-\n .review.json                       |   6 +-\n GOrchestra/intel/status.json       |   8 +-\n internal/observer/sanitize.go      |  84 ++++++++++++++++\n internal/observer/sanitize_test.go | 193 +++++++++++++++++++++++++++++++++++++\n 5 files changed, 287 insertions(+), 10 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}
