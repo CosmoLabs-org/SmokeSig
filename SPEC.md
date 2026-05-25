@@ -35,6 +35,7 @@ Go template syntax is supported: `{{ .Env.VAR_NAME }}` expands environment varia
 | `includes` | []string | no | List of local YAML files to merge. Paths are relative to the config file. Max depth: 10. |
 | `settings` | Settings | no | Global defaults for test behavior. |
 | `otel` | OTelConfig | no | OpenTelemetry trace propagation and export. |
+| `notifications` | []Notification | no | Webhook notification endpoints. |
 | `prerequisites` | []Prerequisite | no | Commands that must pass before any tests run. |
 | `lifecycle` | LifecycleConfig | no | Setup/teardown hooks (before_all, after_all, before_each, after_each). |
 | `tests` | []Test | yes | List of smoke tests. At least one is required. |
@@ -208,6 +209,43 @@ lifecycle:
   after_each:
     - command: "make clean-db"
 ```
+
+---
+
+### Notifications
+
+Webhook notifications send smoke test results to external systems (Slack, PagerDuty) after each run. Configured in the top-level `notifications` block.
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `url` | string | yes | --- | Webhook endpoint URL. |
+| `format` | string | yes | --- | Payload format: `slack`, `pagerduty`, or `json`. |
+| `on` | string | no | `failure` | When to send: `failure`, `always`, or `change` (on status change only). |
+| `api_key_env` | string | no | --- | Environment variable name containing the API key or routing key. Value is never logged. |
+
+```yaml
+notifications:
+  - url: "https://hooks.slack.com/services/T00/B00/xxx"
+    format: slack
+    on: failure
+
+  - url: "https://events.pagerduty.com/v2/enqueue"
+    format: pagerduty
+    on: change
+    api_key_env: "PAGERDUTY_ROUTING_KEY"
+
+  - url: "https://internal.example.com/webhook"
+    format: json
+    on: always
+```
+
+**Slack format:** Sends Slack Block Kit messages with color-coded attachments (green for pass, red for fail). Auto-detects CI URL from `GITHUB_SERVER_URL`, `GITHUB_REPOSITORY`, `GITHUB_RUN_ID`, or `GITLAB_URL` environment variables and includes it in the message.
+
+**PagerDuty format:** Sends events to the PagerDuty Events API v2. Severity is `critical` when >50% of tests fail, `error` otherwise. Auto-resolves incidents when a previously-failing run recovers (sends `resolve` event). Requires `api_key_env` for the routing key.
+
+**JSON format:** Sends raw JSON matching the `--format json` output structure. Suitable for custom integrations.
+
+**CLI overrides:** The `--webhook-format` flag (values: `slack`, `pagerduty`, `json`) and `--webhook-on` flag (values: `failure`, `always`, `change`) allow overriding notification settings at runtime. These work with the existing `--report-url` and `--report-api-key` flags.
 
 ---
 
@@ -1192,6 +1230,8 @@ smokesig run [flags]
 | `--report-api-key` | string | --- | API key for `--report-url` (sent as `X-API-Key` header). |
 | `--baseline` | bool | `false` | Save and compare test timings against baseline. |
 | `--baseline-threshold` | float | `50` | Regression threshold percentage. Flags if current > baseline * (1 + threshold/100). |
+| `--webhook-format` | string | --- | Override notification format for `--report-url`: `slack`, `pagerduty`, or `json`. |
+| `--webhook-on` | string | --- | Override when to send notification: `failure`, `always`, or `change`. |
 
 ### `smokesig validate`
 
@@ -1199,6 +1239,47 @@ Validate config without running tests. Reports all errors at once.
 
 ```
 smokesig validate [-f path]
+```
+
+### `smokesig audit`
+
+Inspect the project and report on the health of its smoke test configuration. Checks for config existence, assertion coverage relative to the detected project type, stale references (commands or files that no longer exist), and missing baseline tests. Outputs a health score from 0 to 10.
+
+```
+smokesig audit [flags]
+```
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `-f`, `--file` | string | `.smokesig.yaml` | Config file path. |
+| `--json` | bool | `false` | Output structured JSON for programmatic consumption (e.g., CCS integration). |
+| `--fix` | bool | `false` | Auto-apply safe recommendations (e.g., remove stale test references, add missing baseline tests). |
+
+**Checks performed:**
+
+| Check | Description |
+|-------|-------------|
+| Config exists | Verifies `.smokesig.yaml` exists in the project root. |
+| Assertion coverage | Compares configured assertions against recommended assertions for the detected project type. |
+| Stale references | Detects tests referencing commands, files, or services that no longer exist. |
+| Baseline tests | Reports if performance baselines are not configured for timing-sensitive tests. |
+
+**JSON output structure:**
+
+```json
+{
+  "score": 8,
+  "project": "my-api",
+  "project_type": "go",
+  "config_exists": true,
+  "checks": [
+    { "name": "config_exists", "status": "pass" },
+    { "name": "assertion_coverage", "status": "warn", "detail": "Missing recommended assertions: ssl_cert, dns_resolve" },
+    { "name": "stale_references", "status": "pass" },
+    { "name": "baseline_tests", "status": "fail", "detail": "No baseline configured; run with --baseline to establish" }
+  ],
+  "fixes_applied": []
+}
 ```
 
 ### `smokesig init`
@@ -1213,6 +1294,9 @@ smokesig init [flags]
 |------|------|---------|-------------|
 | `-f`, `--force` | bool | `false` | Overwrite existing `.smokesig.yaml`. |
 | `--from-running` | string | --- | Generate config by inspecting a running Docker container. |
+| `--with-doc-integrity` | bool | `false` | Force inclusion of a `doc_integrity` test in the generated config. |
+
+**Auto-detected doc_integrity:** When the project is detected as a CLI application (Go projects with `cmd/` directory, Node projects with `bin` field, Python projects with `scripts/` directory, Rust projects with `[[bin]]` in `Cargo.toml`), a `doc_integrity` test is automatically included. The `docs` field is auto-populated with existing documentation files found in the project (README.md, CLAUDE.md, SPEC.md, docs/USAGE.md).
 
 **Detected project types:** Go, Node (bun/npm), Python, Rust, Java (Maven/Gradle), .NET/C#, Ruby, PHP, Deno, Scala, Elixir, Swift (server), Dart (server), Zig, Haskell, Lua, C/C++ (Make/CMake), React Native, Flutter, iOS, Android, Docker, Terraform, Helm, Kustomize, Serverless, Hugo, Astro, Jekyll.
 

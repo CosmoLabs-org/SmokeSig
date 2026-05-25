@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "updated_at": "2026-05-24T08:19:51.712752-03:00",
-  "expires_at": "2026-05-24T09:19:51.712752-03:00",
-  "project_path": "~/PROJECTS/SmokeSig",
+  "updated_at": "2026-05-25T07:16:52.412792-03:00",
+  "expires_at": "2026-05-25T08:16:52.412792-03:00",
+  "project_path": "~/PROJECTS/SmokeSig-worktrees/_glm-agent-0026-usage-tests",
   "context": "",
-  "glm_enhanced": true
+  "glm_enhanced": false
 }

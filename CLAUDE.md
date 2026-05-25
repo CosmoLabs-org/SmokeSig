@@ -17,12 +17,13 @@ cmd/
 ├── validate.go      # smokesig validate — config validation without running
 ├── schema.go        # smokesig schema — export assertion types as JSON
 ├── init_cmd.go      # smokesig init — auto-detect + generate config
+├── audit_cmd.go     # smokesig audit — project smoke test config health check
 └── version.go       # smokesig version (ldflags-injected)
 internal/
 ├── schema/          # SmokeConfig structs, YAML parsing, validation
 ├── baseline/        # Performance baseline storage and comparison
 ├── runner/          # Assertion engine (45 types), prereq runner, test execution
-├── reporter/        # Terminal (Lipgloss) + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push reporters
+├── reporter/        # Terminal (Lipgloss) + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push + Webhook reporters
 ├── monorepo/        # Sub-config discovery for monorepo projects
 ├── dashboard/       # Portfolio dashboard (SQLite storage, API handlers, embedded UI)
 └── detector/        # Project type detection + template generation
@@ -54,11 +55,12 @@ go build -ldflags "-s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version=X.Y.Z"
 ## Commands
 
 ```bash
-smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha,backstage] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--baseline] [--baseline-threshold 50]
+smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha,backstage] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--webhook-format slack|pagerduty|json] [--webhook-on failure|always|change] [--baseline] [--baseline-threshold 50]
 smokesig validate [-f path]
+smokesig audit [-f path] [--json] [--fix]
 smokesig schema
 smokesig serve [--port 8080] [--dashboard] [--api-key KEY] [--db-path PATH]
-smokesig init [--force] [--from-running CONTAINER]
+smokesig init [--force] [--from-running CONTAINER] [--with-doc-integrity]
 smokesig version
 ```
 
@@ -124,6 +126,36 @@ otel:
 When enabled, W3C `traceparent` headers are auto-injected into HTTP, gRPC, and WebSocket assertions. The `otel_trace` assertion verifies traces arrived at a collector (supports Jaeger, Tempo, Honeycomb, Datadog backends).
 
 Smoke test results are also exported as OTLP telemetry when `export_url` is configured or `jaeger_url` is set (auto-appends `/v1/traces`). Each test becomes a span with attributes for pass/fail status, duration, and assertion details.
+
+## Webhook Notifications
+
+```yaml
+notifications:
+  - url: "https://hooks.slack.com/services/T00/B00/xxx"
+    format: slack
+    on: failure
+  - url: "https://events.pagerduty.com/v2/enqueue"
+    format: pagerduty
+    on: change
+    api_key_env: "PAGERDUTY_ROUTING_KEY"
+```
+
+| Field | Description |
+|-------|-------------|
+| `url` | Webhook endpoint URL |
+| `format` | `slack` (Block Kit), `pagerduty` (Events API v2), or `json` (raw JSON) |
+| `on` | `failure` (default), `always`, or `change` (on status change) |
+| `api_key_env` | Env var name for API key / routing key |
+
+CLI overrides: `--webhook-format` and `--webhook-on` work with existing `--report-url` and `--report-api-key`. Slack format uses color-coded attachments and auto-detects CI URL from `GITHUB_SERVER_URL`/`GITLAB_URL`. PagerDuty uses severity `critical` when >50% tests fail, `error` otherwise, and auto-resolves on recovery.
+
+## Audit Command
+
+`smokesig audit` inspects the project and reports missing or outdated smoke test configuration. Checks: config exists, assertion coverage vs project type, stale references, baseline tests. Scores 0–10. `--json` outputs structured JSON for CCS consumption. `--fix` auto-applies safe recommendations.
+
+## Init —with-doc-integrity
+
+`smokesig init --with-doc-integrity` auto-detects CLI projects (Go `cmd/`, Node `bin`, Python `scripts`, Rust `[[bin]]`) and includes a `doc_integrity` test when a CLI binary is detected. Auto-detects which doc files exist (README.md, CLAUDE.md, SPEC.md, docs/USAGE.md). Without the flag, doc_integrity is included automatically for detected CLI projects; the flag forces inclusion.
 
 ## Output Formats
 

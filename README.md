@@ -18,6 +18,8 @@ Most smoke testing is either too heavy (full test frameworks, language-specific 
 
 **7 output formats.** Terminal (with Lipgloss styling), JSON, JUnit XML, TAP, Prometheus metrics, GitHub Actions annotations, and Backstage entity JSON. Comma-separate them: `--format terminal,junit,prometheus`. First goes to stdout, rest to auto-named files.
 
+**Webhook notifications.** Send results to Slack (Block Kit with color-coded attachments), PagerDuty (Events API v2 with severity and auto-resolve), or custom endpoints (raw JSON). Configure in `.smokesig.yaml` or via `--webhook-format` and `--webhook-on` CLI flags.
+
 **OpenTelemetry trace propagation and verification.** SmokeSig injects W3C `traceparent` headers into HTTP, gRPC, and WebSocket assertions, then the `otel_trace` assertion verifies traces arrived at your collector. Supports Jaeger, Tempo, Honeycomb, and Datadog backends. Smoke tests that validate your observability pipeline.
 
 **Monorepo support.** `--monorepo` discovers `.smokesig.yaml` files in subdirectories at any depth. Run your entire project portfolio's smoke tests with a single command.
@@ -102,6 +104,11 @@ description: "Smoke tests for my-api"
 settings:
   timeout: 30s
   fail_fast: true
+
+notifications:
+  - url: "https://hooks.slack.com/services/T00/B00/xxx"
+    format: slack
+    on: failure
 
 prerequisites:
   - name: "Go installed"
@@ -278,9 +285,17 @@ smokesig run [flags]
       --timeout string       Per-test timeout override (e.g. "30s")
       --dry-run              List matching tests without running them
       --watch                Re-run tests on file changes
+      --webhook-format       Override notification format: slack|pagerduty|json
+      --webhook-on           Override notification trigger: failure|always|change
 
 smokesig init [flags]
   -f, --force                Overwrite existing .smokesig.yaml
+      --with-doc-integrity   Force include doc_integrity test (auto-detected for CLI projects)
+
+smokesig audit [flags]
+  -f, --file string          Config file (default ".smokesig.yaml")
+      --json                 Output structured JSON for CCS consumption
+      --fix                  Auto-apply safe recommendations
 
 smokesig version
 ```

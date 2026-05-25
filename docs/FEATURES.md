@@ -164,6 +164,7 @@ Universal smoke test runner for any project, any language.
 | **Pluggable reporter interface** | ✅ | Clean interface for adding custom reporters |
 | **Exit codes** | ✅ | `0` = all pass, `1` = failures, `2` = config/arg error |
 | **Push reporter** | ✅ | Push JSON results to configurable endpoint (`--report-url`, `--report-api-key`) |
+| **Webhook notifications** | ✅ ⭐ | Slack Block Kit, PagerDuty Events API v2, and raw JSON webhook notifications (`notifications:` config + `--webhook-format`, `--webhook-on` flags) |
 | **OTLP telemetry export** | ✅ | Export smoke results as OTLP spans (auto or via `export_url`) |
 
 ---
@@ -188,6 +189,7 @@ Universal smoke test runner for any project, any language.
 | **Stress testing** | ✅ | `smokesig stress <test> --runs 50 --workers 4` — detect flakiness with pass rate and deduplicated error reporting |
 | **Performance baselines** | ✅ | `--baseline` stores and compares timing across runs with configurable regression threshold |
 | **Config validation** | ✅ | `smokesig validate` — standalone config validation without running |
+| **Audit command** | ✅ | `smokesig audit` — project smoke test config health check (score 0–10, `--json` for CCS, `--fix` auto-applies safe fixes) |
 | **Schema export** | ✅ | `smokesig schema` — export assertion types as JSON |
 | **Portfolio dashboard** | ✅ | `smokesig serve --dashboard` — SQLite storage, REST API (`/api/results`, `/api/projects`), embedded HTML UI |
 | **Health endpoint** | ✅ | `smokesig serve` — `/healthz` HTTP endpoint that runs smoke tests per request (container probes) |
@@ -205,6 +207,7 @@ Universal smoke test runner for any project, any language.
 | **31 project types** | ✅ ⭐ | Auto-detect and generate tailored smoke test templates |
 | **Force overwrite** | ✅ | `--force` flag regenerates config even if one already exists |
 | **From running container** | ✅ | `--from-running <container>` generates config from a running Docker container |
+| **Doc integrity auto-include** | ✅ | `--with-doc-integrity` auto-detects CLI projects and includes `doc_integrity` test with auto-discovered doc files |
 
 ### Detected Project Types
 
@@ -250,11 +253,11 @@ These are intentional limitations, not gaps:
 
 ```
 SmokeSig/
-├── cmd/                # CLI commands (run, stress, init, validate, schema, serve, mcp, migrate, version)
+├── cmd/                # CLI commands (run, stress, init, audit, validate, schema, serve, mcp, migrate, version)
 ├── internal/
 │   ├── schema/         # SmokeConfig structs, YAML parsing, validation
 │   ├── runner/         # Assertion engine (45 types), prereq runner, test execution, stress testing
-│   ├── reporter/       # Terminal + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push + OTel reporters
+│   ├── reporter/       # Terminal + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push + Webhook + OTel reporters
 │   ├── dashboard/      # SQLite storage, REST API, embedded HTML frontend
 │   ├── monorepo/       # Sub-config discovery for monorepo projects
 │   ├── detector/       # Project type detection (31 types) + template generation
