@@ -1,0 +1,29 @@
+{
+  "branch": "_glm-agent-0028-snapshot-tests",
+  "base_branch": "master",
+  "status": "conflict",
+  "created": "2026-05-25T15:51:56-03:00",
+  "archived": "2026-05-25T16:05:09.307416-03:00",
+  "commits": [
+    {
+      "hash": "9af643f",
+      "author": "GΛB",
+      "message": "chore: session review (score=9, issues=0)",
+      "date": 1779735769
+    },
+    {
+      "hash": "ef4c8b3",
+      "author": "GΛB",
+      "message": "feat(observer): add TakeSnapshot and DiffSnapshots for file change detection",
+      "date": 1779735116
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 10,
+  "lines_added": 266,
+  "lines_removed": 371,
+  "diff_stat": ".gorchestra/fingerprint-cache.json                 |   6 +-\n .review.json                                       |   4 +-\n GOrchestra/intel/architecture.json                 |  35 ++--\n GOrchestra/intel/status.json                       |   8 +-\n .../_glm-agent-0027-sanitize-tests/HISTORY.md      |  38 ----\n .../_glm-agent-0027-sanitize-tests/session.json    |  29 ----\n internal/observer/sanitize.go                      |  84 ---------\n internal/observer/sanitize_test.go                 | 193 ---------------------\n internal/observer/snapshot.go                      |  82 +++++++++\n internal/observer/snapshot_test.go                 | 158 +++++++++++++++++\n 10 files changed, 266 insertions(+), 371 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}
