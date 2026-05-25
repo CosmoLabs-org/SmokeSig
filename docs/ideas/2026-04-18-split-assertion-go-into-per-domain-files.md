@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO53CPEM
+id: IDEA-036
+legacy_id: IDEA-MO53CPEM
 title: Split assertion.go into per-domain files
 created: "2026-04-18T22:32:28.70252-03:00"
 status: withered

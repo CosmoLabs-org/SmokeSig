@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FBRNZ
+id: IDEA-025
+legacy_id: IDEA-MO1FBRNZ
 title: Portfolio smoke dashboard
 created: "2026-04-16T08:56:35.663881-03:00"
 status: harvested

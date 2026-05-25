@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FBMZ6
+id: IDEA-021
+legacy_id: IDEA-MO1FBMZ6
 title: Prometheus metrics output format
 created: "2026-04-16T08:56:29.586578-03:00"
 status: harvested

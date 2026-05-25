@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FBZAB
+id: IDEA-030
+legacy_id: IDEA-MO1FBZAB
 title: S3/Cloud storage assertion
 created: "2026-04-16T08:56:45.539096-03:00"
 status: withered

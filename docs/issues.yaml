@@ -1,11 +1,16 @@
 version: "1.0"
 project: SmokeSig
-last_updated: 2026-05-24T10:17:55.841337-03:00
+last_updated: 2026-05-25T14:31:15.513919-03:00
 next_bug_id: 12
-next_feat_id: 53
+next_feat_id: 54
 next_task_id: 2
 next_imp_id: 1
 issues:
+    - id: FEAT-053
+      type: feature
+      status: closed
+      title: 'Doc-integrity check type: detect stale documentation vs actual CLI features'
+      priority: 50
     - id: FEAT-001
       type: feature
       status: done
@@ -236,12 +241,12 @@ issues:
     - id: FEAT-044
       type: feature
       status: done
-      title: Flakiness detector — smoke stress command (BR-02)
+      title: Flakiness detector — smokesig stress command (BR-02)
       created_at: 2026-04-30T02:51:30.535278-03:00
     - id: FEAT-045
       type: feature
       status: open
-      title: Auto-Add Generator — smoke observe command (BR-13)
+      title: Auto-Add Generator — smokesig observe command (BR-13)
       created_at: 2026-04-30T02:51:30.536276-03:00
     - id: FEAT-046
       type: feature
@@ -338,8 +343,3 @@ issues:
       title: Container runs as root with no USER directive in Dockerfile
       severity: high
       created_at: 2026-05-24T06:06:01.219683-03:00
-    - id: FEAT-053
-      type: feature
-      status: closed
-      title: 'Doc-integrity check type: detect stale documentation vs actual CLI features'
-      priority: 50

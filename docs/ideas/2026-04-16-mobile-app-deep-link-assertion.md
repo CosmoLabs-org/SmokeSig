@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FC22M
+id: IDEA-033
+legacy_id: IDEA-MO1FC22M
 title: Mobile app deep link assertion
 created: "2026-04-16T08:56:49.150253-03:00"
 status: harvested

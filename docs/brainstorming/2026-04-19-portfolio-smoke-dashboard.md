@@ -2,7 +2,7 @@
 
 **Date**: 2026-04-19
 **Status**: Brainstorm
-**Source**: IDEA-MO1FBRNZ, promoted to ROAD-039
+**Source**: IDEA-025, promoted to ROAD-039
 
 ## Goal
 

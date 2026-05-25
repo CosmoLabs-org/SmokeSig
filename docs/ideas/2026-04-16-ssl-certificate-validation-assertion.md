@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FC0DP
+id: IDEA-031
+legacy_id: IDEA-MO1FC0DP
 title: SSL certificate validation assertion
 created: "2026-04-16T08:56:46.957967-03:00"
 status: harvested

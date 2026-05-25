@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1X1P5F
+id: IDEA-035
+legacy_id: IDEA-MO1X1P5F
 title: Optional gRPC module via build tag
 created: "2026-04-16T17:12:38.931104-03:00"
 status: harvested

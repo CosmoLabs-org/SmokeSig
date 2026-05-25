@@ -3,7 +3,7 @@ name: Mobile Deep Link Assertion
 description: Two-tier progressive deep link assertions for Android, iOS, and cross-platform mobile projects
 type: project
 created: 2026-04-21
-origin_idea: IDEA-MO1FC22M
+origin_idea: IDEA-033
 ---
 
 # Mobile Deep Link Assertion

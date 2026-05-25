@@ -1,3 +1,17 @@
+---
+created: ""
+goals_completed: 0
+goals_total: 0
+origin: migrated by ccs prompts migrate
+priority: medium
+related_prompts: []
+requires_reading: []
+schema_version: 1
+status: COMPLETED
+tags: []
+title: Session 2026-05-24 — Audit and Hardening
+---
+
 # Session 2026-05-24 — Audit and Hardening
 
 **Project**: SmokeSig v0.21.1  

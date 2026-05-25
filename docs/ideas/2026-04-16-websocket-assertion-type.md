@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FBVBK
+id: IDEA-026
+legacy_id: IDEA-MO1FBVBK
 title: WebSocket assertion type
 created: "2026-04-16T08:56:40.400922-03:00"
 status: harvested

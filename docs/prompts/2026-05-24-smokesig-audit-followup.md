@@ -1,4 +1,5 @@
 ---
+completed: "2026-05-25"
 created: "2026-05-24T12:00:00-03:00"
 goals_completed: 9
 goals_total: 9
@@ -10,7 +11,7 @@ requires_reading:
     - docs/audit/2026-05-24-smokesig/upgrade-plan.md
 schema_version: 1
 started: "2026-05-24"
-status: STARTED
+status: COMPLETED
 tags: []
 title: 'Audit Followup: SmokeSig 2026-05-24'
 type: audit-followup

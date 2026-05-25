@@ -55,7 +55,7 @@ expect:
 
 Internally delegates to `url_reachable` with `status_code` defaulting to any 2xx. The separate type exists for semantic clarity in config files and to support `depends_on` DAGs in v0.7.
 
-### 3. s3_bucket (IDEA-MO1FBWB9)
+### 3. s3_bucket (IDEA-027)
 
 S3/compatible bucket accessibility check.
 
@@ -84,7 +84,7 @@ expect:
 
 Runs via `os/exec` ("sh", "-c", command). Regex match on combined stdout. Fails if command exits non-zero or pattern doesn't match.
 
-### 5. Pre-commit hook (IDEA-MO1FBQHL)
+### 5. Pre-commit hook (IDEA-024)
 
 `.pre-commit-hooks.yaml` file in repository root:
 
@@ -215,7 +215,7 @@ Headline: "cosmo-smoke v0.6 — Connect and Verify"
 
 - service_reachable: verify external service dependencies (ROAD-018)
 - version_check: assert installed tool versions (ROAD-013)
-- s3_bucket: S3/compatible bucket accessibility (IDEA-MO1FBWB9)
+- s3_bucket: S3/compatible bucket accessibility (IDEA-027)
 - url_reachable: generic HTTP connectivity primitive
-- Pre-commit hook: zero-config smoke test integration (IDEA-MO1FBQHL)
+- Pre-commit hook: zero-config smoke test integration (IDEA-024)
 - 246+ tests passing

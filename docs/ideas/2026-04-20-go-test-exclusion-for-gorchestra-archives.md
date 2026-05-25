@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO7RL70S
+id: IDEA-039
+legacy_id: IDEA-MO7RL70S
 title: go test exclusion for GOrchestra archives
 created: "2026-04-20T19:26:27.916945-03:00"
 status: withered

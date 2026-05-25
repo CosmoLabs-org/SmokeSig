@@ -170,7 +170,7 @@ feat(schema): add OTelConfig and OTelTraceCheck structs
 - Add OTelTraceCheck assertion for Jaeger trace verification
 - Wire into SmokeConfig and Expect structs
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -275,7 +275,7 @@ feat(schema): add otel config and assertion validation
 - Validate URL format for both global and per-test jaeger_url
 - Add otel_trace to standalone assertions list
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -441,7 +441,7 @@ feat(runner): add W3C trace context generation
 - SpanContext generates per-test span ID with traceparent formatting
 - 6 tests covering: format, uniqueness, zero-value disabled state
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -724,7 +724,7 @@ feat(runner): add otel_trace assertion with Jaeger API polling
 - Accepts *http.Client for testability (httptest mocks)
 - 5 tests covering: found, min_spans not met, timeout, unreachable, polling retry
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -803,7 +803,7 @@ feat(runner): add HTTP traceparent injection via CheckHTTPWithTrace
 - Delegates to existing CheckHTTP after header injection
 - 1 test verifying header is present in downstream request
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -878,7 +878,7 @@ feat(runner): add WebSocket traceparent injection via CheckWebSocketWithTrace
 - Add Headers field to WebSocketCheck schema if missing
 - 1 test verifying header in upgrade request
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -968,7 +968,7 @@ feat(runner): add gRPC traceparent injection via CheckGRPCHealthWithTrace
 - Add runtime Metadata field to GRPCHealthCheck (not from YAML)
 - Stub version for non-grpc builds
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -1195,7 +1195,7 @@ feat(runner): wire trace context into test execution pipeline
 - Dispatch otel_trace assertion with Jaeger API verification
 - Global otel config provides defaults for per-test jaeger_url/service_name
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -1262,7 +1262,7 @@ feat(cmd): add --otel-collector and --no-otel CLI flags
 - --no-otel disables trace propagation for this run
 - 2 tests covering flag override behavior
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```
 
 ---
@@ -1296,5 +1296,5 @@ otel:
 ```
 docs: update CLAUDE.md with otel trace correlation assertion
 
-Refs: IDEA-MO1FBPJB
+Refs: IDEA-023
 ```

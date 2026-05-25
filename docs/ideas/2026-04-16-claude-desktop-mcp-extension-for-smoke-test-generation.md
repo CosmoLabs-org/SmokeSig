@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FBO8G
+id: IDEA-022
+legacy_id: IDEA-MO1FBO8G
 title: Claude Desktop MCP extension for smoke test generation
 created: "2026-04-16T08:56:31.216774-03:00"
 status: harvested

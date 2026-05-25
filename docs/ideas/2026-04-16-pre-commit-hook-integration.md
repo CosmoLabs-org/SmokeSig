@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FBQHL
+id: IDEA-024
+legacy_id: IDEA-MO1FBQHL
 title: Pre-commit hook integration
 created: "2026-04-16T08:56:34.137921-03:00"
 status: withered

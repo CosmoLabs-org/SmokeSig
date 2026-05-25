@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FBPJB
+id: IDEA-023
+legacy_id: IDEA-MO1FBPJB
 title: Trace correlation with OpenTelemetry
 created: "2026-04-16T08:56:32.903611-03:00"
 status: withered

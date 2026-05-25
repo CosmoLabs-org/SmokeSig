@@ -124,3 +124,4 @@ GOrchestra/intel/
 .claude/session-end-state.json
 .claude/session-id
 .claude/session-start
+.ccs/counters.json

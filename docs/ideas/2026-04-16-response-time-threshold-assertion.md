@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1FC17E
+id: IDEA-032
+legacy_id: IDEA-MO1FC17E
 title: Response time threshold assertion
 created: "2026-04-16T08:56:48.026344-03:00"
 status: harvested

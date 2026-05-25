@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO1X1N40
+id: IDEA-034
+legacy_id: IDEA-MO1X1N40
 title: Parallel-agent merge-conflict SOP
 created: "2026-04-16T17:12:36.288701-03:00"
 status: harvested

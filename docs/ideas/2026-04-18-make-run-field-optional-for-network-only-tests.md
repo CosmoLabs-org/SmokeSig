@@ -1,5 +1,6 @@
 ---
-id: IDEA-MO53CPHE
+id: IDEA-037
+legacy_id: IDEA-MO53CPHE
 title: Make run field optional for network-only tests
 created: "2026-04-18T22:32:28.802598-03:00"
 status: withered

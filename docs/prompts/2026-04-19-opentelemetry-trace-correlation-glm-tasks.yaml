@@ -76,7 +76,7 @@ tasks:
     context_files:
       - internal/runner/assertion_ws.go
       - internal/runner/assertion_grpc.go
-    issue: IDEA-MO1FBPJB
+    issue: IDEA-023
     max_turns: 25
 
   - task: |
@@ -163,7 +163,7 @@ tasks:
       - internal/schema/schema.go
       - internal/runner/assertion_network.go
       - internal/runner/assertion.go
-    issue: IDEA-MO1FBPJB
+    issue: IDEA-023
     max_turns: 25
 
   # NOTE: Tasks 5-7 (network injection) depend on the above two tasks completing first.
@@ -239,5 +239,5 @@ tasks:
       - internal/schema/schema.go
       - internal/runner/assertion_ws_test.go
       - internal/runner/assertion_grpc_test.go
-    issue: IDEA-MO1FBPJB
+    issue: IDEA-023
     max_turns: 25
