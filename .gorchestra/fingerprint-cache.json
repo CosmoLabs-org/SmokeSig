@@ -1,6 +1,6 @@
 {
-  "hash": "ca84dd4da2f4012100bf46947dbe6e496435ae510a3ab3e8006855958c804e63",
-  "project_name": "_glm-agent-0026-usage-tests",
+  "hash": "97bfe25744d7edeeb8c9d1d1e507590ff13386b0e95a9ddd178ce232aceb7108",
+  "project_name": "_glm-agent-0029-ports-tests",
   "language": "go",
   "framework": "cli",
   "directories": [
@@ -27,5 +27,5 @@
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-25T07:16:50.94811-03:00"
+  "generated_at": "2026-05-25T15:50:05.528086-03:00"
 }
