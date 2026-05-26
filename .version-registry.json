@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.22.0",
-    "build": 565,
+    "build": 568,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-25T19:05:16Z",
+    "lastUpdated": "2026-05-26T06:02:19Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -11,6 +11,23 @@
     "sync_method": "git_history_analysis"
   },
   "releaseContext": {
+    "pendingFeatures": [
+      {
+        "branch": "_glm-agent-0031-generator-tests",
+        "title": " glm agent 0031 generator tests",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-26T03:02:19-03:00",
+        "files": [
+          ".gorchestra/fingerprint-cache.json",
+          ".review.json",
+          ".version-registry.json",
+          "GOrchestra/intel/status.json",
+          "internal/observer/generator.go",
+          "internal/observer/generator_test.go"
+        ]
+      }
+    ],
     "lastRelease": {
       "version": "0.22.0",
       "date": "2026-05-25T14:57:51.972069-03:00",
