@@ -1,0 +1,29 @@
+{
+  "branch": "_glm-agent-0030-probes-tests",
+  "base_branch": "master",
+  "status": "conflict",
+  "created": "2026-05-25T15:52:54-03:00",
+  "archived": "2026-05-26T02:28:11.423911-03:00",
+  "commits": [
+    {
+      "hash": "8b3c9f9",
+      "author": "GΛB",
+      "message": "chore: session review (score=9, issues=0)",
+      "date": 1779773162
+    },
+    {
+      "hash": "cc98228",
+      "author": "GΛB",
+      "message": "feat(observer): add ProbeEndpoints for HTTP health probing",
+      "date": 1779735174
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 19,
+  "lines_added": 184,
+  "lines_removed": 943,
+  "diff_stat": ".gorchestra/fingerprint-cache.json                 |   6 +-\n .review.json                                       |   4 +-\n .version-registry.json                             |   4 +-\n GOrchestra/intel/architecture.json                 |  33 ++--\n GOrchestra/intel/status.json                       |   8 +-\n .../_glm-agent-0027-sanitize-tests/HISTORY.md      |  38 ----\n .../_glm-agent-0027-sanitize-tests/session.json    |  29 ----\n .../_glm-agent-0028-snapshot-tests/HISTORY.md      |  44 -----\n .../_glm-agent-0028-snapshot-tests/session.json    |  35 ----\n .../_glm-agent-0029-ports-tests/HISTORY.md         |  45 -----\n .../_glm-agent-0029-ports-tests/session.json       |  29 ----\n internal/observer/ports.go                         |  97 -----------\n internal/observer/ports_test.go                    |  82 ---------\n internal/observer/probes.go                        |  46 +++++\n internal/observer/probes_test.go                   | 110 ++++++++++++\n internal/observer/sanitize.go                      |  84 ---------\n internal/observer/sanitize_test.go                 | 193 ---------------------\n internal/observer/snapshot.go                      |  82 ---------\n internal/observer/snapshot_test.go                 | 158 -----------------\n 19 files changed, 184 insertions(+), 943 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}

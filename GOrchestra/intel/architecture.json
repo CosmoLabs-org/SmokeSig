@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-25T16:08:19.598508-03:00",
+  "generated_at": "2026-05-26T02:26:15.8015-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-26T16:08:19.598509-03:00",
-  "last_analyzed_commit": "3aefca01b17e0936561dcc4dddab57c41b2f0c01",
-  "summary": "A Go-based monolithic project utilizing an AI agent orchestration system (GOrchestra) to heavily generate and extend its test suite, centered around a test runner, schema validation, and MCP integrations.",
+  "expires_at": "2026-05-27T02:26:15.8015-03:00",
+  "last_analyzed_commit": "d85f05138228924c3aec7ce2e609b84f19f7eac3",
+  "summary": "A Go-based monolithic application featuring a test runner, schema validation, and MCP handlers, heavily utilizing automated agent-driven test generation.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,19 +15,19 @@
     "internal/schema/schema_extra_test.go"
   ],
   "patterns": [
-    "test-driven development",
-    "agent-driven code generation",
-    "MCP (Model Context Protocol) handler",
-    "webhook reporting"
+    "Test-Driven Development (TDD)",
+    "Standard Go project layout",
+    "Agent-driven test generation (GOrchestra/glm-agents)",
+    "MCP (Model Context Protocol) handler pattern"
   ],
   "concerns": [
-    "highly fragmented test generation via AI agents (many isolated glm-agents directories)",
-    "potential test redundancy or overlap across multiple agent-generated test files",
-    "deeply nested synthetic directory structure adding complexity"
+    "Highly fragmented test generation history suggests potential test bloat or redundancy",
+    "Heavy reliance on automated agent-generated tests may reduce test intentionality",
+    "Multiple overlapping test directories for internal packages could cause maintenance confusion"
   ],
   "suggestions": [
-    "consolidate and deduplicate the numerous agent-generated extra test files",
-    "evaluate the maintainability of the GOrchestra agent workflow",
-    "ensure core logic in runner.go and handlers.go has sufficient permanent human-authored tests"
+    "Consolidate and deduplicate the agent-generated extra tests to ensure they provide unique value",
+    "Review the core runner and MCP handler logic for integration coverage gaps",
+    "Establish clear boundaries for automated test generation to prevent unmanaged growth"
   ]
 }
