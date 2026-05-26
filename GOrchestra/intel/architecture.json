@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-26T03:05:00.232448-03:00",
+  "generated_at": "2026-05-26T03:07:20.88102-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-27T03:05:00.232448-03:00",
-  "last_analyzed_commit": "7305948b9749cd890582b3e38f8bdeb7edc71014",
-  "summary": "A Go-based orchestration framework utilizing AI agents to generate tests and integrate MCP, currently experiencing repository bloat from automated session metadata.",
+  "expires_at": "2026-05-27T03:07:20.88102-03:00",
+  "last_analyzed_commit": "74e306ffc248e84ab56b7e57900b079bf23fb89a",
+  "summary": "A Go-based monolithic project utilizing an automated agent framework (GOrchestra) to extensively generate and manage test suites for a runner, schema validation, and MCP integration system.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,19 +15,19 @@
     "internal/schema/schema_extra_test.go"
   ],
   "patterns": [
-    "Test-Driven Development (TDD)",
-    "Agent-Based Orchestration (GOrchestra)",
-    "Model Context Protocol (MCP) integration",
-    "Directory-based session isolation"
+    "Test-Driven Development",
+    "Agent-Driven Code Generation",
+    "MCP (Model Context Protocol) Handler",
+    "Directory-based Session Management"
   ],
   "concerns": [
-    "High volume of auto-generated/archived agent sessions cluttering the repository",
-    "Potential test fragmentation across numerous isolated agent directories",
-    "Heavy reliance on metadata chore commits"
+    "Proliferation of agent-generated test directories (GOrchestra/glm-agents/*) polluting the repository structure",
+    "Potential redundancy between baseline tests and numerous 'extra_tests' variants",
+    "High coupling to an automated agent workflow (GOrchestra) which may obscure human-readable history"
   ],
   "suggestions": [
-    "Implement .gitignore rules or a dedicated archive repository for GOrchestra session metadata",
-    "Consolidate overlapping extra tests from isolated agent branches into the main test suites",
-    "Focus core development on the MCP handlers and runner logic rather than peripheral test generation"
+    "Archive or externalize the GOrchestra/glm-agents directories to a separate artifact storage to clean up the main tree",
+    "Consolidate overlapping extra test files into the standard test suites to reduce maintenance burden",
+    "Review runner.go and handlers.go to ensure core logic remains decoupled from the auto-generated test infrastructure"
   ]
 }

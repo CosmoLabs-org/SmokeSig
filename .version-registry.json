@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.22.0",
-    "build": 569,
+    "build": 572,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-26T06:04:43Z",
+    "lastUpdated": "2026-05-26T06:10:02Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -25,6 +25,18 @@
           "GOrchestra/intel/status.json",
           "internal/observer/generator.go",
           "internal/observer/generator_test.go"
+        ]
+      },
+      {
+        "branch": "_glm-agent-0033-observe-observe-extra-tests",
+        "title": " glm agent 0033 observe observe extra tests",
+        "commits": 2,
+        "suggestedBump": "patch",
+        "mergedAt": "2026-05-26T03:10:02-03:00",
+        "files": [
+          ".review.json",
+          "cmd/observe.go",
+          "cmd/observe_extra_test.go"
         ]
       }
     ],
