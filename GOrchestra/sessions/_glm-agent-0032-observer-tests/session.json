@@ -1,0 +1,29 @@
+{
+  "branch": "_glm-agent-0032-observer-tests",
+  "base_branch": "master",
+  "status": "conflict",
+  "created": "2026-05-26T02:32:25-03:00",
+  "archived": "2026-05-26T03:04:37.236027-03:00",
+  "commits": [
+    {
+      "hash": "342c80c",
+      "author": "GΛB",
+      "message": "chore: session review (score=9, issues=0)",
+      "date": 1779775347
+    },
+    {
+      "hash": "5ff5ec7",
+      "author": "GΛB",
+      "message": "feat(observer): add Observe command wrapper with tests",
+      "date": 1779773545
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 12,
+  "lines_added": 355,
+  "lines_removed": 615,
+  "diff_stat": ".gorchestra/fingerprint-cache.json                 |   6 +-\n .review.json                                       |   4 +-\n .version-registry.json                             |  23 +-\n GOrchestra/intel/architecture.json                 |  31 +--\n GOrchestra/intel/status.json                       |   6 +-\n .../_glm-agent-0031-generator-tests/HISTORY.md     |  25 --\n .../_glm-agent-0031-generator-tests/cleanup.json   |   5 -\n .../_glm-agent-0031-generator-tests/session.json   |  29 --\n internal/observer/generator.go                     | 204 --------------\n internal/observer/generator_test.go                | 308 ---------------------\n internal/observer/observer.go                      | 158 +++++++++++\n internal/observer/observer_test.go                 | 171 ++++++++++++\n 12 files changed, 355 insertions(+), 615 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}
