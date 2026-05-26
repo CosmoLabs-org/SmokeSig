@@ -4,17 +4,8 @@
 
 version: pending
 entries:
-    added:
-        - description: Auto-Add Generator — smokesig observe command wraps processes, detects ports, snapshots files, probes HTTP, generates .smokesig.yaml (FEAT-045)
-          source: manual
-          date: 2026-05-26T05:08:32.253871-03:00
-    fixed:
-        - description: Runner-level recursion guard prevents fork bombs when .smokesig.yaml contains test runner commands (BUG-012)
-          source: manual
-          date: 2026-05-26T05:08:36.095504-03:00
-        - description: MCP server TestSmokeRunAgainstSelf now accounts for AllowedFailures in result count assertion
-          source: manual
-          date: 2026-05-26T05:08:40.007565-03:00
+    added: []
+    fixed: []
     changed: []
     deprecated: []
     removed: []

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-05-26
+
+### Added
+- Auto-Add Generator — smokesig observe command wraps processes, detects ports, snapshots files, probes HTTP, generates .smokesig.yaml (FEAT-045)
+- add observe command with smoke test generation (commit:b80d4180)
+- add Generate function for observation-to-YAML config conversion (commit:113539c1)
+- add Observe command wrapper with tests (commit:5ff5ec7f)
+- add ProbeEndpoints for HTTP health probing (commit:cc982283)
+- add DetectPorts and parseLsofOutput for port detection (commit:f879d0f0)
+- add string sanitization and key phrase extraction (commit:8c3ef1d1)
+- add TakeSnapshot and DiffSnapshots for file change detection (commit:ef4c8b3b)
+- add foundation types for smokesig observe command (commit:e90ea932)
+
+### Fixed
+- Runner-level recursion guard prevents fork bombs when .smokesig.yaml contains test runner commands (BUG-012)
+- MCP server TestSmokeRunAgainstSelf now accounts for AllowedFailures in result count assertion
+- add recursion guard to prevent fork bombs (BUG-012) (commit:250a7f80)
+
 ## [0.22.0] - 2026-05-25
 
 ### Added
