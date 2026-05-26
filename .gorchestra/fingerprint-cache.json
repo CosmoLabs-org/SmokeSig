@@ -1,6 +1,6 @@
 {
-  "hash": "ed4f0da1a3ab864139d641fd72f6de78aa72adab3b5c5329a48f88686bb0d03b",
-  "project_name": "SmokeSig",
+  "hash": "1f0f172b55330a7273f5c8a24f8ef9831aad909d3303404a7df1234ca3de3200",
+  "project_name": "_glm-agent-0031-generator-tests",
   "language": "go",
   "framework": "cli",
   "directories": [
@@ -27,5 +27,5 @@
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-25T16:00:15.735075-03:00"
+  "generated_at": "2026-05-26T02:28:47.727238-03:00"
 }
