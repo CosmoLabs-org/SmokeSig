@@ -140,9 +140,14 @@ func Observe(ctx context.Context, opts ObserveOptions) (*Observation, error) {
 	detectedPorts := ports
 	portsMu.Unlock()
 
+	var hints StackHints
+	if opts.Dir != "" {
+		hints = HintsFromDir(opts.Dir)
+	}
+
 	var httpProbes []HTTPProbeResult
 	if len(detectedPorts) > 0 {
-		httpProbes = ProbeEndpoints(detectedPorts, 2*time.Second)
+		httpProbes = ProbeEndpoints(detectedPorts, 2*time.Second, hints.ExtraProbePaths...)
 	}
 
 	return &Observation{

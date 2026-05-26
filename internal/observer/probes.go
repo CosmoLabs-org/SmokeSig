@@ -8,7 +8,7 @@ import (
 
 var commonPaths = []string{"/health", "/healthz", "/ready", "/readyz", "/api", "/"}
 
-func ProbeEndpoints(ports []PortBinding, timeout time.Duration) []HTTPProbeResult {
+func ProbeEndpoints(ports []PortBinding, timeout time.Duration, extraPaths ...string) []HTTPProbeResult {
 	if timeout == 0 {
 		timeout = 2 * time.Second
 	}
@@ -23,7 +23,8 @@ func ProbeEndpoints(ports []PortBinding, timeout time.Duration) []HTTPProbeResul
 		}
 		seen[pb.Port] = true
 
-		for _, path := range commonPaths {
+		paths := append(commonPaths, extraPaths...)
+		for _, path := range paths {
 			url := fmt.Sprintf("http://localhost:%d%s", pb.Port, path)
 			resp, err := client.Get(url)
 			if err != nil {
