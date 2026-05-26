@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-25T16:05:29.888844-03:00",
+  "generated_at": "2026-05-25T16:08:19.598508-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-26T16:05:29.888844-03:00",
-  "last_analyzed_commit": "3f8be277969307fe223212b96bc0691ce32162c7",
-  "summary": "A Go-based orchestration and testing framework utilizing AI agents to automatically generate and validate test suites via MCP.",
+  "expires_at": "2026-05-26T16:08:19.598509-03:00",
+  "last_analyzed_commit": "3aefca01b17e0936561dcc4dddab57c41b2f0c01",
+  "summary": "A Go-based monolithic project utilizing an AI agent orchestration system (GOrchestra) to heavily generate and extend its test suite, centered around a test runner, schema validation, and MCP integrations.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,19 +15,19 @@
     "internal/schema/schema_extra_test.go"
   ],
   "patterns": [
-    "Test-Driven Development (TDD)",
-    "Agent-based automated testing generation",
-    "MCP (Model Context Protocol) handler pattern",
-    "Standard Go project layout"
+    "test-driven development",
+    "agent-driven code generation",
+    "MCP (Model Context Protocol) handler",
+    "webhook reporting"
   ],
   "concerns": [
-    "High volume of auto-generated 'extra tests' from glm-agents may clutter the codebase and increase maintenance overhead",
-    "Frequent metadata and session archival commits suggest heavy CI/agent orchestration overhead",
-    "Potential redundancy between baseline tests and agent-generated extra tests"
+    "highly fragmented test generation via AI agents (many isolated glm-agents directories)",
+    "potential test redundancy or overlap across multiple agent-generated test files",
+    "deeply nested synthetic directory structure adding complexity"
   ],
   "suggestions": [
-    "Consolidate or prune redundant agent-generated test files to maintain a clean repository",
-    "Evaluate the coverage delta provided by 'extra tests' versus the baseline to justify their inclusion",
-    "Monitor the performance impact of the MCP handlers under load"
+    "consolidate and deduplicate the numerous agent-generated extra test files",
+    "evaluate the maintainability of the GOrchestra agent workflow",
+    "ensure core logic in runner.go and handlers.go has sufficient permanent human-authored tests"
   ]
 }

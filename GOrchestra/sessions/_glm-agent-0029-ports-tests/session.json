@@ -1,0 +1,29 @@
+{
+  "branch": "_glm-agent-0029-ports-tests",
+  "base_branch": "master",
+  "status": "conflict",
+  "created": "2026-05-25T15:52:08-03:00",
+  "archived": "2026-05-25T16:10:48.467055-03:00",
+  "commits": [
+    {
+      "hash": "3f33bb2",
+      "author": "GΛB",
+      "message": "chore: session review (score=9, issues=0)",
+      "date": 1779736103
+    },
+    {
+      "hash": "f879d0f",
+      "author": "GΛB",
+      "message": "feat(observer): add DetectPorts and parseLsofOutput for port detection",
+      "date": 1779735128
+    }
+  ],
+  "total_commits": 2,
+  "files_changed": 15,
+  "lines_added": 205,
+  "lines_removed": 688,
+  "diff_stat": ".gorchestra/fingerprint-cache.json                 |   6 +-\n .review.json                                       |   4 +-\n .version-registry.json                             |   4 +-\n GOrchestra/intel/architecture.json                 |  29 ++--\n GOrchestra/intel/status.json                       |   8 +-\n .../_glm-agent-0027-sanitize-tests/HISTORY.md      |  38 ----\n .../_glm-agent-0027-sanitize-tests/session.json    |  29 ----\n .../_glm-agent-0028-snapshot-tests/HISTORY.md      |  44 -----\n .../_glm-agent-0028-snapshot-tests/session.json    |  35 ----\n internal/observer/ports.go                         |  97 +++++++++++\n internal/observer/ports_test.go                    |  82 +++++++++\n internal/observer/sanitize.go                      |  84 ---------\n internal/observer/sanitize_test.go                 | 193 ---------------------\n internal/observer/snapshot.go                      |  82 ---------\n internal/observer/snapshot_test.go                 | 158 -----------------\n 15 files changed, 205 insertions(+), 688 deletions(-)",
+  "review_status": "passed",
+  "merge_type": "clean",
+  "iterations_at_merge": 1
+}
