@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-26T07:04:45.098947-03:00",
+  "generated_at": "2026-05-26T07:05:37.619325-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-27T07:04:45.098947-03:00",
-  "last_analyzed_commit": "0a8939a751421268be9db5323b6f8e8dae9a363c",
-  "summary": "A Go-based orchestration runner integrating MCP handlers, schema validation, and webhook reporting, heavily utilizing automated agent-driven test generation.",
+  "expires_at": "2026-05-27T07:05:37.619325-03:00",
+  "last_analyzed_commit": "a0669a6a28772cddf7f392b66a2017649dfa4e0d",
+  "summary": "A Go-based monolithic testing and reporting framework with extensive AI-agent-generated test suites and MCP integration.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -12,22 +12,22 @@
     "internal/mcp/handlers.go",
     "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
-    "internal/reporter/webhook_test.go"
+    "internal/runner/runner_test.go"
   ],
   "patterns": [
-    "Test-Driven Development (TDD)",
-    "Directory-based agent orchestration",
-    "Model Context Protocol (MCP) integration",
-    "Webhook-based reporting"
+    "test-driven development",
+    "directory-based command pattern",
+    "internal package encapsulation",
+    "agent-based test generation"
   ],
   "concerns": [
-    "High volume of agent-generated extra test files indicates potential test bloat or flakiness",
-    "Staged but uncommitted changes suggest incomplete workflow",
-    "Recent fork bomb fix implies complex process spawning logic that may still be fragile"
+    "high volume of generated extra tests suggests potential flakiness or coverage gaps",
+    "deeply nested agent-generated directories (GOrchestra/glm-agents/) pollute the repository",
+    "staged changes during active development might indicate incomplete commits"
   ],
   "suggestions": [
-    "Consolidate or clean up the numerous agent-generated extra test directories",
-    "Review and stabilize the process execution guards in the runner",
-    "Commit or revert the currently staged changes to maintain a clean working tree"
+    "consolidate or archive the GOrchestra agent-generated test directories",
+    "review baseline test stability to reduce the need for continuous extra test generation",
+    "ensure MCP handler logic is covered by standard tests rather than just extra tests"
   ]
 }
