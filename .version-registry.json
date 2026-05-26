@@ -1,9 +1,9 @@
 {
   "repository": {
     "version": "0.23.0",
-    "build": 584,
+    "build": 585,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-26T10:04:29Z",
+    "lastUpdated": "2026-05-26T10:04:48Z",
     "derived_from": "git tag"
   },
   "metadata": {
@@ -11,38 +11,9 @@
     "sync_method": "git_history_analysis"
   },
   "releaseContext": {
-    "pendingFeatures": [
-      {
-        "branch": "_glm-agent-0031-generator-tests",
-        "title": " glm agent 0031 generator tests",
-        "commits": 2,
-        "suggestedBump": "patch",
-        "mergedAt": "2026-05-26T03:02:19-03:00",
-        "files": [
-          ".gorchestra/fingerprint-cache.json",
-          ".review.json",
-          ".version-registry.json",
-          "GOrchestra/intel/status.json",
-          "internal/observer/generator.go",
-          "internal/observer/generator_test.go"
-        ]
-      },
-      {
-        "branch": "_glm-agent-0033-observe-observe-extra-tests",
-        "title": " glm agent 0033 observe observe extra tests",
-        "commits": 2,
-        "suggestedBump": "patch",
-        "mergedAt": "2026-05-26T03:10:02-03:00",
-        "files": [
-          ".review.json",
-          "cmd/observe.go",
-          "cmd/observe_extra_test.go"
-        ]
-      }
-    ],
     "lastRelease": {
-      "version": "0.22.0",
-      "date": "2026-05-25T14:57:51.972069-03:00",
+      "version": "0.23.0",
+      "date": "2026-05-26T07:04:33.950771-03:00",
       "branch": "master"
     }
   }
