@@ -1,5 +1,5 @@
 {
-  "hash": "ed4f0da1a3ab864139d641fd72f6de78aa72adab3b5c5329a48f88686bb0d03b",
+  "hash": "b85af01034debfdac3631a6cb7e378cd77a53bbdbc7a3921f77166a78c726a74",
   "project_name": "SmokeSig",
   "language": "go",
   "framework": "cli",
@@ -27,5 +27,5 @@
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-26T03:02:17.689542-03:00"
+  "generated_at": "2026-05-26T07:03:34.867896-03:00"
 }

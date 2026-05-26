@@ -1,33 +1,35 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-26T03:07:20.88102-03:00",
+  "generated_at": "2026-05-26T05:49:40.542996-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-27T03:07:20.88102-03:00",
-  "last_analyzed_commit": "74e306ffc248e84ab56b7e57900b079bf23fb89a",
-  "summary": "A Go-based monolithic project utilizing an automated agent framework (GOrchestra) to extensively generate and manage test suites for a runner, schema validation, and MCP integration system.",
+  "expires_at": "2026-05-27T05:49:40.542996-03:00",
+  "last_analyzed_commit": "a5c5d189279bb5d9c6bd8caf1fb7235e0ac48ca1",
+  "summary": "A Go-based monolithic CLI tool utilizing an AI agent orchestration framework (GOrchestra) to manage test execution, schema validation, and observability commands.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/mcp/handlers.go",
-    "internal/runner/runner_test.go",
     "internal/runner/assertion_test.go",
-    "internal/schema/schema_extra_test.go"
+    "internal/schema/schema_extra_test.go",
+    "internal/reporter/webhook_test.go"
   ],
   "patterns": [
     "Test-Driven Development",
-    "Agent-Driven Code Generation",
-    "MCP (Model Context Protocol) Handler",
-    "Directory-based Session Management"
+    "Command Pattern",
+    "Agent-Based Orchestration",
+    "Directory-Based Feature Branching"
   ],
   "concerns": [
     "Proliferation of agent-generated test directories (GOrchestra/glm-agents/*) polluting the repository structure",
-    "Potential redundancy between baseline tests and numerous 'extra_tests' variants",
-    "High coupling to an automated agent workflow (GOrchestra) which may obscure human-readable history"
+    "High volume of *_extra_test.go files suggests potential test duplication or fragmented test coverage",
+    "Untracked and modified files in git status indicate incomplete commits or active unstable development",
+    "Heavy reliance on automated agent test generation may lead to brittle or low-value assertions"
   ],
   "suggestions": [
-    "Archive or externalize the GOrchestra/glm-agents directories to a separate artifact storage to clean up the main tree",
-    "Consolidate overlapping extra test files into the standard test suites to reduce maintenance burden",
-    "Review runner.go and handlers.go to ensure core logic remains decoupled from the auto-generated test infrastructure"
+    "Archive or remove merged GOrchestra/glm-agents/* directories to reduce repository noise",
+    "Consolidate fragmented extra tests into the standard test files to improve maintainability",
+    "Resolve the current dirty git status (7 modified, 1 staged, 3 untracked) before adding new features",
+    "Review the quality and necessity of agent-generated smoke tests to ensure they provide real value"
   ]
 }
