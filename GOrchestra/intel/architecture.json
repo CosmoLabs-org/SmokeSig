@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-26T07:05:37.619325-03:00",
+  "generated_at": "2026-05-26T14:21:40.036716-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-27T07:05:37.619325-03:00",
-  "last_analyzed_commit": "a0669a6a28772cddf7f392b66a2017649dfa4e0d",
-  "summary": "A Go-based monolithic testing and reporting framework with extensive AI-agent-generated test suites and MCP integration.",
+  "expires_at": "2026-05-27T14:21:40.036716-03:00",
+  "last_analyzed_commit": "8a7927efe5ce75f8256e0dd874628634064ee1f1",
+  "summary": "A Go-based monolithic testing and validation framework utilizing MCP handlers, schema validation, and a runner-executor pattern, heavily supplemented by automated agent-generated tests.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
@@ -15,19 +15,20 @@
     "internal/runner/runner_test.go"
   ],
   "patterns": [
-    "test-driven development",
-    "directory-based command pattern",
-    "internal package encapsulation",
-    "agent-based test generation"
+    "Test-Driven Development",
+    "MCP (Model Context Protocol) handler pattern",
+    "Runner/Executor pattern",
+    "Webhook reporting pattern",
+    "Schema validation"
   ],
   "concerns": [
-    "high volume of generated extra tests suggests potential flakiness or coverage gaps",
-    "deeply nested agent-generated directories (GOrchestra/glm-agents/) pollute the repository",
-    "staged changes during active development might indicate incomplete commits"
+    "High volume of agent-generated extra tests (0005-0019, 0025) suggests unstable core test coverage",
+    "Scattered test directories across GOrchestra/glm-agents paths indicate complex CI/agent orchestration overhead",
+    "Clean git status with only chore/documentation commits recently might mask pending uncommitted work"
   ],
   "suggestions": [
-    "consolidate or archive the GOrchestra agent-generated test directories",
-    "review baseline test stability to reduce the need for continuous extra test generation",
-    "ensure MCP handler logic is covered by standard tests rather than just extra tests"
+    "Consolidate agent-generated extra tests into the main test suites to reduce maintenance burden",
+    "Review core test coverage in runner and schema packages to minimize need for external test generation",
+    "Focus on the MCP handlers integration as it appears to be a newer, evolving feature area"
   ]
 }

@@ -1,11 +1,14 @@
 id: FEAT-045
 type: feature
 created_at: 2026-04-30T02:51:30.536276-03:00
-updated_at: 2026-05-25T00:53:39.062208-03:00
+updated_at: 2026-05-26T14:30:22.080531-03:00
 source: local
-status: open
+status: done
 origin:
     session: 2027
 title: Auto-Add Generator — smokesig observe command (BR-13)
 description: New command smokesig observe "cmd" [--dir] [--quiet]. io.MultiWriter stdout capture. Pre/post filesystem SHA-256 diffing. gopsutil port detection. Intelligent sanitization (ANSI, timestamps, UUIDs). Interactive mode via huh. ~1,080 lines.
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+revisions:
+    - date: "2026-05-26"
+      action: closed
