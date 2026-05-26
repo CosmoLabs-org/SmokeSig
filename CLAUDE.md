@@ -6,7 +6,7 @@ Universal smoke test runner. Standalone Go binary that reads `.smokesig.yaml` an
 
 **Repository**: `github.com/CosmoLabs-org/SmokeSig`
 **Company**: CosmoLabs
-**Version**: 0.20.1
+**Version**: 0.22.0
 
 ## Architecture
 
@@ -14,19 +14,26 @@ Universal smoke test runner. Standalone Go binary that reads `.smokesig.yaml` an
 cmd/
 ├── root.go          # Cobra root command with banner
 ├── run.go           # smokesig run — main entry point
+├── observe.go       # smokesig observe — auto-generate tests from command observation
+├── stress.go        # smokesig stress — flakiness detection via repeated runs
 ├── validate.go      # smokesig validate — config validation without running
 ├── schema.go        # smokesig schema — export assertion types as JSON
 ├── init_cmd.go      # smokesig init — auto-detect + generate config
 ├── audit_cmd.go     # smokesig audit — project smoke test config health check
+├── serve.go         # smokesig serve — dashboard server with REST API
+├── mcp.go           # smokesig mcp — MCP server for AI integration
+├── migrate.go       # smokesig migrate — Goss config migration
 └── version.go       # smokesig version (ldflags-injected)
 internal/
 ├── schema/          # SmokeConfig structs, YAML parsing, validation
 ├── baseline/        # Performance baseline storage and comparison
-├── runner/          # Assertion engine (45 types), prereq runner, test execution
-├── reporter/        # Terminal (Lipgloss) + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push + Webhook reporters
+├── runner/          # Assertion engine (45 types), prereq runner, test execution, lifecycle hooks
+├── reporter/        # Terminal + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push + Webhook reporters
+├── observer/        # Auto-add generator — command wrapping, port detection, file snapshot, YAML generation
 ├── monorepo/        # Sub-config discovery for monorepo projects
 ├── dashboard/       # Portfolio dashboard (SQLite storage, API handlers, embedded UI)
-└── detector/        # Project type detection + template generation
+├── detector/        # Project type detection (31 types) + template generation
+└── mcp/             # MCP server (7 tools) + suggestion engine
 ```
 
 ## Key Design Decisions
@@ -42,12 +49,13 @@ internal/
 - **Monorepo**: `--monorepo` flag auto-discovers `.smokesig.yaml` in subdirectories. Unlimited depth, configurable exclusions.
 - **WebSocket**: Stdlib-only WebSocket client. Connect-send-expect pattern with no external deps.
 - **gRPC opt-in**: gRPC health check excluded from default build. Use `-tags grpc` to include.
+- **Recursion guard**: Runner sets `SMOKESIG_RUNNING=1` on child processes. If already set, test commands matching test runner patterns (`go test`, `npm test`, `pytest`, etc.) are auto-skipped to prevent fork bombs. See BUG-012.
 
 ## Build & Test
 
 ```bash
 go build ./...                    # Build
-go test ./...                     # Run all tests (1045 total)
+go test ./...                     # Run all tests (1297 total)
 smokesig run                         # Self-smoke (6 tests)
 go build -ldflags "-s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version=X.Y.Z" -o smokesig .
 ```
@@ -59,8 +67,12 @@ smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prome
 smokesig validate [-f path]
 smokesig audit [-f path] [--json] [--fix]
 smokesig schema
+smokesig stress <test> [--runs N] [--workers N] [--fail-fast]
 smokesig serve [--port 8080] [--dashboard] [--api-key KEY] [--db-path PATH]
 smokesig init [--force] [--from-running CONTAINER] [--with-doc-integrity]
+smokesig observe [command] [--dir DIR] [--timeout DURATION] [--quiet] [--output PATH]
+smokesig migrate goss <file>
+smokesig mcp
 smokesig version
 ```
 

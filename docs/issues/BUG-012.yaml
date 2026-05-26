@@ -1,0 +1,16 @@
+id: BUG-012
+type: bug
+created_at: 2026-05-26T04:21:27.956018-03:00
+updated_at: 2026-05-26T04:21:28.613531-03:00
+source: local
+severity: critical
+status: open
+origin:
+    session: 2026
+title: MCP test fork bomb — go test recursion causes exponential process spawn
+description: 'TestSmokeRunAgainstSelf in internal/mcp/server_test.go calls the smoke_run MCP handler against .smokesig.yaml. That config contains ''go test -short ./...'' which re-enters the test binary, creating infinite recursion. Each generation spawns ~5-10 children. Orphaned processes consume 100%+ CPU and 14GB build cache. FIX APPLIED (uncommitted): (1) SMOKESIG_SELF_TEST env var guard in server_test.go. (2) AllowedFailures count fix. SYSTEMIC RISK: affects any project with self-testing .smokesig.yaml.'
+fix_direction: 'Add recursion guard in internal/runner/runner.go: set SMOKESIG_RUNNING=1 env var on child exec.Command processes. In runner.runTestOnce(), check os.Getenv(SMOKESIG_RUNNING) and skip tests whose Run field matches go test or smokesig run. Test in internal/runner/runner_test.go.'
+affected_files:
+    - internal/mcp/server_test.go
+    - internal/runner/runner.go
+    - .smokesig.yaml

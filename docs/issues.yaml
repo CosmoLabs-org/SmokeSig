@@ -1,7 +1,7 @@
 version: "1.0"
 project: SmokeSig
-last_updated: 2026-05-25T14:31:15.513919-03:00
-next_bug_id: 12
+last_updated: 2026-05-26T07:01:56.156169-03:00
+next_bug_id: 13
 next_feat_id: 54
 next_task_id: 2
 next_imp_id: 1
@@ -343,3 +343,9 @@ issues:
       title: Container runs as root with no USER directive in Dockerfile
       severity: high
       created_at: 2026-05-24T06:06:01.219683-03:00
+    - id: BUG-012
+      type: bug
+      status: open
+      title: MCP test fork bomb — go test recursion causes exponential process spawn
+      severity: critical
+      created_at: 2026-05-26T04:21:27.956018-03:00

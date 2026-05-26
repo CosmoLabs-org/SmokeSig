@@ -2,7 +2,7 @@
 
 Universal smoke test runner for any project, any language.
 
-**Version**: 0.21.2 | **Status**: Stable | **License**: MIT
+**Version**: 0.22.0 | **Status**: Stable | **License**: MIT
 
 ---
 
@@ -194,9 +194,12 @@ Universal smoke test runner for any project, any language.
 | **Portfolio dashboard** | ✅ | `smokesig serve --dashboard` — SQLite storage, REST API (`/api/results`, `/api/projects`), embedded HTML UI |
 | **Health endpoint** | ✅ | `smokesig serve` — `/healthz` HTTP endpoint that runs smoke tests per request (container probes) |
 | **MCP server** | ✅ ⭐ | `smokesig mcp` — Claude Desktop integration (7 tools: run, init, validate, list, discover, explain, generate_test; stdio transport) |
+| **Auto-add generator** | ✅ ⭐ | `smokesig observe "cmd"` — wrap any command, capture stdout/ports/files/HTTP, generate `.smokesig.yaml` automatically. Supports `--dir`, `--quiet`, `--timeout`, `--output`. |
+| **Test chaining** | ✅ | `extract:` captures values from test output; `{{ .Vars.X }}` injects into subsequent tests. Automatic sensitive variable masking. |
 | **Goss migration** | ✅ | `smokesig migrate goss` — import Goss test configs with distro support (deb/rpm/apk), strict mode, mapping stats |
 | **Pre-commit hook** | ✅ | `.pre-commit-hooks.yaml` for zero-config integration |
 | **Lifecycle hooks** | ✅ | `before_all`/`after_all`/`before_each`/`after_each` with background process support, port wait, and env passthrough |
+| **Recursion guard** | ✅ | Runner sets `SMOKESIG_RUNNING=1` on child processes to prevent fork bombs when configs contain test runner commands |
 
 ---
 
@@ -253,11 +256,12 @@ These are intentional limitations, not gaps:
 
 ```
 SmokeSig/
-├── cmd/                # CLI commands (run, stress, init, audit, validate, schema, serve, mcp, migrate, version)
+├── cmd/                # CLI commands (run, observe, stress, init, audit, validate, schema, serve, mcp, migrate, version)
 ├── internal/
 │   ├── schema/         # SmokeConfig structs, YAML parsing, validation
-│   ├── runner/         # Assertion engine (45 types), prereq runner, test execution, stress testing
+│   ├── runner/         # Assertion engine (45 types), prereq runner, test execution, stress testing, lifecycle hooks
 │   ├── reporter/       # Terminal + JSON + JUnit + TAP + Prometheus + GHA + Backstage + Push + Webhook + OTel reporters
+│   ├── observer/       # Auto-add generator — command wrapping, port detection, file snapshot, YAML generation
 │   ├── dashboard/      # SQLite storage, REST API, embedded HTML frontend
 │   ├── monorepo/       # Sub-config discovery for monorepo projects
 │   ├── detector/       # Project type detection (31 types) + template generation

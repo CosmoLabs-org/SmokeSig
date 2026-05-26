@@ -26,12 +26,20 @@ Most smoke testing is either too heavy (full test frameworks, language-specific 
 
 **Performance baselines and regression detection.** `--baseline` saves test timings and flags regressions when current runs exceed the baseline by a configurable threshold. Catch performance degradation in CI before it ships.
 
+**Auto-generate smoke tests from observation.** `smokesig observe "node server.js"` wraps any command, captures its stdout/stderr, detects listening ports, snapshots file changes, probes HTTP endpoints, and generates a `.smokesig.yaml` with appropriate assertions. Zero-to-testing in 30 seconds.
+
+**Test chaining with variable extraction.** Extract values from one test and inject them into the next: login, capture the JWT token, use it in subsequent requests. `extract:` + `{{ .Vars.token }}` enables multi-step API smoke testing with automatic sensitive variable masking.
+
+**Lifecycle hooks for real-world setups.** `before_all`, `after_all`, `before_each`, `after_each` with background process support, `wait_for_port` polling, and environment variable passthrough. Start Docker, wait for the database, run tests, clean up — all declarative.
+
+**Stress testing for flakiness detection.** `smokesig stress <test> --runs 100 --workers 5` runs a single test N times with configurable parallelism, reports pass rate, timing distribution, and deduplicated failure patterns. Know which tests need `retry:` or `allow_failure:`.
+
 **Goss migration built in.** Already using Goss? `smokesig migrate goss goss.yaml` converts your existing config to `.smokesig.yaml` format, mapping all core resource types to native assertions.
 
 ### Example Output
 
 ```
-  SmokeSig v0.21.1
+  SmokeSig v0.22.0
 
   my-api — Smoke tests for my-api
 
@@ -70,7 +78,7 @@ go build -o smokesig .
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/CosmoLabs-org/SmokeSig
-    rev: v0.18.0
+    rev: v0.22.0
     hooks:
       - id: smokesig
 ```
@@ -92,6 +100,12 @@ smokesig run --format json
 
 # 5. Watch mode — re-run on file changes
 smokesig run --watch
+
+# 6. Auto-generate tests by observing a command
+smokesig observe "node server.js" --dir .
+
+# 7. Stress-test a flaky check
+smokesig stress "Health endpoint" --runs 50 --workers 3
 ```
 
 ## Example .smokesig.yaml
@@ -187,6 +201,7 @@ All assertions are optional and combinable within a single `expect` block.
 | Type | Field | Description |
 |------|-------|-------------|
 | File exists | `file_exists: <path>` | Path exists relative to config file directory |
+| File size | `file_size: {path, min_bytes?, max_bytes?}` | File exists with optional size thresholds (bundle size regression) |
 | Env variable | `env_exists: <string>` | Environment variable is set (non-empty) |
 
 ### Network Assertions
@@ -280,24 +295,46 @@ smokesig run [flags]
   -f, --file string          Config file (default ".smokesig.yaml")
       --tag strings          Run only tests with these tags
       --exclude-tag strings  Skip tests with these tags
-      --format string        Output format: terminal|json|junit|tap|prometheus (default "terminal")
+      --format string        Output: terminal|json|junit|tap|prometheus|gha|backstage (default "terminal")
       --fail-fast            Stop on first failure
       --timeout string       Per-test timeout override (e.g. "30s")
       --dry-run              List matching tests without running them
       --watch                Re-run tests on file changes
+      --monorepo             Discover and run sub-configs in subdirectories
+      --baseline             Save test timings for regression detection
+      --baseline-threshold   Regression threshold percentage (default 50)
+      --report-url URL       Push JSON results to endpoint
+      --report-api-key KEY   API key for push reporter
       --webhook-format       Override notification format: slack|pagerduty|json
       --webhook-on           Override notification trigger: failure|always|change
 
+smokesig observe [command] [flags]
+  -d, --dir string           Directory to monitor for file changes
+  -t, --timeout duration     Timeout for the observed command
+  -q, --quiet                Non-interactive mode (accept all, no terminal output)
+  -o, --output string        Output file path (default ".smokesig.yaml")
+
+smokesig stress <test-name> [flags]
+      --runs int             Total test executions (default 50)
+      --workers int          Concurrent workers (default 1)
+      --fail-fast            Stop on first failure
+
 smokesig init [flags]
   -f, --force                Overwrite existing .smokesig.yaml
+      --from-running NAME    Generate config from a running Docker container
       --with-doc-integrity   Force include doc_integrity test (auto-detected for CLI projects)
 
 smokesig audit [flags]
   -f, --file string          Config file (default ".smokesig.yaml")
-      --json                 Output structured JSON for CCS consumption
+      --json                 Output structured JSON
       --fix                  Auto-apply safe recommendations
 
-smokesig version
+smokesig validate [-f path]         Validate config without running tests
+smokesig schema                     Export assertion type schema as JSON
+smokesig serve [--port 8080]        Dashboard server with SQLite + REST API
+smokesig migrate goss <file>        Convert Goss config to .smokesig.yaml
+smokesig mcp                        Start MCP server (Claude Desktop integration)
+smokesig version                    Print version
 ```
 
 ## Auto-Detection
@@ -429,8 +466,8 @@ Most CI platforms (GitHub Actions, GitLab CI, Jenkins, CircleCI) natively ingest
 
 ## Output Formats
 
-`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`.
-Comma-separated for multiple: `--format terminal,json`. First format goes to stdout, rest to auto-named files.
+`smokesig run --format X` supports: `terminal` (default), `json`, `junit`, `tap`, `prometheus`, `gha`, `backstage`.
+Comma-separated for multiple: `--format terminal,json,prometheus`. First format goes to stdout, rest to auto-named files (`smoke-results.json`, `smoke-junit.xml`, `smoke-metrics.prom`, `smoke-tap.txt`, `smoke-backstage.json`).
 
 ## Migration from cosmo-smoke
 
