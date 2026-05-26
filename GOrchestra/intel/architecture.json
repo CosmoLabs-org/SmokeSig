@@ -1,36 +1,33 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-26T03:02:39.214999-03:00",
+  "generated_at": "2026-05-26T03:05:00.232448-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-27T03:02:39.214999-03:00",
-  "last_analyzed_commit": "035acb365219db3a5c6690acee456b148a96e8dd",
-  "summary": "A Go-based testing and validation framework featuring a runner, schema validation, MCP handlers, and automated agent-generated test suites.",
+  "expires_at": "2026-05-27T03:05:00.232448-03:00",
+  "last_analyzed_commit": "7305948b9749cd890582b3e38f8bdeb7edc71014",
+  "summary": "A Go-based orchestration framework utilizing AI agents to generate tests and integrate MCP, currently experiencing repository bloat from automated session metadata.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/mcp/handlers.go",
+    "internal/runner/runner_test.go",
     "internal/runner/assertion_test.go",
-    "internal/schema/schema_extra_test.go",
-    "internal/runner/runner_test.go"
+    "internal/schema/schema_extra_test.go"
   ],
   "patterns": [
-    "test-driven development",
-    "agent-based automation",
-    "model context protocol integration",
-    "webhook reporting",
-    "assertion-based validation"
+    "Test-Driven Development (TDD)",
+    "Agent-Based Orchestration (GOrchestra)",
+    "Model Context Protocol (MCP) integration",
+    "Directory-based session isolation"
   ],
   "concerns": [
-    "proliferation of agent-generated test directories (GOrchestra/glm-agents/*) cluttering the repository",
-    "uncommitted or partially staged changes in the working tree",
-    "potential redundancy between baseline and extra tests",
-    "heavy reliance on automated agent commits reducing human oversight"
+    "High volume of auto-generated/archived agent sessions cluttering the repository",
+    "Potential test fragmentation across numerous isolated agent directories",
+    "Heavy reliance on metadata chore commits"
   ],
   "suggestions": [
-    "consolidate or archive the GOrchestra/glm-agents directories to reduce repository noise",
-    "resolve the 2 modified and 1 staged file to maintain a clean git state",
-    "review extra tests for duplication against the baseline test suite",
-    "establish a cleanup workflow for merged agent session branches"
+    "Implement .gitignore rules or a dedicated archive repository for GOrchestra session metadata",
+    "Consolidate overlapping extra tests from isolated agent branches into the main test suites",
+    "Focus core development on the MCP handlers and runner logic rather than peripheral test generation"
   ]
 }
