@@ -1,33 +1,33 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-26T14:33:33.271951-03:00",
+  "generated_at": "2026-05-26T15:39:50.247577-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-27T14:33:33.271951-03:00",
-  "last_analyzed_commit": "aad0898789c1804d5b47c4caf6bd0798c1f5e514",
-  "summary": "A Go-based monolithic testing and validation framework featuring a runner, schema validation, MCP handlers, and extensive agent-generated test suites.",
+  "expires_at": "2026-05-27T15:39:50.247577-03:00",
+  "last_analyzed_commit": "cf949d85e5e95ed1e2a7e96bc5aaa34f93e7b22d",
+  "summary": "A Go-based orchestration runner with MCP integration, heavily utilizing automated agent-driven test generation.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/mcp/handlers.go",
     "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
-    "internal/runner/runner_test.go"
+    "internal/mcp/handlers.go",
+    "internal/reporter/webhook_test.go"
   ],
   "patterns": [
-    "Test-Driven Development (TDD)",
-    "Agent-based orchestration (GOrchestra/glm-agents)",
-    "MCP (Model Context Protocol) integration",
-    "Webhook reporting pattern"
+    "test-driven development",
+    "directory-based agent orchestration",
+    "model context protocol (MCP) integration",
+    "webhook reporting pattern"
   ],
   "concerns": [
-    "High volume of auto-generated 'extra-tests' directories suggests potential test bloat or brittle CI pipelines",
-    "Uncommitted modified and staged files (2 modified, 1 staged) indicate incomplete work or context switching",
-    "Heavy reliance on agent-generated test files (glm-agents) may lead to maintenance overhead and hard-to-debug tests"
+    "high volume of auto-generated extra tests (GOrchestra/glm-agents) polluting the repository structure",
+    "potential test flakiness from extensive assertion wiring",
+    "unclear boundary between core logic and generated test scaffolding"
   ],
   "suggestions": [
-    "Consolidate or clean up the numerous GOrchestra agent-generated test directories to reduce repository clutter",
-    "Commit or stash the currently modified/staged files to maintain a clean working tree",
-    "Review the quality and necessity of agent-generated tests to ensure they provide actual value over noise"
+    "move GOrchestra agent artifacts to a separate isolated directory or .gitignore",
+    "consolidate overlapping extra test files to reduce maintenance burden",
+    "document the MCP handler integration points"
   ]
 }
