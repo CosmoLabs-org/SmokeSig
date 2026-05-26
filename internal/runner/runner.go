@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -15,6 +16,18 @@ import (
 	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
+
+const recursionEnvVar = "SMOKESIG_RUNNING"
+
+var testRunnerPattern = regexp.MustCompile(
+	`(?i)\b(go\s+test|smokesig\s+run|smoke\s+run|npm\s+test|yarn\s+test|bun\s+test|pytest|cargo\s+test|dotnet\s+test|mvn\s+test|gradle\s+test|mix\s+test|swift\s+test)\b`,
+)
+
+// isRecursiveTestCommand returns true if we're already inside a SmokeSig run
+// and the command would invoke a test runner, which could re-enter SmokeSig.
+func isRecursiveTestCommand(cmd string) bool {
+	return os.Getenv(recursionEnvVar) == "1" && testRunnerPattern.MatchString(cmd)
+}
 
 // RunOptions controls test execution behavior.
 type RunOptions struct {
@@ -385,11 +398,27 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 				runCmd = resolved
 			}
 		}
+
+		// Recursion guard: if we're already inside a SmokeSig run and this
+		// command would invoke a test runner, skip it to prevent fork bombs.
+		// See BUG-012: .smokesig.yaml with "go test ./..." + MCP handler tests
+		// that execute the config creates infinite parent-child recursion.
+		if isRecursiveTestCommand(runCmd) {
+			tr := TestResult{
+				Name:    t.Name,
+				Skipped: true,
+				Duration: time.Since(start),
+			}
+			r.Reporter.TestResult(toReporterResult(tr))
+			return tr
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
 		cmd := exec.CommandContext(ctx, "sh", "-c", runCmd)
 		cmd.Dir = r.ConfigDir
+		cmd.Env = append(os.Environ(), recursionEnvVar+"=1")
 		cmd.Stdout = &stdout
 		cmd.Stderr = &stderr
 

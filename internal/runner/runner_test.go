@@ -598,3 +598,68 @@ func TestRunner_DeepLink_CustomScheme(t *testing.T) {
 		t.Errorf("passed = %d, want 1", result.Passed)
 	}
 }
+
+func TestIsRecursiveTestCommand(t *testing.T) {
+	tests := []struct {
+		cmd      string
+		envSet   bool
+		expected bool
+	}{
+		{"go test ./...", true, true},
+		{"go test -short ./...", true, true},
+		{"smokesig run", true, true},
+		{"smoke run --format json", true, true},
+		{"npm test", true, true},
+		{"bun test", true, true},
+		{"pytest", true, true},
+		{"cargo test", true, true},
+		{"echo hello", true, false},
+		{"curl http://localhost:3000", true, false},
+		{"go build ./...", true, false},
+		{"go test ./...", false, false},
+		{"npm test", false, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.cmd, func(t *testing.T) {
+			if tt.envSet {
+				t.Setenv("SMOKESIG_RUNNING", "1")
+			}
+			if got := isRecursiveTestCommand(tt.cmd); got != tt.expected {
+				t.Errorf("isRecursiveTestCommand(%q) = %v, want %v (env=%v)", tt.cmd, got, tt.expected, tt.envSet)
+			}
+		})
+	}
+}
+
+func TestRunner_RecursionGuardSkipsTestRunners(t *testing.T) {
+	t.Setenv("SMOKESIG_RUNNING", "1")
+	cfg := newConfig([]schema.Test{
+		{Name: "safe", Run: "echo safe", Expect: schema.Expect{ExitCode: intPtr(0)}},
+		{Name: "recursive", Run: "go test -short ./...", Expect: schema.Expect{ExitCode: intPtr(0)}},
+	})
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+	result, err := r.Run(RunOptions{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Passed != 1 {
+		t.Errorf("passed = %d, want 1 (only the safe test)", result.Passed)
+	}
+	if result.Skipped != 1 {
+		t.Errorf("skipped = %d, want 1 (recursive test should be skipped)", result.Skipped)
+	}
+}
+
+func TestRunner_NoRecursionGuardWithoutEnv(t *testing.T) {
+	cfg := newConfig([]schema.Test{
+		{Name: "test-runner", Run: "echo simulated-test-pass", Expect: schema.Expect{ExitCode: intPtr(0)}},
+	})
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+	result, err := r.Run(RunOptions{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Passed != 1 {
+		t.Errorf("passed = %d, want 1", result.Passed)
+	}
+}

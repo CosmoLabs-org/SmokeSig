@@ -47,6 +47,14 @@ func TestSmokeRunHandlerExists(t *testing.T) {
 
 // TestSmokeRunAgainstSelf runs smoke_run against the project's own .smokesig.yaml.
 func TestSmokeRunAgainstSelf(t *testing.T) {
+	// Recursion guard: .smokesig.yaml contains "go test -short ./..." which re-enters
+	// this test, creating an infinite fork bomb. Skip when we detect we're inside a
+	// smoke-run-initiated test invocation.
+	if os.Getenv("SMOKESIG_SELF_TEST") == "1" {
+		t.Skip("skipping to prevent recursive test invocation")
+	}
+	t.Setenv("SMOKESIG_SELF_TEST", "1")
+
 	configPath := "../../.smokesig.yaml"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		t.Skip("no .smokesig.yaml found, skipping integration test")
@@ -71,14 +79,25 @@ func TestSmokeRunAgainstSelf(t *testing.T) {
 		t.Error("expected at least one test in .smokesig.yaml")
 	}
 
-	if runResult.Passed+runResult.Failed+runResult.Skipped != runResult.Total {
-		t.Errorf("result counts don't add up: passed=%d failed=%d skipped=%d total=%d",
-			runResult.Passed, runResult.Failed, runResult.Skipped, runResult.Total)
+	allowedFailures := 0
+	for _, tr := range runResult.Tests {
+		if tr.AllowedFailure {
+			allowedFailures++
+		}
+	}
+	if runResult.Passed+runResult.Failed+runResult.Skipped+allowedFailures != runResult.Total {
+		t.Errorf("result counts don't add up: passed=%d failed=%d skipped=%d allowed_failures=%d total=%d",
+			runResult.Passed, runResult.Failed, runResult.Skipped, allowedFailures, runResult.Total)
 	}
 }
 
 // TestSmokeRunWithTags tests tag filtering via the handler.
 func TestSmokeRunWithTags(t *testing.T) {
+	if os.Getenv("SMOKESIG_SELF_TEST") == "1" {
+		t.Skip("skipping to prevent recursive test invocation")
+	}
+	t.Setenv("SMOKESIG_SELF_TEST", "1")
+
 	configPath := "../../.smokesig.yaml"
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		t.Skip("no .smokesig.yaml found, skipping integration test")
