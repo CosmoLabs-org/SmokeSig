@@ -1,35 +1,40 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:11:06.796538-03:00",
+  "generated_at": "2026-05-29T00:12:32.115691-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:11:06.796538-03:00",
-  "last_analyzed_commit": "d3f38629996da00a38f45aef85b97f235dc138e4",
-  "summary": "A Go-based test orchestration framework with a custom runner, assertion library, schema validation, webhook reporting, and MCP integration",
-  "architecture": "monolith",
+  "expires_at": "2026-05-30T00:12:32.115692-03:00",
+  "last_analyzed_commit": "486e8ef2d40e6d14175082b3e19b061add27db64",
+  "summary": "Go-based test orchestration framework with agent-driven validation, TUI interface, and MCP integration for running and reporting structured test suites",
+  "architecture": "modular monolith with agent-based orchestration",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/runner/runner_test.go",
+    "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
-    "internal/mcp/handlers.go",
-    "cmd/run_extra_test.go"
+    "internal/mcp/handlers.go"
   ],
   "patterns": [
-    "test runner pattern",
-    "assertion library",
-    "webhook reporter",
-    "MCP (Model Context Protocol) handlers",
-    "TUI with Bubble Tea"
+    "test-driven development with extensive extra test suites",
+    "command pattern via cmd/ directory structure",
+    "agent-based orchestration (GOrchestra with numbered agent directories)",
+    "internal package encapsulation",
+    "reporter pattern for test output (webhook, push)",
+    "MCP (Model Context Protocol) handler integration",
+    "TUI with Bubble Tea framework"
   ],
   "concerns": [
-    "heavy test file proliferation across multiple agent directories",
-    "fragmented test organization with many *extra_test.go files",
-    "agent metadata commits suggest automated generation without meaningful review"
+    "large number of test agent directories (0005-0039+) suggests complex orchestration overhead",
+    "truncated directory names indicate filesystem constraints or naming issues",
+    "multiple extra test files may indicate incomplete base test coverage",
+    "wave-based dispatch pattern could introduce synchronization complexity",
+    "go.mod stub suggests dependency management may be in flux"
   ],
   "suggestions": [
-    "consolidate scattered test files into a coherent test suite",
-    "investigate if agent-numbered directories are artifacts that should be cleaned up",
-    "add integration tests to complement the extensive unit test coverage",
-    "document the MCP handler responsibilities and API contract"
+    "consolidate agent test directories into a unified test matrix",
+    "document the GOrchestra orchestration workflow and agent lifecycle",
+    "review assertion coverage gaps that require extra test files",
+    "establish clear boundaries between internal packages (runner, schema, reporter, mcp)",
+    "consider integration test deduplication across agent directories"
   ]
 }
