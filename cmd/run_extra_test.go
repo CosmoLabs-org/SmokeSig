@@ -495,6 +495,202 @@ func TestLoadConfig_OtelCollectorOverride(t *testing.T) {
 	}
 }
 
+// TestWithOTelExport_Disabled returns original reporter when OTel is disabled.
+func TestWithOTelExport_Disabled(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{OTel: schema.OTelConfig{Enabled: false}}
+	result := withOTelExport(rep, cfg)
+	if result != rep {
+		t.Error("expected original reporter when OTel disabled, got different reporter")
+	}
+}
+
+// TestWithOTelExport_WithExportURL returns MultiReporter when ExportURL is set.
+func TestWithOTelExport_WithExportURL(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{
+		Project: "test-svc",
+		OTel: schema.OTelConfig{
+			Enabled:   true,
+			ExportURL: "http://localhost:4318/v1/traces",
+		},
+	}
+	result := withOTelExport(rep, cfg)
+	if _, ok := result.(*reporter.MultiReporter); !ok {
+		t.Fatalf("expected *MultiReporter, got %T", result)
+	}
+}
+
+// TestWithOTelExport_JaegerAutoAppend auto-appends /v1/traces to JaegerURL.
+func TestWithOTelExport_JaegerAutoAppend(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{
+		Project: "test-svc",
+		OTel: schema.OTelConfig{
+			Enabled:   true,
+			JaegerURL: "http://jaeger:16686",
+		},
+	}
+	result := withOTelExport(rep, cfg)
+	if _, ok := result.(*reporter.MultiReporter); !ok {
+		t.Fatalf("expected *MultiReporter, got %T", result)
+	}
+}
+
+// TestWithOTelExport_InvalidURL returns original reporter when URL is invalid.
+func TestWithOTelExport_InvalidURL(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{
+		Project: "test-svc",
+		OTel: schema.OTelConfig{
+			Enabled:   true,
+			ExportURL: "://invalid",
+		},
+	}
+	result := withOTelExport(rep, cfg)
+	if result != rep {
+		t.Error("expected original reporter when URL is invalid, got different reporter")
+	}
+}
+
+// TestWithOTelExport_NoURLs returns original when neither ExportURL nor JaegerURL set.
+func TestWithOTelExport_NoURLs(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{
+		OTel: schema.OTelConfig{Enabled: true},
+	}
+	result := withOTelExport(rep, cfg)
+	if result != rep {
+		t.Error("expected original reporter when no URLs configured, got different reporter")
+	}
+}
+
+// TestBuildReporter_Terminal returns a single terminal reporter for "terminal" format.
+func TestBuildReporter_Terminal(t *testing.T) {
+	verbosity = reporter.VerbosityNormal
+	cfg := &schema.SmokeConfig{}
+	rep, closeAll, err := buildReporter("terminal", cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeAll()
+	if rep == nil {
+		t.Fatal("expected non-nil reporter")
+	}
+	// Should NOT be a MultiReporter (single format = unwrapped)
+	if _, ok := rep.(*reporter.MultiReporter); ok {
+		t.Error("single format should not wrap in MultiReporter")
+	}
+}
+
+// TestBuildReporter_JSON returns a reporter for "json" format.
+func TestBuildReporter_JSON(t *testing.T) {
+	verbosity = reporter.VerbosityNormal
+	cfg := &schema.SmokeConfig{}
+	rep, closeAll, err := buildReporter("json", cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeAll()
+	if rep == nil {
+		t.Fatal("expected non-nil reporter")
+	}
+}
+
+// TestBuildReporter_MultiFormat returns a MultiReporter for comma-separated formats.
+func TestBuildReporter_MultiFormat(t *testing.T) {
+	verbosity = reporter.VerbosityNormal
+	cfg := &schema.SmokeConfig{}
+	rep, closeAll, err := buildReporter("terminal,json", cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeAll()
+	if _, ok := rep.(*reporter.MultiReporter); !ok {
+		t.Fatalf("expected *MultiReporter for multi-format, got %T", rep)
+	}
+}
+
+// TestBuildReporter_InvalidFormat returns an error for unknown formats.
+func TestBuildReporter_InvalidFormat(t *testing.T) {
+	cfg := &schema.SmokeConfig{}
+	_, _, err := buildReporter("xml", cfg)
+	if err == nil {
+		t.Fatal("expected error for invalid format, got nil")
+	}
+}
+
+// TestWithPushReport_NoURL returns original reporter when reportURL is empty.
+func TestWithPushReport_NoURL(t *testing.T) {
+	reportURL = ""
+	rep := silentReporter()
+	result := withPushReport(rep)
+	if result != rep {
+		t.Error("expected original reporter when no report URL, got different reporter")
+	}
+}
+
+// TestWithPushReport_PushReporter wraps with PushReporter when URL set without webhook format.
+func TestWithPushReport_PushReporter(t *testing.T) {
+	origURL := reportURL
+	origKey := reportAPIKey
+	origFmt := webhookFormat
+	origOn := webhookOn
+	reportURL = "http://localhost:9090/results"
+	reportAPIKey = "test-key"
+	webhookFormat = ""
+	webhookOn = "failure"
+	defer func() {
+		reportURL = origURL
+		reportAPIKey = origKey
+		webhookFormat = origFmt
+		webhookOn = origOn
+	}()
+
+	rep := silentReporter()
+	result := withPushReport(rep)
+	if _, ok := result.(*reporter.MultiReporter); !ok {
+		t.Fatalf("expected *MultiReporter, got %T", result)
+	}
+}
+
+// TestWithPushReport_WebhookReporter wraps with WebhookReporter when webhook-format is set.
+func TestWithPushReport_WebhookReporter(t *testing.T) {
+	origURL := reportURL
+	origKey := reportAPIKey
+	origFmt := webhookFormat
+	origOn := webhookOn
+	reportURL = "http://localhost:9090/hooks"
+	reportAPIKey = "wh-key"
+	webhookFormat = "slack"
+	webhookOn = "always"
+	defer func() {
+		reportURL = origURL
+		reportAPIKey = origKey
+		webhookFormat = origFmt
+		webhookOn = origOn
+	}()
+
+	rep := silentReporter()
+	result := withPushReport(rep)
+	if _, ok := result.(*reporter.MultiReporter); !ok {
+		t.Fatalf("expected *MultiReporter, got %T", result)
+	}
+}
+
+// TestWithPushReport_InvalidURL returns original reporter when URL is invalid.
+func TestWithPushReport_InvalidURL(t *testing.T) {
+	origURL := reportURL
+	reportURL = "://not-a-url"
+	defer func() { reportURL = origURL }()
+
+	rep := silentReporter()
+	result := withPushReport(rep)
+	if result != rep {
+		t.Error("expected original reporter for invalid URL, got different reporter")
+	}
+}
+
 // TestTraceHealth_PersistsAcrossRunners verifies that a shared TraceHealthTracker
 // accumulates results across multiple Runner instances (simulating watch cycles).
 func TestTraceHealth_PersistsAcrossRunners(t *testing.T) {
