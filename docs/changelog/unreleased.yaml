@@ -20,8 +20,17 @@ entries:
         - description: Stack-aware observation via detector integration — portless-first port detection and stack-specific HTTP probe paths (FEAT-046)
           source: manual
           date: 2026-05-26T15:40:16.965464-03:00
+        - description: Interactive TUI mode with Bubbletea (--tui flag, -tags tui build tag)
+          source: manual
+          date: 2026-05-29T04:47:49.356931-03:00
+        - description: Runner.RunSingle method for single-test re-execution
+          source: manual
+          date: 2026-05-29T04:47:49.402012-03:00
     fixed: []
-    changed: []
+    changed:
+        - description: Test coverage improved from 75% to 88.5% across all packages
+          source: manual
+          date: 2026-05-29T04:47:49.446908-03:00
     deprecated: []
     removed: []
     security: []
