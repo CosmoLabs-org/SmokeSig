@@ -1,38 +1,35 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:35:04.418042-03:00",
-  "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:35:04.418043-03:00",
-  "last_analyzed_commit": "bd9893e7577a09baab03f5552c41b5c88ac8051a",
-  "summary": "Go-based test orchestration framework with agent-driven development, MCP handlers, schema validation, and a TUI interface using Bubbletea",
+  "generated_at": "2026-05-29T03:47:30.007386-03:00",
+  "generated_by": "glm-5-turbo",
+  "expires_at": "2026-05-30T03:47:30.007386-03:00",
+  "last_analyzed_commit": "7d936521665bac580d24be314f9b47be696e7a7d",
+  "summary": "A Go-based monolithic project orchestrating AI agents to generate and manage test coverage for a runner, schema, and MCP handler system.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
+    "internal/mcp/handlers.go",
     "internal/runner/runner_test.go",
     "internal/runner/assertion_test.go",
-    "internal/mcp/handlers.go",
-    "cmd/run_extra_test.go"
+    "internal/schema/schema_extra_test.go"
   ],
   "patterns": [
-    "agent-based orchestration (glm-agents numbered sequence)",
+    "test-driven development",
+    "agent-based code generation orchestration",
     "command pattern (cmd/ directory structure)",
-    "test-driven development (extensive _test.go files)",
-    "reporter pattern (webhook, push, multi-reporter)",
-    "schema validation layer",
-    "TUI with Bubbletea framework"
+    "dependency injection (wire)"
   ],
   "concerns": [
-    "high number of agent directories (42+) suggests iterative/generative development with potential duplication",
-    "fragmented test files across multiple agent directories may indicate unstable architecture",
-    "staged and untracked files suggest incomplete synchronization",
-    "rapid agent iteration (0041, 0042) may be accumulating technical debt"
+    "highly fragmented test generation via external agents (GOrchestra/glm-agents) may lead to inconsistent test quality",
+    "large number of *_extra_test.go files suggests potential test duplication or scattered coverage",
+    "uncommitted modified files (6 modified, 1 staged) indicates unstable working state",
+    "deep nesting of agent-generated directories adds repository bloat"
   ],
   "suggestions": [
-    "consolidate agent directories into a cohesive test suite to reduce duplication",
-    "establish stable interfaces between runner, reporter, and schema packages before further extension",
-    "add integration tests that validate the full pipeline end-to-end",
-    "document the agent numbering convention and purpose for maintainability",
-    "review assertion wiring for consistency across test files"
+    "consolidate extra tests into standard test files to reduce fragmentation",
+    "evaluate if the GOrchestra agent output can be squashed or archived instead of kept in the main tree",
+    "commit or stash the current working tree changes to stabilize the branch",
+    "focus on the core runner and MCP handler logic as the primary source of truth"
   ]
 }

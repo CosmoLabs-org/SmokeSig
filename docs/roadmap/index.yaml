@@ -1,6 +1,6 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-05-28T23:34:33.544408-03:00
+last_updated: 2026-05-29T01:07:00.2678-03:00
 next_id: 92
 items:
     - id: ROAD-091
@@ -35,7 +35,7 @@ items:
       created_at: 2026-05-15T15:06:30.856523-03:00
     - id: ROAD-085
       title: Interactive TUI with Bubbletea — real-time test results, filtering, scrollable output
-      status: planned
+      status: promoted
       priority: 40
       parent: ROAD-081
       has_plan: true
@@ -75,7 +75,7 @@ items:
       created_at: 2026-04-30T02:49:19.438118-03:00
     - id: ROAD-077
       title: 'Gemini Ecosystem Feedback — Phase 1: Quick Wins'
-      status: exploring
+      status: promoted
       created_at: 2026-04-30T02:49:19.251599-03:00
     - id: ROAD-076
       title: Kubernetes resource assertion

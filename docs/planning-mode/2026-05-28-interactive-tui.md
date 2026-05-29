@@ -1,26 +1,35 @@
 ---
-title: "Interactive TUI with Bubbletea — Implementation Plan"
-created: "2026-05-28T02:32:00-03:00"
-status: READY
-tags: [tui, bubbletea, implementation]
 brainstorm_ref: docs/brainstorming/2026-05-28-interactive-tui.md
-issue: FEAT-051
-roadmap: ROAD-085
+completed: "2026-05-29"
+created: "2026-05-28T02:32:00-03:00"
 deliverables:
-  - id: P-01
-    title: "Add Bubbletea + Bubbles dependencies to go.mod"
-  - id: P-02
-    title: "Runner.RunSingle method for single-test re-execution"
-  - id: P-03
-    title: "TUI model with full Update/View cycle"
-  - id: P-04
-    title: "Reporter adapter bridging runner events to tea.Msg"
-  - id: P-05
-    title: "Lipgloss styles and key bindings"
-  - id: P-06
-    title: "Build-tagged cmd wiring + stub"
-  - id: P-07
-    title: "Model unit tests for all interactive features"
+    - id: P-01
+      title: Add Bubbletea + Bubbles dependencies to go.mod
+    - id: P-02
+      title: Runner.RunSingle method for single-test re-execution
+    - id: P-03
+      title: TUI model with full Update/View cycle
+    - id: P-04
+      title: Reporter adapter bridging runner events to tea.Msg
+    - id: P-05
+      title: Lipgloss styles and key bindings
+    - id: P-06
+      title: Build-tagged cmd wiring + stub
+    - id: P-07
+      title: Model unit tests for all interactive features
+goals_completed: 0
+goals_total: 0
+issue: FEAT-051
+related_prompts: []
+requires_reading: []
+roadmap: ROAD-085
+schema_version: 1
+status: COMPLETED
+tags:
+    - tui
+    - bubbletea
+    - implementation
+title: Interactive TUI with Bubbletea — Implementation Plan
 ---
 
 # Interactive TUI with Bubbletea — Implementation Plan
