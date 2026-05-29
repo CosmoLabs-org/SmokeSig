@@ -1,6 +1,6 @@
 version: "1.0"
 project: SmokeSig
-last_updated: 2026-05-26T14:33:25.816931-03:00
+last_updated: 2026-05-27T15:32:39.826026-03:00
 next_bug_id: 13
 next_feat_id: 54
 next_task_id: 2
@@ -250,7 +250,7 @@ issues:
       created_at: 2026-04-30T02:51:30.536276-03:00
     - id: FEAT-046
       type: feature
-      status: open
+      status: done
       title: Detector-observer integration (BR-15)
       created_at: 2026-04-30T02:51:30.537901-03:00
     - id: FEAT-047

@@ -1,12 +1,13 @@
 {
-  "hash": "d16026a7c8dffc59de41741feafb32305a33d44edf3b77edd0503b6479f0a081",
-  "project_name": "_glm-agent-0034-hints-tests",
+  "hash": "a1afb3bb35d7f452074df3d6d99e47109e126881c9ac406125871f5a58d19362",
+  "project_name": "SmokeSig",
   "language": "go",
   "framework": "cli",
   "directories": [
     "ClaudeDesktop",
     "GOrchestra",
     "GeminiAI",
+    "bin",
     "cmd",
     "docs",
     "examples",
@@ -27,5 +28,5 @@
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-26T14:34:08.136859-03:00"
+  "generated_at": "2026-05-26T17:40:53.166017-03:00"
 }
