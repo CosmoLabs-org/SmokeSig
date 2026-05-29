@@ -1,36 +1,35 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:08:06.120064-03:00",
+  "generated_at": "2026-05-29T00:09:25.46288-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:08:06.120064-03:00",
-  "last_analyzed_commit": "3c76a198e623f2a9656a80a1498ba1be4f53c30b",
-  "summary": "Go-based testing and orchestration framework with modular internal packages for assertions, schema validation, test running, MCP handling, and reporting, developed through automated agent-driven sessions.",
-  "architecture": "monolith with modular internal packages",
+  "expires_at": "2026-05-30T00:09:25.46288-03:00",
+  "last_analyzed_commit": "5f43ae98ac2a76f3d0ea66cab9c05e18a72fb182",
+  "summary": "Go test orchestration framework with modular internal packages for running assertions, schema validation, reporting, and MCP handling, managed through numbered agent-based workflows",
+  "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/mcp/handlers.go",
-    "internal/schema/schema_extra_test.go",
     "internal/runner/runner_test.go",
-    "internal/reporter/webhook_test.go"
+    "internal/runner/assertion_test.go",
+    "internal/schema/schema_extra_test.go",
+    "internal/mcp/handlers.go"
   ],
   "patterns": [
-    "agent-based task orchestration with numbered sessions",
-    "internal package encapsulation",
-    "extensive test coverage with extra test files per module",
-    "assertion wiring pattern",
-    "MCP (Model Context Protocol) handler integration"
+    "test-driven development",
+    "agent-based orchestration",
+    "modular internal packages",
+    "command pattern (cmd directory)"
   ],
   "concerns": [
-    "large number of agent session directories (GOrchestra/glm-agents/) suggesting heavy automated code generation",
-    "test files appear to outnumber source files potentially indicating test sprawl",
-    "truncated directory names in agent paths suggest filesystem or naming constraints",
-    "staged and untracked files indicate incomplete merge or work-in-progress"
+    "heavy test file proliferation across multiple agent directories",
+    "potential duplication between glm-agents subdirectories and root cmd/internal",
+    "agent metadata commits polluting git history",
+    "truncated directory names suggest filesystem or tooling constraints"
   ],
   "suggestions": [
-    "consolidate or archive completed glm-agent session directories to reduce repo noise",
-    "review generated test files for duplication and merge valuable tests into main test suites",
-    "add integration tests to validate runner, schema, and reporter interactions end-to-end",
-    "document the agent orchestration workflow and session numbering convention"
+    "consolidate glm-agents test files into the main internal packages to reduce duplication",
+    "separate agent orchestration metadata into a different tracking mechanism outside git",
+    "add integration tests to validate cross-module behavior",
+    "document the agent numbering scheme and purpose of each agent directory"
   ]
 }
