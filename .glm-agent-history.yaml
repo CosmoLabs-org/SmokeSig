@@ -203,3 +203,12 @@ entries:
       files_changed:
         - internal/audit/audit_test.go
       commit: 18d5992eb7ac1e204d30345a39e3fba8e771c6d0
+    - id: "0041"
+      task: Create TUI bubbletea model and reporter adapter in internal/tui/
+      started: 2026-05-29T00:13:49.338851-03:00
+      completed: 2026-05-29T00:20:10.340525-03:00
+      status: applied
+      files_changed:
+        - internal/tui/reporter.go
+        - internal/tui/model.go
+      commit: a8c86aef7af85ddd640af38e6de1855ca30e449e

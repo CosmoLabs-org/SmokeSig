@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:12:32.115691-03:00",
+  "generated_at": "2026-05-29T00:20:23.891843-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:12:32.115692-03:00",
-  "last_analyzed_commit": "486e8ef2d40e6d14175082b3e19b061add27db64",
-  "summary": "Go-based test orchestration framework with agent-driven validation, TUI interface, and MCP integration for running and reporting structured test suites",
-  "architecture": "modular monolith with agent-based orchestration",
+  "expires_at": "2026-05-30T00:20:23.891843-03:00",
+  "last_analyzed_commit": "a8c86aef7af85ddd640af38e6de1855ca30e449e",
+  "summary": "A Go-based test orchestration framework with modular runners, schema validation, and agent-driven test execution via GOrchestra.",
+  "architecture": "monolith (Go monorepo with modular internal packages)",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
@@ -15,26 +15,24 @@
     "internal/mcp/handlers.go"
   ],
   "patterns": [
-    "test-driven development with extensive extra test suites",
+    "test-driven development with extensive _test.go files",
     "command pattern via cmd/ directory structure",
-    "agent-based orchestration (GOrchestra with numbered agent directories)",
     "internal package encapsulation",
-    "reporter pattern for test output (webhook, push)",
-    "MCP (Model Context Protocol) handler integration",
-    "TUI with Bubble Tea framework"
+    "reporter pattern for output/webhook handling",
+    "assertion wiring for test validation",
+    "agent-based orchestration (GOrchestra)"
   ],
   "concerns": [
-    "large number of test agent directories (0005-0039+) suggests complex orchestration overhead",
-    "truncated directory names indicate filesystem constraints or naming issues",
-    "multiple extra test files may indicate incomplete base test coverage",
-    "wave-based dispatch pattern could introduce synchronization complexity",
-    "go.mod stub suggests dependency management may be in flux"
+    "large number of agent directories (0005-0019) suggests heavy automated generation with potential duplication",
+    "truncated directory names (e.g., internalschema-validatio) indicate filesystem or tooling constraints",
+    "test files appear to outnumber implementation files, possible over-testing or missing source files in listing",
+    "staging commits suggest work-in-progress orchestration that may not be production-stable"
   ],
   "suggestions": [
-    "consolidate agent test directories into a unified test matrix",
-    "document the GOrchestra orchestration workflow and agent lifecycle",
-    "review assertion coverage gaps that require extra test files",
-    "establish clear boundaries between internal packages (runner, schema, reporter, mcp)",
-    "consider integration test deduplication across agent directories"
+    "consolidate or document the GOrchestra agent directories to reduce clutter",
+    "review test coverage ratio to ensure implementation code is adequately represented",
+    "add integration tests to complement the extensive unit/extra tests",
+    "document the MCP handlers and webhook reporter interfaces for maintainability",
+    "consider extracting reporter and schema packages into separate modules if they grow"
   ]
 }

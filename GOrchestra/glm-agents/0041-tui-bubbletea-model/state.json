@@ -1,0 +1,16 @@
+{
+  "id": "0041",
+  "pid": 98759,
+  "tmux_session": "glm-0041",
+  "worktree_path": "/Users/gabstudio/PROJECTS/SmokeSig-worktrees/_glm-agent-0041-tui-bubbletea-model",
+  "branch": "_glm-agent-0041-tui-bubbletea-model",
+  "base_branch": "master",
+  "status": "done",
+  "started_at": "2026-05-29T00:13:49.338851-03:00",
+  "task": "Create TUI bubbletea model and reporter adapter in internal/tui/",
+  "exit_code": 0,
+  "idle_timeout": 120000000000,
+  "max_timeout": 1800000000000,
+  "on_done_executed": false,
+  "base_commit": "486e8ef2d40e6d14175082b3e19b061add27db64"
+}
