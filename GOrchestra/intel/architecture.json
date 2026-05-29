@@ -1,38 +1,36 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-28T23:35:08.735015-03:00",
+  "generated_at": "2026-05-29T00:08:06.120064-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-29T23:35:08.735016-03:00",
-  "last_analyzed_commit": "a8cb8e7728bb43246776b542a24f733a54202dc7",
-  "summary": "A Go-based test orchestration framework with modular internal packages for assertions, schema validation, reporting, and MCP integration, developed using an agent-driven parallel workflow.",
-  "architecture": "monolith (Go monorepo with modular internal packages)",
+  "expires_at": "2026-05-30T00:08:06.120064-03:00",
+  "last_analyzed_commit": "3c76a198e623f2a9656a80a1498ba1be4f53c30b",
+  "summary": "Go-based testing and orchestration framework with modular internal packages for assertions, schema validation, test running, MCP handling, and reporting, developed through automated agent-driven sessions.",
+  "architecture": "monolith with modular internal packages",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/runner/assertion_test.go",
-    "internal/runner/runner_test.go",
+    "internal/mcp/handlers.go",
     "internal/schema/schema_extra_test.go",
-    "internal/mcp/handlers.go"
+    "internal/runner/runner_test.go",
+    "internal/reporter/webhook_test.go"
   ],
   "patterns": [
-    "test-driven development (extensive test suites across multiple agents)",
-    "internal package encapsulation (standard Go layout)",
-    "agent-based orchestration (GOrchestra pattern for parallel task execution)",
-    "assertion/reporter separation of concerns",
+    "agent-based task orchestration with numbered sessions",
+    "internal package encapsulation",
+    "extensive test coverage with extra test files per module",
+    "assertion wiring pattern",
     "MCP (Model Context Protocol) handler integration"
   ],
   "concerns": [
-    "proliferation of agent directories (25+ agents) may indicate fragmented development without consolidation",
-    "truncated directory names (e.g., internalschema-validatio) suggest filesystem or tooling constraints",
-    "9 modified files with only 1 staged suggests incomplete or stalled work-in-progress",
-    "heavy test file count relative to source files may indicate over-testing or missing core implementation",
-    "scattered test files across multiple agent directories duplicate similar test patterns"
+    "large number of agent session directories (GOrchestra/glm-agents/) suggesting heavy automated code generation",
+    "test files appear to outnumber source files potentially indicating test sprawl",
+    "truncated directory names in agent paths suggest filesystem or naming constraints",
+    "staged and untracked files indicate incomplete merge or work-in-progress"
   ],
   "suggestions": [
-    "consolidate agent test directories into a unified test suite to reduce duplication",
-    "review and commit or stash the 9 modified files to maintain clean working state",
-    "document the GOrchestra agent orchestration pattern for contributor onboarding",
-    "evaluate if MCP handlers should be extracted into a separate package for clarity",
-    "add integration tests that validate cross-package interactions between runner, schema, and reporter"
+    "consolidate or archive completed glm-agent session directories to reduce repo noise",
+    "review generated test files for duplication and merge valuable tests into main test suites",
+    "add integration tests to validate runner, schema, and reporter interactions end-to-end",
+    "document the agent orchestration workflow and session numbering convention"
   ]
 }
