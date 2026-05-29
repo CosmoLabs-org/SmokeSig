@@ -1,0 +1,16 @@
+{
+  "id": "0042",
+  "pid": 5540,
+  "tmux_session": "glm-0042",
+  "worktree_path": "/Users/gabstudio/PROJECTS/SmokeSig-worktrees/_glm-agent-0042-run-tui-stub-tests",
+  "branch": "_glm-agent-0042-run-tui-stub-tests",
+  "base_branch": "master",
+  "status": "done",
+  "started_at": "2026-05-29T00:21:52.817506-03:00",
+  "task": "Create TUI cmd wiring (run_tui.go, run_tui_stub.go) and model unit tests",
+  "exit_code": 0,
+  "idle_timeout": 120000000000,
+  "max_timeout": 1800000000000,
+  "on_done_executed": false,
+  "base_commit": "af7e702578073eb9ec66e62629d27a4d1b341012"
+}

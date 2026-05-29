@@ -1,38 +1,38 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:20:52.645932-03:00",
+  "generated_at": "2026-05-29T00:35:04.418042-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:20:52.645933-03:00",
-  "last_analyzed_commit": "af7e702578073eb9ec66e62629d27a4d1b341012",
-  "summary": "A Go-based test orchestration framework using numbered agents to incrementally build and validate a testing infrastructure with TUI reporting and MCP handler support",
-  "architecture": "modular monorepo with agent-based orchestration",
+  "expires_at": "2026-05-30T00:35:04.418043-03:00",
+  "last_analyzed_commit": "bd9893e7577a09baab03f5552c41b5c88ac8051a",
+  "summary": "Go-based test orchestration framework with agent-driven development, MCP handlers, schema validation, and a TUI interface using Bubbletea",
+  "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
-    "internal/mcp/handlers.go",
+    "internal/runner/runner_test.go",
     "internal/runner/assertion_test.go",
-    "internal/schema/schema_extra_test.go",
+    "internal/mcp/handlers.go",
     "cmd/run_extra_test.go"
   ],
   "patterns": [
-    "agent-based orchestration with numbered agent directories",
-    "test-driven development with extensive extra test coverage",
-    "command pattern via cmd/ directory structure",
-    "internal package encapsulation",
-    "reporter pattern for output/webhook handling",
-    "TUI (Terminal User Interface) with bubbletea framework"
+    "agent-based orchestration (glm-agents numbered sequence)",
+    "command pattern (cmd/ directory structure)",
+    "test-driven development (extensive _test.go files)",
+    "reporter pattern (webhook, push, multi-reporter)",
+    "schema validation layer",
+    "TUI with Bubbletea framework"
   ],
   "concerns": [
-    "large number of agent directories (40+) may indicate fragmented development or experimentation",
-    "truncated directory names (e.g., internalschema-validatio) suggest filesystem limitations",
-    "heavy test file presence could indicate test code mixed with orchestration metadata",
-    "potential coupling between agent orchestration layer and core application logic"
+    "high number of agent directories (42+) suggests iterative/generative development with potential duplication",
+    "fragmented test files across multiple agent directories may indicate unstable architecture",
+    "staged and untracked files suggest incomplete synchronization",
+    "rapid agent iteration (0041, 0042) may be accumulating technical debt"
   ],
   "suggestions": [
-    "consolidate or archive completed agent directories to reduce clutter",
-    "document the agent numbering scheme and purpose of each agent wave",
-    "ensure clear separation between orchestration metadata and application source code",
-    "consider extracting the agent framework into a reusable tool",
-    "add integration tests that validate agent outputs holistically"
+    "consolidate agent directories into a cohesive test suite to reduce duplication",
+    "establish stable interfaces between runner, reporter, and schema packages before further extension",
+    "add integration tests that validate the full pipeline end-to-end",
+    "document the agent numbering convention and purpose for maintainability",
+    "review assertion wiring for consistency across test files"
   ]
 }

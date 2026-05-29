@@ -1,0 +1,10 @@
+{
+  "summary": "Created build-tagged cmd wiring files (run_tui_stub.go for !tui, run_tui.go for tui) and 9 model unit tests in internal/tui/model_test.go. Added TUI mode check in run.go. All tests pass, both build variants compile.",
+  "files_changed": [
+    "cmd/run_tui_stub.go",
+    "cmd/run_tui.go",
+    "cmd/run.go",
+    "internal/tui/model_test.go"
+  ],
+  "errors": []
+}

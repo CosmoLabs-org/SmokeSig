@@ -212,3 +212,14 @@ entries:
         - internal/tui/reporter.go
         - internal/tui/model.go
       commit: a8c86aef7af85ddd640af38e6de1855ca30e449e
+    - id: "0042"
+      task: Create TUI cmd wiring (run_tui.go, run_tui_stub.go) and model unit tests
+      started: 2026-05-29T00:21:52.817506-03:00
+      completed: 2026-05-29T00:34:45.831592-03:00
+      status: applied
+      files_changed:
+        - cmd/run_tui_stub.go
+        - cmd/run_tui.go
+        - cmd/run.go
+        - internal/tui/model_test.go
+      commit: bd9893e7577a09baab03f5552c41b5c88ac8051a

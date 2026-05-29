@@ -1,0 +1,15 @@
+id: "0042"
+task: "Create TUI cmd wiring (run_tui.go, run_tui_stub.go) and model unit tests"
+status: applied
+started: 2026-05-29T00:21:52-03:00
+completed: 2026-05-29T00:34:45-03:00
+duration: 12m53s
+exit_code: 0
+commit: bd9893e7577a09baab03f5552c41b5c88ac8051a
+branch: _glm-agent-0042-run-tui-stub-tests
+summary: "Created build-tagged cmd wiring files (run_tui_stub.go for !tui, run_tui.go for tui) and 9 model unit tests in internal/tui/model_test.go. Added TUI mode check in run.go. All tests pass, both build variants compile."
+files_changed:
+  - "cmd/run_tui_stub.go"
+  - "cmd/run_tui.go"
+  - "cmd/run.go"
+  - "internal/tui/model_test.go"
