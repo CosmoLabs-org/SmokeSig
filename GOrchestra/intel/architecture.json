@@ -1,37 +1,36 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:09:46.152018-03:00",
+  "generated_at": "2026-05-29T00:10:10.244797-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:09:46.152018-03:00",
-  "last_analyzed_commit": "f619d7b6756d96b6297678a8139cbeb0f45f9639",
-  "summary": "A Go testing and validation framework with MCP integration, using automated agents (GOrchestra) to systematically expand test coverage across internal packages.",
-  "architecture": "monolith",
+  "expires_at": "2026-05-30T00:10:10.244797-03:00",
+  "last_analyzed_commit": "443438eb5ef10f48882ea4f7594cd46e62be0bbf",
+  "summary": "Go-based test orchestration framework with agent-driven validation, schema checking, and MCP handler support for automated test suite management",
+  "architecture": "monolith with modular internal packages",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/runner/assertion_test.go",
-    "internal/runner/runner_test.go",
     "internal/schema/schema_extra_test.go",
-    "internal/mcp/handlers.go"
+    "internal/mcp/handlers.go",
+    "cmd/run_extra_test.go"
   ],
   "patterns": [
-    "standard Go project layout (cmd/internal separation)",
-    "test-driven development (extensive test coverage efforts)",
-    "agent-based automation (GOrchestra agents generating tests)",
-    "reporter pattern (webhook/reporter modules)",
-    "MCP handler pattern (Model Context Protocol integration)"
+    "agent-based orchestration with numbered test suites",
+    "internal package encapsulation (runner, schema, reporter, mcp)",
+    "assertion wiring for test validation",
+    "webhook-based reporting",
+    "MCP (Model Context Protocol) handler integration"
   ],
   "concerns": [
-    "heavy reliance on automated agents (glm-agents) for test generation may produce low-quality or redundant tests",
-    "large number of agent directories (36+) suggests fragmented or incremental development without cohesive refactoring",
-    "potential tech debt from accumulated auto-generated test files without manual curation",
-    "internal package structure may be growing complex without clear module boundaries"
+    "large number of agent directories (0005-0037+) suggests heavy test proliferation without clear organization",
+    "truncated directory names in agent folders indicate filesystem or naming constraints",
+    "test files appear to outnumber source files significantly",
+    "metadata commits interleaved with test commits suggest automated agent workflow generating noise"
   ],
   "suggestions": [
-    "consolidate and review auto-generated tests for quality and relevance",
-    "consider extracting internal packages into separate modules if complexity grows",
-    "document the GOrchestra agent system and its conventions for maintainability",
-    "establish code review gates for agent-generated contributions",
-    "audit test coverage to ensure meaningful coverage rather than volume"
+    "consolidate agent test directories into a structured test matrix rather than flat numbered folders",
+    "document the agent orchestration workflow and numbering scheme",
+    "review test-to-code ratio for coverage efficiency",
+    "consider grouping related agent tests by feature area instead of sequential numbering"
   ]
 }
