@@ -1,0 +1,16 @@
+{
+  "id": "0045",
+  "pid": 35548,
+  "tmux_session": "glm-0045",
+  "worktree_path": "/Users/gabstudio/PROJECTS/SmokeSig-worktrees/_glm-agent-0045-run-extra-tests",
+  "branch": "_glm-agent-0045-run-extra-tests",
+  "base_branch": "master",
+  "status": "done",
+  "started_at": "2026-05-29T03:48:11.888147-03:00",
+  "task": "Add tests for cmd/run.go: withConfigNotifications and handleBaseline.\n\nwithConfigNotifications (13.3%): This function wraps a reporter with\nwebhook notifications from config. Read the function to understand what\nit does, then test:\n- Config with no notifications → returns original reporter\n- Config with one notification (format: json, on: always) → returns wrapped reporter\n- Config with invalid URL → returns original reporter (handles gracefully)\n\nhandleBaseline (0%): This function compares test results against stored\nbaselines. Read the function signature and test:\n- No baseline flag set → returns nil (no-op)\n- Baseline flag set with no prior baseline → creates new baseline file\n- Baseline flag set with existing baseline → compares and reports\n\nUse t.TempDir() for baseline storage. Set the package-level vars\n(baselineEnabled, baselineThreshold) before calling.\n\nAdd tests to cmd/run_extra_test.go (append to it).\n\nVerify:\n  go test ./cmd/ -v -run \"TestWithConfigNotifications|TestHandleBaseline\"\n  go test -cover ./cmd/\n\nCommit via: ccs commit-batch --message \"test(cmd): add tests for withConfigNotifications and handleBaseline\"\n",
+  "exit_code": 0,
+  "idle_timeout": 120000000000,
+  "max_timeout": 1800000000000,
+  "on_done_executed": false,
+  "base_commit": "7d936521665bac580d24be314f9b47be696e7a7d"
+}

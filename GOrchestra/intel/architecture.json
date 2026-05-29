@@ -1,35 +1,36 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T03:47:30.007386-03:00",
+  "generated_at": "2026-05-29T03:53:34.52661-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-30T03:47:30.007386-03:00",
-  "last_analyzed_commit": "7d936521665bac580d24be314f9b47be696e7a7d",
-  "summary": "A Go-based monolithic project orchestrating AI agents to generate and manage test coverage for a runner, schema, and MCP handler system.",
-  "architecture": "monolith",
+  "expires_at": "2026-05-30T03:53:34.52661-03:00",
+  "last_analyzed_commit": "bc83f94ef419504ce92f3e07c4dbe3352eb8b145",
+  "summary": "A Go-based CLI tool orchestrated by GLM agents to systematically generate and manage test coverage for runner, schema, and reporting modules.",
+  "architecture": "monolithic CLI application with internal modular packages",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/mcp/handlers.go",
     "internal/runner/runner_test.go",
-    "internal/runner/assertion_test.go",
+    "cmd/run_extra_test.go",
     "internal/schema/schema_extra_test.go"
   ],
   "patterns": [
-    "test-driven development",
-    "agent-based code generation orchestration",
-    "command pattern (cmd/ directory structure)",
-    "dependency injection (wire)"
+    "Command Pattern (cmd/ directory structure)",
+    "Test-Driven Development (high volume of _test.go files and agent-driven test generation)",
+    "Internal Package Encapsulation (Go idiom)",
+    "Webhook Reporter Pattern",
+    "MCP (Model Context Protocol) Handler Pattern"
   ],
   "concerns": [
-    "highly fragmented test generation via external agents (GOrchestra/glm-agents) may lead to inconsistent test quality",
-    "large number of *_extra_test.go files suggests potential test duplication or scattered coverage",
-    "uncommitted modified files (6 modified, 1 staged) indicates unstable working state",
-    "deep nesting of agent-generated directories adds repository bloat"
+    "Over-reliance on automated agent-generated tests (glm-agents directories) may lead to brittle or superficial test coverage",
+    "Scattered test files across multiple agent-generated directories make maintenance and consolidation difficult",
+    "Untracked and staged files in git status suggest incomplete or interrupted workflow",
+    "Potential test duplication between root test files and agent-generated test files"
   ],
   "suggestions": [
-    "consolidate extra tests into standard test files to reduce fragmentation",
-    "evaluate if the GOrchestra agent output can be squashed or archived instead of kept in the main tree",
-    "commit or stash the current working tree changes to stabilize the branch",
-    "focus on the core runner and MCP handler logic as the primary source of truth"
+    "Consolidate agent-generated tests into the main test files to reduce clutter and duplication",
+    "Review and validate the quality of automated test assertions in runner and schema packages",
+    "Commit or stash the pending changes to maintain a clean working tree",
+    "Focus on core logic in runner.go and MCP handlers rather than expanding test surface area"
   ]
 }

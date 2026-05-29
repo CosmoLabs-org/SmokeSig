@@ -1,0 +1,5 @@
+{
+  "summary": "Added 6 tests for withConfigNotifications (3 tests) and handleBaseline (3 tests) to cmd/run_extra_test.go. All tests pass, cmd coverage 48.7%.",
+  "files_changed": ["cmd/run_extra_test.go"],
+  "errors": []
+}

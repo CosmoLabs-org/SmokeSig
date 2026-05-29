@@ -1,0 +1,284 @@
+diff --git a/.gorchestra/fingerprint-cache.json b/.gorchestra/fingerprint-cache.json
+index 992311e..a72736e 100644
+--- a/.gorchestra/fingerprint-cache.json
++++ b/.gorchestra/fingerprint-cache.json
+@@ -1,6 +1,6 @@
+ {
+-  "hash": "267d0291aa57f09b26223984aca8247434c4c0d19d5377298904f9d38207f165",
+-  "project_name": "SmokeSig",
++  "hash": "4537a27f0c5ffdafac05d20f093e452d39c428e462c863aa04cd2ca8498fe7ce",
++  "project_name": "_glm-agent-0045-run-extra-tests",
+   "language": "go",
+   "framework": "cli",
+   "directories": [
+@@ -27,5 +27,5 @@
+   ],
+   "has_tests": true,
+   "has_ci": true,
+-  "generated_at": "2026-05-29T00:10:48.997041-03:00"
++  "generated_at": "2026-05-29T03:48:07.100478-03:00"
+ }
+\ No newline at end of file
+diff --git a/.version-registry.json b/.version-registry.json
+index 215ed7c..355f16f 100644
+--- a/.version-registry.json
++++ b/.version-registry.json
+@@ -1,13 +1,13 @@
+ {
+   "repository": {
+     "version": "0.23.0",
+-    "build": 614,
++    "build": 617,
+     "name": "SmokeSig",
+-    "lastUpdated": "2026-05-29T06:53:25Z",
++    "lastUpdated": "2026-05-29T06:47:22Z",
+     "derived_from": "git tag"
+   },
+   "metadata": {
+-    "last_synced": "2026-05-29T01:23:35Z",
++    "last_synced": "2026-05-29T06:48:13Z",
+     "sync_method": "git_history_analysis"
+   },
+   "releaseContext": {
+diff --git a/GOrchestra/intel/architecture.json b/GOrchestra/intel/architecture.json
+index 3654058..7724189 100644
+--- a/GOrchestra/intel/architecture.json
++++ b/GOrchestra/intel/architecture.json
+@@ -1,35 +1,38 @@
+ {
+   "version": "1.0",
+-  "generated_at": "2026-05-29T03:47:30.007386-03:00",
+-  "generated_by": "glm-5-turbo",
+-  "expires_at": "2026-05-30T03:47:30.007386-03:00",
+-  "last_analyzed_commit": "7d936521665bac580d24be314f9b47be696e7a7d",
+-  "summary": "A Go-based monolithic project orchestrating AI agents to generate and manage test coverage for a runner, schema, and MCP handler system.",
++  "generated_at": "2026-05-29T00:35:04.418042-03:00",
++  "generated_by": "glm-5.1",
++  "expires_at": "2026-05-30T00:35:04.418043-03:00",
++  "last_analyzed_commit": "bd9893e7577a09baab03f5552c41b5c88ac8051a",
++  "summary": "Go-based test orchestration framework with agent-driven development, MCP handlers, schema validation, and a TUI interface using Bubbletea",
+   "architecture": "monolith",
+   "primary_language": "Go",
+   "hot_files": [
+     "internal/runner/runner.go",
+-    "internal/mcp/handlers.go",
+     "internal/runner/runner_test.go",
+     "internal/runner/assertion_test.go",
+-    "internal/schema/schema_extra_test.go"
++    "internal/mcp/handlers.go",
++    "cmd/run_extra_test.go"
+   ],
+   "patterns": [
+-    "test-driven development",
+-    "agent-based code generation orchestration",
++    "agent-based orchestration (glm-agents numbered sequence)",
+     "command pattern (cmd/ directory structure)",
+-    "dependency injection (wire)"
++    "test-driven development (extensive _test.go files)",
++    "reporter pattern (webhook, push, multi-reporter)",
++    "schema validation layer",
++    "TUI with Bubbletea framework"
+   ],
+   "concerns": [
+-    "highly fragmented test generation via external agents (GOrchestra/glm-agents) may lead to inconsistent test quality",
+-    "large number of *_extra_test.go files suggests potential test duplication or scattered coverage",
+-    "uncommitted modified files (6 modified, 1 staged) indicates unstable working state",
+-    "deep nesting of agent-generated directories adds repository bloat"
++    "high number of agent directories (42+) suggests iterative/generative development with potential duplication",
++    "fragmented test files across multiple agent directories may indicate unstable architecture",
++    "staged and untracked files suggest incomplete synchronization",
++    "rapid agent iteration (0041, 0042) may be accumulating technical debt"
+   ],
+   "suggestions": [
+-    "consolidate extra tests into standard test files to reduce fragmentation",
+-    "evaluate if the GOrchestra agent output can be squashed or archived instead of kept in the main tree",
+-    "commit or stash the current working tree changes to stabilize the branch",
+-    "focus on the core runner and MCP handler logic as the primary source of truth"
++    "consolidate agent directories into a cohesive test suite to reduce duplication",
++    "establish stable interfaces between runner, reporter, and schema packages before further extension",
++    "add integration tests that validate the full pipeline end-to-end",
++    "document the agent numbering convention and purpose for maintainability",
++    "review assertion wiring for consistency across test files"
+   ]
+ }
+\ No newline at end of file
+diff --git a/GOrchestra/intel/status.json b/GOrchestra/intel/status.json
+index fde0f47..899e3d1 100644
+--- a/GOrchestra/intel/status.json
++++ b/GOrchestra/intel/status.json
+@@ -1,8 +1,8 @@
+ {
+   "version": "1.0",
+-  "updated_at": "2026-05-28T22:23:34.148613-03:00",
+-  "expires_at": "2026-05-28T23:23:34.148613-03:00",
+-  "project_path": "~/PROJECTS/SmokeSig",
++  "updated_at": "2026-05-29T03:48:08.834647-03:00",
++  "expires_at": "2026-05-29T04:48:08.834647-03:00",
++  "project_path": "~/PROJECTS/SmokeSig-worktrees/_glm-agent-0045-run-extra-tests",
+   "context": "",
+-  "glm_enhanced": true
++  "glm_enhanced": false
+ }
+\ No newline at end of file
+diff --git a/docs/issues.yaml b/docs/issues.yaml
+index 404c4ae..bd83803 100644
+--- a/docs/issues.yaml
++++ b/docs/issues.yaml
+@@ -1,6 +1,6 @@
+ version: "1.0"
+ project: SmokeSig
+-last_updated: 2026-05-29T00:36:07.705381-03:00
++last_updated: 2026-05-28T23:24:43.911427-03:00
+ next_bug_id: 13
+ next_feat_id: 55
+ next_task_id: 2
+@@ -280,7 +280,7 @@ issues:
+       created_at: 2026-04-30T02:51:30.548221-03:00
+     - id: FEAT-051
+       type: feature
+-      status: closed
++      status: open
+       title: Interactive TUI test runner (BR-09)
+       created_at: 2026-04-30T02:51:30.550114-03:00
+     - id: FEAT-052
+diff --git a/docs/issues/FEAT-051.yaml b/docs/issues/FEAT-051.yaml
+index 0db678e..afd604c 100644
+--- a/docs/issues/FEAT-051.yaml
++++ b/docs/issues/FEAT-051.yaml
+@@ -1,14 +1,11 @@
+ id: FEAT-051
+ type: feature
+ created_at: 2026-04-30T02:51:30.550114-03:00
+-updated_at: 2026-05-29T00:36:07.701341-03:00
++updated_at: 2026-04-30T02:52:04.442032-03:00
+ source: local
+-status: closed
++status: open
+ origin:
+     session: 2027
+ title: Interactive TUI test runner (BR-09)
+ description: 'Bubbletea-based interactive mode: navigate results, expand logs, re-run individual failures. Opt-in build tag (-tags tui) to preserve minimal-dep philosophy. ~400 lines.'
+ brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+-revisions:
+-    - date: "2026-05-29"
+-      action: closed
+diff --git a/docs/planning-mode/2026-05-28-interactive-tui.md b/docs/planning-mode/2026-05-28-interactive-tui.md
+index 06f09ae..241213e 100644
+--- a/docs/planning-mode/2026-05-28-interactive-tui.md
++++ b/docs/planning-mode/2026-05-28-interactive-tui.md
+@@ -1,35 +1,26 @@
+ ---
+-brainstorm_ref: docs/brainstorming/2026-05-28-interactive-tui.md
+-completed: "2026-05-29"
++title: "Interactive TUI with Bubbletea — Implementation Plan"
+ created: "2026-05-28T02:32:00-03:00"
+-deliverables:
+-    - id: P-01
+-      title: Add Bubbletea + Bubbles dependencies to go.mod
+-    - id: P-02
+-      title: Runner.RunSingle method for single-test re-execution
+-    - id: P-03
+-      title: TUI model with full Update/View cycle
+-    - id: P-04
+-      title: Reporter adapter bridging runner events to tea.Msg
+-    - id: P-05
+-      title: Lipgloss styles and key bindings
+-    - id: P-06
+-      title: Build-tagged cmd wiring + stub
+-    - id: P-07
+-      title: Model unit tests for all interactive features
+-goals_completed: 0
+-goals_total: 0
++status: READY
++tags: [tui, bubbletea, implementation]
++brainstorm_ref: docs/brainstorming/2026-05-28-interactive-tui.md
+ issue: FEAT-051
+-related_prompts: []
+-requires_reading: []
+ roadmap: ROAD-085
+-schema_version: 1
+-status: COMPLETED
+-tags:
+-    - tui
+-    - bubbletea
+-    - implementation
+-title: Interactive TUI with Bubbletea — Implementation Plan
++deliverables:
++  - id: P-01
++    title: "Add Bubbletea + Bubbles dependencies to go.mod"
++  - id: P-02
++    title: "Runner.RunSingle method for single-test re-execution"
++  - id: P-03
++    title: "TUI model with full Update/View cycle"
++  - id: P-04
++    title: "Reporter adapter bridging runner events to tea.Msg"
++  - id: P-05
++    title: "Lipgloss styles and key bindings"
++  - id: P-06
++    title: "Build-tagged cmd wiring + stub"
++  - id: P-07
++    title: "Model unit tests for all interactive features"
+ ---
+ 
+ # Interactive TUI with Bubbletea — Implementation Plan
+diff --git a/docs/roadmap/index.yaml b/docs/roadmap/index.yaml
+index fdf3338..88d195c 100644
+--- a/docs/roadmap/index.yaml
++++ b/docs/roadmap/index.yaml
+@@ -1,6 +1,6 @@
+ version: "1.0"
+ project: cosmo-smoke
+-last_updated: 2026-05-29T01:07:00.2678-03:00
++last_updated: 2026-05-28T23:34:33.544408-03:00
+ next_id: 92
+ items:
+     - id: ROAD-091
+@@ -35,7 +35,7 @@ items:
+       created_at: 2026-05-15T15:06:30.856523-03:00
+     - id: ROAD-085
+       title: Interactive TUI with Bubbletea — real-time test results, filtering, scrollable output
+-      status: promoted
++      status: planned
+       priority: 40
+       parent: ROAD-081
+       has_plan: true
+@@ -75,7 +75,7 @@ items:
+       created_at: 2026-04-30T02:49:19.438118-03:00
+     - id: ROAD-077
+       title: 'Gemini Ecosystem Feedback — Phase 1: Quick Wins'
+-      status: promoted
++      status: exploring
+       created_at: 2026-04-30T02:49:19.251599-03:00
+     - id: ROAD-076
+       title: Kubernetes resource assertion
+diff --git a/docs/roadmap/items/ROAD-077.yaml b/docs/roadmap/items/ROAD-077.yaml
+index 91a9f23..9fc22fc 100644
+--- a/docs/roadmap/items/ROAD-077.yaml
++++ b/docs/roadmap/items/ROAD-077.yaml
+@@ -1,9 +1,9 @@
+ id: ROAD-077
+ created_at: 2026-04-30T02:49:19.251599-03:00
+-updated_at: 2026-05-29T01:07:00.265432-03:00
++updated_at: 2026-04-30T02:51:52.904167-03:00
+ title: 'Gemini Ecosystem Feedback — Phase 1: Quick Wins'
+ description: File size assertions, test chaining + data extraction, GitHub Actions native output. ~750 lines.
+-status: promoted
++status: exploring
+ priority: 90
+ tags:
+     - area:assertions
+diff --git a/docs/roadmap/items/ROAD-085.yaml b/docs/roadmap/items/ROAD-085.yaml
+index db9615d..0cf9bdb 100644
+--- a/docs/roadmap/items/ROAD-085.yaml
++++ b/docs/roadmap/items/ROAD-085.yaml
+@@ -1,8 +1,8 @@
+ id: ROAD-085
+ created_at: 2026-05-15T15:06:30.616382-03:00
+-updated_at: 2026-05-29T00:36:07.831699-03:00
++updated_at: 2026-05-28T23:34:33.54422-03:00
+ title: Interactive TUI with Bubbletea — real-time test results, filtering, scrollable output
+-status: promoted
++status: planned
+ priority: 40
+ tags:
+     - source:gemini-feedback
