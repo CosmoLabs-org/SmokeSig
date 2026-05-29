@@ -4,6 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/CosmoLabs-org/SmokeSig/internal/audit"
+	"github.com/CosmoLabs-org/SmokeSig/internal/detector"
 )
 
 func TestAuditCmd_NoConfig(t *testing.T) {
@@ -125,4 +128,201 @@ tests:
 	}
 
 	auditFix = false // reset
+}
+
+func TestGenerateFixTests(t *testing.T) {
+	dir := t.TempDir()
+
+	tests := []struct {
+		name       string
+		rec        audit.Recommendation
+		types      []detector.ProjectType
+		wantCount  int
+		wantNames  []string
+	}{
+		{
+			name: "single missing assertion doc_integrity",
+			rec: audit.Recommendation{
+				Type:     "missing_assertion",
+				Severity: audit.SeverityWarning,
+				Message:  "Add doc_integrity assertion — Go CLI project with cmd/ directory",
+			},
+			types:     []detector.ProjectType{detector.Go},
+			wantCount: 1,
+			wantNames: []string{"Documentation sync"},
+		},
+		{
+			name: "single missing assertion env_exists",
+			rec: audit.Recommendation{
+				Type:     "missing_assertion",
+				Severity: audit.SeverityWarning,
+				Message:  "Add env_exists assertions — .env.example found but no env checks configured",
+			},
+			types:     []detector.ProjectType{detector.Go},
+			wantCount: 1,
+			wantNames: []string{"Required env vars"},
+		},
+		{
+			name: "single missing assertion docker_image_exists",
+			rec: audit.Recommendation{
+				Type:     "missing_assertion",
+				Severity: audit.SeverityInfo,
+				Message:  "Add docker_image_exists assertion — Dockerfile found in project",
+			},
+			types:     []detector.ProjectType{detector.Docker},
+			wantCount: 1,
+			wantNames: []string{"Docker image builds"},
+		},
+		{
+			name: "single missing assertion docker_container_running",
+			rec: audit.Recommendation{
+				Type:     "missing_assertion",
+				Severity: audit.SeverityWarning,
+				Message:  "Add docker_container_running or docker_image_exists assertion — Docker project detected",
+			},
+			types:     []detector.ProjectType{detector.Docker},
+			wantCount: 1,
+			wantNames: []string{"Docker image builds"},
+		},
+		{
+			name: "single missing assertion http",
+			rec: audit.Recommendation{
+				Type:     "missing_assertion",
+				Severity: audit.SeverityWarning,
+				Message:  "Add http assertion — HTTP server detected in Go source",
+			},
+			types:     []detector.ProjectType{detector.Go},
+			wantCount: 1,
+			wantNames: []string{"HTTP health check"},
+		},
+		{
+			name: "single missing assertion docker_compose_healthy",
+			rec: audit.Recommendation{
+				Type:     "missing_assertion",
+				Severity: audit.SeverityInfo,
+				Message:  "Add docker_compose_healthy assertion — docker-compose.yml found",
+			},
+			types:     []detector.ProjectType{detector.Docker},
+			wantCount: 1,
+			wantNames: []string{"Docker Compose services healthy"},
+		},
+		{
+			name: "missing baseline build test for Go",
+			rec: audit.Recommendation{
+				Type:     "missing_baseline",
+				Severity: audit.SeverityWarning,
+				Message:  "Add a build test — no test with build/compile in name or command",
+			},
+			types:     []detector.ProjectType{detector.Go},
+			wantCount: 1,
+			wantNames: []string{"Build"},
+		},
+		{
+			name: "missing baseline build test for Node",
+			rec: audit.Recommendation{
+				Type:     "missing_baseline",
+				Severity: audit.SeverityWarning,
+				Message:  "Add a build test — no test with build/compile in name or command",
+			},
+			types:     []detector.ProjectType{detector.Node},
+			wantCount: 1,
+			wantNames: []string{"Build"},
+		},
+		{
+			name: "missing baseline build test for Rust",
+			rec: audit.Recommendation{
+				Type:     "missing_baseline",
+				Severity: audit.SeverityWarning,
+				Message:  "Add a build test — no test with build/compile in name or command",
+			},
+			types:     []detector.ProjectType{detector.Rust},
+			wantCount: 1,
+			wantNames: []string{"Build"},
+		},
+		{
+			name: "missing baseline build test for Python",
+			rec: audit.Recommendation{
+				Type:     "missing_baseline",
+				Severity: audit.SeverityWarning,
+				Message:  "Add a build test — no test with build/compile in name or command",
+			},
+			types:     []detector.ProjectType{detector.Python},
+			wantCount: 1,
+			wantNames: []string{"Syntax check"},
+		},
+		{
+			name: "unhandled recommendation type returns nil",
+			rec: audit.Recommendation{
+				Type:     "stale_config",
+				Severity: audit.SeverityWarning,
+				Message:  "Legacy .smoke.yaml found — rename to .smokesig.yaml",
+			},
+			types:     nil,
+			wantCount: 0,
+			wantNames: nil,
+		},
+		{
+			name: "unhandled message returns nil",
+			rec: audit.Recommendation{
+				Type:     "missing_assertion",
+				Severity: audit.SeverityInfo,
+				Message:  "Consider adding k8s_resource assertion — Helm chart project detected",
+			},
+			types:     []detector.ProjectType{detector.Helm},
+			wantCount: 0,
+			wantNames: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := generateFixTests(tt.rec, dir, tt.types)
+			if len(got) != tt.wantCount {
+				t.Fatalf("expected %d tests, got %d", tt.wantCount, len(got))
+			}
+			if tt.wantNames != nil {
+				for i, wantName := range tt.wantNames {
+					if i >= len(got) {
+						break
+					}
+					if got[i].Name != wantName {
+						t.Errorf("test[%d]: expected name %q, got %q", i, wantName, got[i].Name)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateFixTests_EmptyFindings(t *testing.T) {
+	dir := t.TempDir()
+	// Calling with a recommendation that has no matching fix handler.
+	rec := audit.Recommendation{
+		Type:    "missing_assertion",
+		Message: "Consider adding deep_link assertion — React Native project detected",
+	}
+	got := generateFixTests(rec, dir, []detector.ProjectType{detector.ReactNative})
+	if got != nil {
+		t.Fatalf("expected nil for unhandled message, got %d tests", len(got))
+	}
+}
+
+func TestGenerateFixTests_MultipleTypes(t *testing.T) {
+	dir := t.TempDir()
+	// Simulate calling generateFixTests for multiple distinct recommendations.
+	recs := []audit.Recommendation{
+		{Type: "missing_assertion", Message: "Add env_exists assertions — .env.example found"},
+		{Type: "missing_assertion", Message: "Add http assertion — HTTP server detected"},
+		{Type: "missing_baseline", Message: "Add a build test — no test with build/compile in name"},
+	}
+
+	totalTests := 0
+	for _, rec := range recs {
+		tests := generateFixTests(rec, dir, []detector.ProjectType{detector.Go})
+		totalTests += len(tests)
+	}
+
+	if totalTests != 3 {
+		t.Fatalf("expected 3 total tests from 3 findings, got %d", totalTests)
+	}
 }
