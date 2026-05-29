@@ -333,6 +333,18 @@ func runSmoke(cmd *cobra.Command, args []string) error {
 		return runWatch(configDir, configFile, runOnce)
 	}
 
+	// TUI mode: launch Bubbletea interface instead of terminal reporter
+	if useTUI {
+		r := &runner.Runner{Config: cfg, ConfigDir: configDir}
+		return runWithTUI(r, runner.RunOptions{
+			Tags:        tags,
+			ExcludeTags: excludeTags,
+			FailFast:    failFast,
+			DryRun:      dryRun,
+			Timeout:     timeoutDur,
+		})
+	}
+
 	rep, closeAll, err := buildReporter(format, cfg)
 	if err != nil {
 		return err
