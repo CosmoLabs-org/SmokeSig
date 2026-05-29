@@ -297,3 +297,34 @@ func TestJUnit_PropertiesIncludeHostnameAndTimestamp(t *testing.T) {
 		t.Errorf("project property = %q, want %q", propMap["project"], "props-test")
 	}
 }
+
+func TestJUnit_FailedTestNoAssertionsNoError(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewJUnit(&buf)
+
+	// Failed test with no assertions and no error — triggers the `message = "test failed"` branch
+	r.TestResult(TestResultData{
+		Name:       "bare-fail",
+		Passed:     false,
+		Duration:   10 * time.Millisecond,
+		Assertions: nil,
+		Error:      nil,
+	})
+
+	r.Summary(SuiteResultData{
+		Project:  "bare-fail-suite",
+		Total:    1,
+		Failed:   1,
+		Duration: 10 * time.Millisecond,
+	})
+
+	result := parseJUnit(t, &buf)
+	tc := result.Suites[0].Cases[0]
+
+	if tc.Failure == nil {
+		t.Fatal("expected failure element for bare failed test")
+	}
+	if tc.Failure.Message != "test failed" {
+		t.Errorf("failure message = %q, want 'test failed'", tc.Failure.Message)
+	}
+}

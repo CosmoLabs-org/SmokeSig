@@ -234,3 +234,65 @@ func TestOTelReporter_MultipleTestFailuresCollected(t *testing.T) {
 		t.Errorf("expected at least 3 telemetry warnings (2 tests + 1 summary), got %d in: %q", count, got)
 	}
 }
+
+func TestOTelReporter_TestResult_SkippedStatus(t *testing.T) {
+	var received []byte
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received, _ = io.ReadAll(r.Body)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	r := NewOTelReporter(ts.URL+"/v1/traces", "svc", nil)
+	r.TestResult(TestResultData{
+		Name:    "skipped-test",
+		Skipped: true,
+		Passed:  false,
+	})
+	r.wg.Wait()
+
+	body := string(received)
+	if !strings.Contains(body, "SKIP") {
+		t.Errorf("skipped test should emit SKIP status, got: %s", body)
+	}
+}
+
+func TestOTelReporter_TestResult_AllowedFailureStatus(t *testing.T) {
+	var received []byte
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received, _ = io.ReadAll(r.Body)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer ts.Close()
+
+	r := NewOTelReporter(ts.URL+"/v1/traces", "svc", nil)
+	r.TestResult(TestResultData{
+		Name:           "flaky-test",
+		AllowedFailure: true,
+		Passed:         false,
+	})
+	r.wg.Wait()
+
+	body := string(received)
+	if !strings.Contains(body, "ALLOWED_FAILURE") {
+		t.Errorf("allowed failure test should emit ALLOWED_FAILURE status, got: %s", body)
+	}
+}
+
+func TestOTelReporter_Export_Returns400Error(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	r := NewOTelReporter(ts.URL+"/v1/traces", "svc", nil)
+	r.warnOut = &buf
+	r.TestResult(TestResultData{Name: "test", Passed: true, Duration: 10 * time.Millisecond})
+	// Warnings are printed during Summary after wg.Wait()
+	r.Summary(SuiteResultData{Project: "svc", Total: 1, Passed: 1})
+
+	if !strings.Contains(buf.String(), "Warning: failed to export telemetry") {
+		t.Errorf("expected export warning on 400, got: %q", buf.String())
+	}
+}

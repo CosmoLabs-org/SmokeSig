@@ -624,6 +624,267 @@ func TestWebhookReporter_ImplementsReporter(t *testing.T) {
 	var _ Reporter = (*WebhookReporter)(nil)
 }
 
+// --- Slack payload with CI URL block ---
+
+func TestBuildSlackPayload_WithCIURL(t *testing.T) {
+	t.Setenv("GITHUB_SERVER_URL", "https://github.com")
+	t.Setenv("GITHUB_REPOSITORY", "org/repo")
+	t.Setenv("GITHUB_RUN_ID", "999")
+	t.Setenv("CI_JOB_URL", "")
+	t.Setenv("CIRCLE_BUILD_URL", "")
+	t.Setenv("BUILD_URL", "")
+
+	s := SuiteResultData{Project: "ci-svc", Total: 1, Passed: 1}
+	body, err := buildSlackPayload(s, nil)
+	if err != nil {
+		t.Fatalf("buildSlackPayload: %v", err)
+	}
+
+	var payload slackPayload
+	json.Unmarshal(body, &payload)
+
+	// Should have a CI link block
+	found := false
+	for _, block := range payload.Attachments[0].Blocks {
+		if block.Text != nil && contains(block.Text.Text, "View CI Run") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected CI link block in Slack payload, blocks: %+v", payload.Attachments[0].Blocks)
+	}
+}
+
+// --- detectCIURL tests ---
+
+func TestDetectCIURL_GitHubActions(t *testing.T) {
+	t.Setenv("GITHUB_SERVER_URL", "https://github.com")
+	t.Setenv("GITHUB_REPOSITORY", "CosmoLabs-org/SmokeSig")
+	t.Setenv("GITHUB_RUN_ID", "12345")
+	// Clear other CI vars
+	t.Setenv("CI_JOB_URL", "")
+	t.Setenv("CIRCLE_BUILD_URL", "")
+	t.Setenv("BUILD_URL", "")
+
+	got := detectCIURL()
+	want := "https://github.com/CosmoLabs-org/SmokeSig/actions/runs/12345"
+	if got != want {
+		t.Errorf("detectCIURL() = %q, want %q", got, want)
+	}
+}
+
+func TestDetectCIURL_GitHubActions_MissingRepo(t *testing.T) {
+	t.Setenv("GITHUB_SERVER_URL", "https://github.com")
+	t.Setenv("GITHUB_REPOSITORY", "")
+	t.Setenv("GITHUB_RUN_ID", "12345")
+	t.Setenv("CI_JOB_URL", "")
+	t.Setenv("CIRCLE_BUILD_URL", "")
+	t.Setenv("BUILD_URL", "")
+
+	// Missing GITHUB_REPOSITORY means we should not return a GitHub URL
+	got := detectCIURL()
+	if got != "" {
+		t.Errorf("detectCIURL() with missing repo = %q, want empty", got)
+	}
+}
+
+func TestDetectCIURL_GitLabCI(t *testing.T) {
+	t.Setenv("GITHUB_SERVER_URL", "")
+	t.Setenv("CI_JOB_URL", "https://gitlab.com/group/project/-/jobs/9876")
+	t.Setenv("CIRCLE_BUILD_URL", "")
+	t.Setenv("BUILD_URL", "")
+
+	got := detectCIURL()
+	want := "https://gitlab.com/group/project/-/jobs/9876"
+	if got != want {
+		t.Errorf("detectCIURL() = %q, want %q", got, want)
+	}
+}
+
+func TestDetectCIURL_CircleCI(t *testing.T) {
+	t.Setenv("GITHUB_SERVER_URL", "")
+	t.Setenv("CI_JOB_URL", "")
+	t.Setenv("CIRCLE_BUILD_URL", "https://app.circleci.com/pipelines/github/org/repo/100")
+	t.Setenv("BUILD_URL", "")
+
+	got := detectCIURL()
+	want := "https://app.circleci.com/pipelines/github/org/repo/100"
+	if got != want {
+		t.Errorf("detectCIURL() = %q, want %q", got, want)
+	}
+}
+
+func TestDetectCIURL_Jenkins(t *testing.T) {
+	t.Setenv("GITHUB_SERVER_URL", "")
+	t.Setenv("CI_JOB_URL", "")
+	t.Setenv("CIRCLE_BUILD_URL", "")
+	t.Setenv("BUILD_URL", "http://jenkins.example.com/job/myproject/42/")
+
+	got := detectCIURL()
+	want := "http://jenkins.example.com/job/myproject/42/"
+	if got != want {
+		t.Errorf("detectCIURL() = %q, want %q", got, want)
+	}
+}
+
+func TestDetectCIURL_NoneSet(t *testing.T) {
+	t.Setenv("GITHUB_SERVER_URL", "")
+	t.Setenv("CI_JOB_URL", "")
+	t.Setenv("CIRCLE_BUILD_URL", "")
+	t.Setenv("BUILD_URL", "")
+
+	got := detectCIURL()
+	if got != "" {
+		t.Errorf("detectCIURL() with no CI env = %q, want empty", got)
+	}
+}
+
+// --- sendPayload error path ---
+
+func TestWebhookReporter_SendPayload_InvalidURL(t *testing.T) {
+	var buf bytes.Buffer
+	wh := NewWebhookReporter("://invalid-url", "", WebhookFormatJSON, WebhookOnAlways)
+	wh.warnOut = &buf
+	wh.sendPayload([]byte(`{}`), "application/json")
+
+	if !contains(buf.String(), "Warning: failed to send webhook") {
+		t.Errorf("expected warning for invalid URL, got %q", buf.String())
+	}
+}
+
+// --- OnChange trigger: change from fail to pass ---
+
+func TestWebhookReporter_OnChange_FailToPass_Sends(t *testing.T) {
+	callCount := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	wh := NewWebhookReporter(srv.URL, "", WebhookFormatJSON, WebhookOnChange)
+
+	// First run: fails (sends because first run)
+	wh.TestResult(TestResultData{Name: "broken", Passed: false})
+	wh.Summary(SuiteResultData{Project: "test", Total: 1, Failed: 1})
+	if callCount != 1 {
+		t.Fatalf("first run: callCount = %d, want 1", callCount)
+	}
+
+	// Reset test data
+	wh.tests = nil
+	wh.prereqs = nil
+
+	// Second run: same failure state (should NOT send)
+	wh.TestResult(TestResultData{Name: "still-broken", Passed: false})
+	wh.Summary(SuiteResultData{Project: "test", Total: 1, Failed: 1})
+	if callCount != 1 {
+		t.Errorf("same-fail state: callCount = %d, want 1", callCount)
+	}
+
+	// Reset test data
+	wh.tests = nil
+	wh.prereqs = nil
+
+	// Third run: now passes (state changed — should send)
+	wh.Summary(SuiteResultData{Project: "test", Total: 1, Passed: 1})
+	if callCount != 2 {
+		t.Errorf("fail-to-pass change: callCount = %d, want 2", callCount)
+	}
+}
+
+// --- buildWebhookJSONPayload with prereq error ---
+
+func TestBuildWebhookJSONPayload_WithPrereqError(t *testing.T) {
+	s := SuiteResultData{
+		Project: "test-proj",
+		Total:   1,
+		Failed:  1,
+	}
+	prereqs := []PrereqResultData{
+		{Name: "docker", Passed: false, Error: &testError{"docker not found"}},
+	}
+	tests := []TestResultData{
+		{Name: "check", Passed: false, Error: &testError{"prereq failed"}, AllowedFailure: false},
+	}
+
+	body, err := buildWebhookJSONPayload(s, tests, prereqs)
+	if err != nil {
+		t.Fatalf("buildWebhookJSONPayload: %v", err)
+	}
+
+	var out jsonOutput
+	if err := json.Unmarshal(body, &out); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if len(out.Prerequisites) != 1 {
+		t.Fatalf("prereqs = %d, want 1", len(out.Prerequisites))
+	}
+	if out.Prerequisites[0].Error != "docker not found" {
+		t.Errorf("prereq error = %q, want 'docker not found'", out.Prerequisites[0].Error)
+	}
+	if len(out.Tests) != 1 {
+		t.Fatalf("tests = %d, want 1", len(out.Tests))
+	}
+	if out.Tests[0].Error != "prereq failed" {
+		t.Errorf("test error = %q, want 'prereq failed'", out.Tests[0].Error)
+	}
+}
+
+// --- buildPagerDutyPayload >50% failure ---
+
+func TestBuildPagerDutyPayload_CriticalSeverity(t *testing.T) {
+	s := SuiteResultData{
+		Project: "svc",
+		Total:   4,
+		Passed:  1,
+		Failed:  3,
+	}
+
+	body, err := buildPagerDutyPayload(s, "key-abc", true, false)
+	if err != nil {
+		t.Fatalf("buildPagerDutyPayload: %v", err)
+	}
+
+	var payload pagerDutyPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+
+	if payload.Payload == nil {
+		t.Fatal("payload.payload is nil")
+	}
+	// 3/4 = 75% > 50% → critical
+	if payload.Payload.Severity != "critical" {
+		t.Errorf("severity = %q, want critical (75%% failure)", payload.Payload.Severity)
+	}
+}
+
+func TestBuildPagerDutyPayload_EnvRoutingKey(t *testing.T) {
+	t.Setenv("SMOKESIG_PAGERDUTY_KEY", "env-routing-key")
+	s := SuiteResultData{Project: "svc", Total: 1, Failed: 1}
+
+	body, err := buildPagerDutyPayload(s, "", true, false)
+	if err != nil {
+		t.Fatalf("buildPagerDutyPayload: %v", err)
+	}
+
+	var payload pagerDutyPayload
+	json.Unmarshal(body, &payload)
+	if payload.RoutingKey != "env-routing-key" {
+		t.Errorf("routing_key = %q, want env-routing-key (from env)", payload.RoutingKey)
+	}
+}
+
+// --- WebhookReporter no-op methods ---
+
+func TestWebhookReporter_NoOpMethods_NoPanic(t *testing.T) {
+	wh := NewWebhookReporter("http://example.com", "", WebhookFormatJSON, WebhookOnFailure)
+	// These are no-ops but must not panic
+	wh.PrereqStart("prereq")
+	wh.TestStart("test")
+}
+
 // helpers
 
 func contains(s, substr string) bool {

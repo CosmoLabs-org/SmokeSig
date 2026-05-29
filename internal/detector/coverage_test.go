@@ -411,6 +411,16 @@ func TestDetectPubspecWithoutFlutter(t *testing.T) {
 	}
 }
 
+// TestDetectRustCLI_MissingCargoToml verifies detectRustCLI returns nil when Cargo.toml is absent.
+func TestDetectRustCLI_MissingCargoToml(t *testing.T) {
+	dir := t.TempDir()
+	// No Cargo.toml — detectRustCLI should return nil
+	result := DetectCLI(dir, []ProjectType{Rust})
+	if result != nil {
+		t.Errorf("expected nil when Cargo.toml missing, got %+v", result)
+	}
+}
+
 // TestDetectReactNativeWithDep verifies ReactNative detection via package.json dep + app.json.
 func TestDetectReactNativeWithDep(t *testing.T) {
 	dir := t.TempDir()
@@ -431,5 +441,34 @@ func TestDetectReactNativeWithDep(t *testing.T) {
 	}
 	if !foundRN {
 		t.Errorf("expected ReactNative type, got %v", types)
+	}
+}
+
+// TestGetListeningPorts_AllFallbacksFail verifies getListeningPorts tries all
+// three command sources and returns an error when all fail (no Docker daemon).
+func TestGetListeningPorts_AllFallbacksFail(t *testing.T) {
+	// Docker daemon is not running in unit test environment.
+	// All three fallbacks (ss, netstat, docker port) will fail, returning error.
+	_, err := getListeningPorts("nonexistent-container-xyz")
+	if err == nil {
+		t.Skip("docker daemon running — skipping fallback error path test")
+	}
+}
+
+// TestCheckContainer_NotRunning verifies checkContainer returns error when docker
+// daemon is unavailable or container does not exist.
+func TestCheckContainer_NotRunning(t *testing.T) {
+	err := checkContainer("nonexistent-container-xyz")
+	if err == nil {
+		t.Skip("docker daemon running with that container — skipping")
+	}
+}
+
+// TestInspectContainer_DockerUnavailable verifies InspectContainer returns error
+// when the docker daemon is unavailable.
+func TestInspectContainer_DockerUnavailable(t *testing.T) {
+	_, err := InspectContainer("nonexistent-container-xyz")
+	if err == nil {
+		t.Skip("docker daemon running with that container — skipping")
 	}
 }

@@ -9,6 +9,24 @@ import (
 	"time"
 )
 
+func TestBackstageOverallStatus_AllowedFailureOnly(t *testing.T) {
+	// Only allowed failures → "degraded" (not "unhealthy")
+	status := backstageOverallStatus([]TestResultData{
+		{Name: "flaky", Passed: false, AllowedFailure: true},
+		{Name: "ok", Passed: true},
+	})
+	if status != "degraded" {
+		t.Errorf("got %q, want degraded", status)
+	}
+}
+
+func TestBackstageOverallStatus_Empty(t *testing.T) {
+	status := backstageOverallStatus(nil)
+	if status != "unknown" {
+		t.Errorf("got %q, want unknown", status)
+	}
+}
+
 func TestBackstage_AllPassing(t *testing.T) {
 	var buf bytes.Buffer
 	b := NewBackstage(&buf)

@@ -2,6 +2,7 @@ package reporter
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -269,5 +270,193 @@ func TestFormatDuration(t *testing.T) {
 		if got != tt.want {
 			t.Errorf("formatDuration(%v) = %q, want %q", tt.d, got, tt.want)
 		}
+	}
+}
+
+func TestTerminal_AllowedFailure_NormalMode(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	r.TestStart("Flaky test")
+	r.TestResult(TestResultData{
+		Name:           "Flaky test",
+		Passed:         false,
+		AllowedFailure: true,
+		Assertions: []AssertionDetail{
+			{Type: "exit_code", Expected: "0", Actual: "1", Passed: false},
+		},
+		Duration: 30 * time.Millisecond,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "Flaky test") {
+		t.Errorf("output missing test name: %q", out)
+	}
+	if !strings.Contains(out, "allowed") {
+		t.Errorf("output missing allowed marker: %q", out)
+	}
+	if !strings.Contains(out, "exit_code") {
+		t.Errorf("output missing failed assertion detail: %q", out)
+	}
+}
+
+func TestTerminal_AllowedFailure_WithError(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	r.TestResult(TestResultData{
+		Name:           "Flaky with error",
+		Passed:         false,
+		AllowedFailure: true,
+		Error:          fmt.Errorf("network timeout"),
+		Duration:       10 * time.Millisecond,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "network timeout") {
+		t.Errorf("output missing error message: %q", out)
+	}
+}
+
+func TestTerminal_AllowedFailure_QuietMode_Suppressed(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminalWithVerbosity(&buf, VerbosityQuiet)
+	r.TestResult(TestResultData{
+		Name:           "Flaky quiet",
+		Passed:         false,
+		AllowedFailure: true,
+		Duration:       10 * time.Millisecond,
+	})
+	out := buf.String()
+	if out != "" {
+		t.Errorf("quiet mode should suppress allowed failures, got %q", out)
+	}
+}
+
+func TestTerminal_Summary_TraceHealth_Degraded(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	r.Summary(SuiteResultData{
+		Total:          3,
+		Passed:         3,
+		Duration:       time.Second,
+		TraceHealthPct: 40.0,
+		TraceDegraded:  true,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "trace health:") {
+		t.Errorf("output missing trace health label: %q", out)
+	}
+	if !strings.Contains(out, "40.0%") {
+		t.Errorf("output missing trace health percentage: %q", out)
+	}
+	if !strings.Contains(out, "degraded") {
+		t.Errorf("output missing degraded marker: %q", out)
+	}
+}
+
+func TestTerminal_Summary_TraceHealth_Healthy(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	r.Summary(SuiteResultData{
+		Total:          3,
+		Passed:         3,
+		Duration:       time.Second,
+		TraceHealthPct: 90.0,
+		TraceDegraded:  false,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "trace health:") {
+		t.Errorf("output missing trace health label: %q", out)
+	}
+	if !strings.Contains(out, "90.0%") {
+		t.Errorf("output missing trace health percentage: %q", out)
+	}
+	// Healthy trace should NOT show "degraded"
+	if strings.Contains(out, "degraded") {
+		t.Errorf("healthy trace should not show degraded: %q", out)
+	}
+}
+
+func TestTerminal_Summary_AllowedFailures(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	r.Summary(SuiteResultData{
+		Total:           5,
+		Passed:          3,
+		Failed:          1,
+		AllowedFailures: 1,
+		Duration:        time.Second,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "allowed-failure") {
+		t.Errorf("output missing allowed-failure count: %q", out)
+	}
+}
+
+func TestTerminal_Summary_ZeroTraceHealth_Hidden(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	r.Summary(SuiteResultData{
+		Total:          3,
+		Passed:         3,
+		Duration:       time.Second,
+		TraceHealthPct: 0, // zero means not shown
+	})
+	out := buf.String()
+	if strings.Contains(out, "trace health:") {
+		t.Errorf("zero trace health should not be shown: %q", out)
+	}
+}
+
+func TestTerminal_VerboseMode_AllowedFailure(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminalWithVerbosity(&buf, VerbosityVerbose)
+	r.TestResult(TestResultData{
+		Name:           "Flaky verbose",
+		Passed:         false,
+		AllowedFailure: true,
+		Assertions: []AssertionDetail{
+			{Type: "stdout_contains", Expected: "ok", Actual: "err", Passed: false},
+		},
+		Duration: 10 * time.Millisecond,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "stdout_contains") {
+		t.Errorf("verbose mode should show assertion detail in allowed failure: %q", out)
+	}
+}
+
+func TestTerminal_NoOpMethods_NoPanic(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	// PrereqStart and TestStart are real methods, just verify they don't panic
+	r.PrereqStart("prereq-name")
+	r.TestStart("test-name")
+}
+
+func TestTerminal_FailedTest_WithError(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminal(&buf)
+	r.TestResult(TestResultData{
+		Name:     "Broken test",
+		Passed:   false,
+		Error:    fmt.Errorf("connection refused"),
+		Duration: 20 * time.Millisecond,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "connection refused") {
+		t.Errorf("output missing error message: %q", out)
+	}
+}
+
+func TestTerminal_FailedTest_WithError_QuietMode(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewTerminalWithVerbosity(&buf, VerbosityQuiet)
+	r.TestResult(TestResultData{
+		Name:     "Broken test",
+		Passed:   false,
+		Error:    fmt.Errorf("timeout"),
+		Duration: 20 * time.Millisecond,
+	})
+	out := buf.String()
+	if !strings.Contains(out, "timeout") {
+		t.Errorf("quiet mode should show error on failure: %q", out)
 	}
 }
