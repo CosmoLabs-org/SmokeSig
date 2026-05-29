@@ -694,3 +694,25 @@ func TestRunner_NoRecursionGuardWithoutEnv(t *testing.T) {
 		t.Errorf("passed = %d, want 1", result.Passed)
 	}
 }
+
+func TestRunSingle(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Tests: []schema.Test{
+			{Name: "echo-test", Run: "echo hello", Expect: schema.Expect{StdoutContains: "hello"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+
+	result, err := r.RunSingle("echo-test", RunOptions{})
+	if err != nil {
+		t.Fatalf("RunSingle returned error: %v", err)
+	}
+	if !result.Passed {
+		t.Errorf("expected test to pass")
+	}
+
+	_, err = r.RunSingle("nonexistent", RunOptions{})
+	if err == nil {
+		t.Fatal("expected error for unknown test")
+	}
+}
