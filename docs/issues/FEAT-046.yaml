@@ -1,11 +1,14 @@
 id: FEAT-046
 type: feature
 created_at: 2026-04-30T02:51:30.537901-03:00
-updated_at: 2026-05-25T00:53:16.205423-03:00
+updated_at: 2026-05-26T15:40:11.8531-03:00
 source: local
-status: open
+status: done
 origin:
     session: 2027
 title: Detector-observer integration (BR-15)
 description: When smokesig observe runs, use existing detector to identify project type and tailor observation heuristics. Tauri → bundle + port 1420. RN → Metro 8081. Next.js → .next/ + port 3000. ~150 lines.
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+revisions:
+    - date: "2026-05-26"
+      action: closed

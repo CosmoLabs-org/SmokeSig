@@ -1,8 +1,8 @@
 id: ROAD-085
 created_at: 2026-05-15T15:06:30.616382-03:00
-updated_at: 2026-05-15T15:06:38.833534-03:00
+updated_at: 2026-05-28T23:34:33.54422-03:00
 title: Interactive TUI with Bubbletea — real-time test results, filtering, scrollable output
-status: captured
+status: planned
 priority: 40
 tags:
     - source:gemini-feedback
@@ -10,5 +10,7 @@ parent: ROAD-081
 refs:
     - type: issue
       path: docs/issues/FEAT-051.yaml
+    - type: plan
+      path: docs/planning-mode/2026-05-28-interactive-tui.md
 origin:
     session: 2027
