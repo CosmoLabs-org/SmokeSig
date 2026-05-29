@@ -1,1 +1,1 @@
-go test ./internal/audit/ -v -run 'TestCollectUsedAssertions|TestHasHTTPServer|TestHasPkgScript' && go test -cover ./internal/audit/
+go test ./cmd/ -v -run 'TestWithConfigNotifications|TestHandleBaseline' && go test -cover ./cmd/

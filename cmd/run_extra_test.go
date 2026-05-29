@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"encoding/json"
 	"io"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/CosmoLabs-org/SmokeSig/internal/baseline"
 	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
 	"github.com/CosmoLabs-org/SmokeSig/internal/runner"
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
@@ -733,5 +736,155 @@ tests:
 	}
 	if health.HealthPct() != 66.7 {
 		t.Errorf("expected 66.7%% health, got %.1f%%", health.HealthPct())
+	}
+}
+
+// --- withConfigNotifications tests ---
+
+// TestWithConfigNotifications_NoNotifications returns original reporter when config has no notifications.
+func TestWithConfigNotifications_NoNotifications(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{}
+	result := withConfigNotifications(rep, cfg)
+	if result != rep {
+		t.Error("expected original reporter when no notifications configured, got different reporter")
+	}
+}
+
+// TestWithConfigNotifications_OneNotification wraps with MultiReporter when config has one notification.
+func TestWithConfigNotifications_OneNotification(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{
+		Notifications: []schema.Notification{
+			{URL: "http://localhost:9090/hook", Format: "json", On: "always"},
+		},
+	}
+	result := withConfigNotifications(rep, cfg)
+	if _, ok := result.(*reporter.MultiReporter); !ok {
+		t.Fatalf("expected *MultiReporter, got %T", result)
+	}
+}
+
+// TestWithConfigNotifications_InvalidURL still wraps reporter (function does not validate URLs).
+func TestWithConfigNotifications_InvalidURL(t *testing.T) {
+	rep := silentReporter()
+	cfg := &schema.SmokeConfig{
+		Notifications: []schema.Notification{
+			{URL: "://not-a-url", Format: "json", On: "always"},
+		},
+	}
+	result := withConfigNotifications(rep, cfg)
+	// withConfigNotifications does not validate URLs — it passes them to
+	// NewWebhookReporter, so the reporter is still wrapped.
+	if _, ok := result.(*reporter.MultiReporter); !ok {
+		t.Fatalf("expected *MultiReporter even with invalid URL, got %T", result)
+	}
+}
+
+// --- handleBaseline tests ---
+
+// TestHandleBaseline_FlagOff does nothing when baselineFlag is false.
+func TestHandleBaseline_FlagOff(t *testing.T) {
+	origFlag := baselineFlag
+	baselineFlag = false
+	defer func() { baselineFlag = origFlag }()
+
+	dir := t.TempDir()
+	suite := &runner.SuiteResult{
+		Tests: []runner.TestResult{
+			{Name: "t1", Duration: 100 * time.Millisecond},
+		},
+	}
+	handleBaseline(suite, dir)
+
+	blPath := filepath.Join(dir, baseline.DefaultFile)
+	if _, err := os.Stat(blPath); !os.IsNotExist(err) {
+		t.Error("baseline file should not be created when flag is off")
+	}
+}
+
+// TestHandleBaseline_NoPriorBaseline creates a new baseline file when none exists.
+func TestHandleBaseline_NoPriorBaseline(t *testing.T) {
+	origFlag := baselineFlag
+	origThresh := baselineThresh
+	baselineFlag = true
+	baselineThresh = 50
+	defer func() {
+		baselineFlag = origFlag
+		baselineThresh = origThresh
+	}()
+
+	dir := t.TempDir()
+	suite := &runner.SuiteResult{
+		Tests: []runner.TestResult{
+			{Name: "t1", Duration: 100 * time.Millisecond},
+			{Name: "t2", Duration: 200 * time.Millisecond},
+		},
+	}
+	handleBaseline(suite, dir)
+
+	blPath := filepath.Join(dir, baseline.DefaultFile)
+	data, err := os.ReadFile(blPath)
+	if err != nil {
+		t.Fatalf("expected baseline file to be created: %v", err)
+	}
+
+	var bl baseline.File
+	if err := json.Unmarshal(data, &bl); err != nil {
+		t.Fatalf("failed to parse baseline file: %v", err)
+	}
+	if len(bl) != 2 {
+		t.Errorf("expected 2 entries in baseline, got %d", len(bl))
+	}
+	if bl["t1"].DurationMs != 100 {
+		t.Errorf("t1 duration = %d, want 100", bl["t1"].DurationMs)
+	}
+	if bl["t2"].DurationMs != 200 {
+		t.Errorf("t2 duration = %d, want 200", bl["t2"].DurationMs)
+	}
+}
+
+// TestHandleBaseline_ExistingBaseline compares and updates an existing baseline.
+func TestHandleBaseline_ExistingBaseline(t *testing.T) {
+	origFlag := baselineFlag
+	origThresh := baselineThresh
+	baselineFlag = true
+	baselineThresh = 50
+	defer func() {
+		baselineFlag = origFlag
+		baselineThresh = origThresh
+	}()
+
+	dir := t.TempDir()
+	blPath := filepath.Join(dir, baseline.DefaultFile)
+
+	// Write an existing baseline with t1 at 100ms
+	existing := baseline.File{
+		"t1": {DurationMs: 100, Timestamp: time.Now().UTC()},
+	}
+	existingData, _ := json.MarshalIndent(existing, "", "  ")
+	if err := os.WriteFile(blPath, existingData, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Run handleBaseline with t1 at 200ms (100% increase → regression at 50% threshold)
+	suite := &runner.SuiteResult{
+		Tests: []runner.TestResult{
+			{Name: "t1", Duration: 200 * time.Millisecond},
+		},
+	}
+	handleBaseline(suite, dir)
+
+	// Verify baseline was updated
+	data, err := os.ReadFile(blPath)
+	if err != nil {
+		t.Fatalf("failed to read updated baseline: %v", err)
+	}
+	var updated baseline.File
+	if err := json.Unmarshal(data, &updated); err != nil {
+		t.Fatalf("failed to parse updated baseline: %v", err)
+	}
+	if updated["t1"].DurationMs != 200 {
+		t.Errorf("t1 duration = %d after update, want 200", updated["t1"].DurationMs)
 	}
 }
