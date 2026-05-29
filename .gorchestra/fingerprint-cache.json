@@ -1,5 +1,5 @@
 {
-  "hash": "b85af01034debfdac3631a6cb7e378cd77a53bbdbc7a3921f77166a78c726a74",
+  "hash": "267d0291aa57f09b26223984aca8247434c4c0d19d5377298904f9d38207f165",
   "project_name": "SmokeSig",
   "language": "go",
   "framework": "cli",
@@ -15,17 +15,17 @@
   ],
   "dependencies": [
     "ansi",
+    "ansi",
     "bigfft",
+    "bubbles",
+    "bubbletea",
+    "cancelreader",
     "cast",
     "cellbuf",
     "cobra",
-    "colorprofile",
-    "fsnotify",
-    "gjson",
-    "go-colorful",
-    "go-humanize"
+    "colorprofile"
   ],
   "has_tests": true,
   "has_ci": true,
-  "generated_at": "2026-05-26T15:40:06.203869-03:00"
+  "generated_at": "2026-05-29T00:10:48.997041-03:00"
 }

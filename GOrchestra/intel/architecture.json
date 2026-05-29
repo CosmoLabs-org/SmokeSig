@@ -1,36 +1,35 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:10:33.702024-03:00",
+  "generated_at": "2026-05-29T00:11:06.796538-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:10:33.702024-03:00",
-  "last_analyzed_commit": "5de65fa314785e733056da8653eefc79190b3f1c",
-  "summary": "Go-based test orchestration framework with modular runner, schema validation, reporting, and MCP integration, developed through a multi-agent workflow system",
+  "expires_at": "2026-05-30T00:11:06.796538-03:00",
+  "last_analyzed_commit": "d3f38629996da00a38f45aef85b97f235dc138e4",
+  "summary": "A Go-based test orchestration framework with a custom runner, assertion library, schema validation, webhook reporting, and MCP integration",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
     "internal/runner/runner_test.go",
-    "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
-    "internal/mcp/handlers.go"
+    "internal/mcp/handlers.go",
+    "cmd/run_extra_test.go"
   ],
   "patterns": [
-    "standard Go project layout (cmd/internal separation)",
-    "test-driven development (extensive _test.go coverage)",
-    "agent-based orchestration (GOrchestra multi-agent system)",
-    "modular internal packages (runner, schema, reporter, mcp)"
+    "test runner pattern",
+    "assertion library",
+    "webhook reporter",
+    "MCP (Model Context Protocol) handlers",
+    "TUI with Bubble Tea"
   ],
   "concerns": [
-    "heavy test proliferation across many agent directories may indicate fragmented ownership",
-    "assertion_wire_test.go suggests test coupling or shared test infrastructure",
-    "multiple parallel test suites (connectivity, prometheus, schema, goss) could lead to maintenance burden",
-    "agent metadata commits interleaved with feature commits suggest automated workflow noise"
+    "heavy test file proliferation across multiple agent directories",
+    "fragmented test organization with many *extra_test.go files",
+    "agent metadata commits suggest automated generation without meaningful review"
   ],
   "suggestions": [
-    "consolidate overlapping test suites under unified test packages",
-    "document the GOrchestra agent orchestration strategy and naming conventions",
-    "add integration test coverage for MCP handlers",
-    "consider extracting shared assertion utilities to reduce duplication",
-    "establish commit conventions to separate metadata from functional changes"
+    "consolidate scattered test files into a coherent test suite",
+    "investigate if agent-numbered directories are artifacts that should be cleaned up",
+    "add integration tests to complement the extensive unit test coverage",
+    "document the MCP handler responsibilities and API contract"
   ]
 }
