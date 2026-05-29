@@ -123,6 +123,72 @@ func TestParallel_AllTestsRun(t *testing.T) {
 	}
 }
 
+func TestParallel_SingleTest(t *testing.T) {
+	cfg := newConfig([]schema.Test{
+		{Name: "only-one", Run: "echo solo", Expect: schema.Expect{ExitCode: intPtr(0)}},
+	})
+	cfg.Settings.Parallel = true
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+
+	result, err := r.Run(RunOptions{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Total != 1 {
+		t.Errorf("total = %d, want 1", result.Total)
+	}
+	if result.Passed != 1 {
+		t.Errorf("passed = %d, want 1", result.Passed)
+	}
+}
+
+func TestParallel_AllPass(t *testing.T) {
+	tests := make([]schema.Test, 4)
+	for i := range tests {
+		tests[i] = schema.Test{
+			Name:   fmt.Sprintf("pass-%d", i),
+			Run:    fmt.Sprintf("echo %d", i),
+			Expect: schema.Expect{ExitCode: intPtr(0)},
+		}
+	}
+	cfg := newConfig(tests)
+	cfg.Settings.Parallel = true
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+
+	result, err := r.Run(RunOptions{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Passed != 4 {
+		t.Errorf("passed = %d, want 4", result.Passed)
+	}
+	if result.Failed != 0 {
+		t.Errorf("failed = %d, want 0", result.Failed)
+	}
+}
+
+func TestParallel_MixPassFail(t *testing.T) {
+	cfg := newConfig([]schema.Test{
+		{Name: "p1", Run: "echo ok", Expect: schema.Expect{ExitCode: intPtr(0)}},
+		{Name: "f1", Run: "exit 1", Expect: schema.Expect{ExitCode: intPtr(0)}},
+		{Name: "p2", Run: "echo ok2", Expect: schema.Expect{ExitCode: intPtr(0)}},
+		{Name: "f2", Run: "exit 2", Expect: schema.Expect{ExitCode: intPtr(0)}},
+	})
+	cfg.Settings.Parallel = true
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+
+	result, err := r.Run(RunOptions{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Passed != 2 {
+		t.Errorf("passed = %d, want 2", result.Passed)
+	}
+	if result.Failed != 2 {
+		t.Errorf("failed = %d, want 2", result.Failed)
+	}
+}
+
 func TestRetry_Count2_RetriesFailedTest(t *testing.T) {
 	flagFile := t.TempDir() + "/flag"
 	cmd := "[ -f " + flagFile + " ] && exit 0 || (touch " + flagFile + " && exit 1)"

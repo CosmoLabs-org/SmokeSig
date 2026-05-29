@@ -219,6 +219,65 @@ func TestProcessExtractsStdoutMatches(t *testing.T) {
 
 // --- Chain detection tests ---
 
+func TestFindVarReferences(t *testing.T) {
+	tests := []struct {
+		name string
+		test schema.Test
+		want map[string]bool
+	}{
+		{
+			name: "no vars in run or expect",
+			test: schema.Test{Run: "echo hello", Expect: schema.Expect{StdoutContains: "hello"}},
+			want: map[string]bool{},
+		},
+		{
+			name: "var in run command",
+			test: schema.Test{Run: "curl {{ .Vars.host }}", Expect: schema.Expect{}},
+			want: map[string]bool{"host": true},
+		},
+		{
+			name: "var in stdout_contains",
+			test: schema.Test{Run: "echo", Expect: schema.Expect{StdoutContains: "{{ .Vars.token }}"}},
+			want: map[string]bool{"token": true},
+		},
+		{
+			name: "multiple vars across fields",
+			test: schema.Test{
+				Run:   "curl {{ .Vars.host }}:{{ .Vars.port }}",
+				Expect: schema.Expect{StdoutContains: "{{ .Vars.name }}"},
+			},
+			want: map[string]bool{"host": true, "port": true, "name": true},
+		},
+		{
+			name: "var in http url",
+			test: schema.Test{
+				Run:   "echo",
+				Expect: schema.Expect{HTTP: &schema.HTTPCheck{URL: "http://{{ .Vars.api_host }}/health"}},
+			},
+			want: map[string]bool{"api_host": true},
+		},
+		{
+			name: "malformed template syntax not matched",
+			test: schema.Test{Run: "echo {{ .MissingDot }}", Expect: schema.Expect{}},
+			want: map[string]bool{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := findVarReferences(tt.test)
+			if len(got) != len(tt.want) {
+				t.Errorf("findVarReferences() got %d refs, want %d; got=%v want=%v", len(got), len(tt.want), got, tt.want)
+				return
+			}
+			for k := range tt.want {
+				if !got[k] {
+					t.Errorf("missing expected ref %q", k)
+				}
+			}
+		})
+	}
+}
+
 func TestDetectChains(t *testing.T) {
 	tests := []struct {
 		name       string

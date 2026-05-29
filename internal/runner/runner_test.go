@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -647,6 +648,36 @@ func TestRunner_RecursionGuardSkipsTestRunners(t *testing.T) {
 	}
 	if result.Skipped != 1 {
 		t.Errorf("skipped = %d, want 1 (recursive test should be skipped)", result.Skipped)
+	}
+}
+
+func TestShouldSkip(t *testing.T) {
+	dir := t.TempDir()
+	existingFile := dir + "/exists.txt"
+	if err := os.WriteFile(existingFile, []byte("data"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name string
+		si   *schema.SkipIf
+		want bool
+	}{
+		{"nil skip_if", nil, false},
+		{"env_unset with var set", &schema.SkipIf{EnvUnset: "HOME"}, false},
+		{"env_unset with var unset", &schema.SkipIf{EnvUnset: "DEFINITELY_NOT_SET_XYZ"}, true},
+		{"env_equals matching value", &schema.SkipIf{EnvEquals: &schema.EnvEqualsCond{Var: "HOME", Value: os.Getenv("HOME")}}, true},
+		{"env_equals non-matching value", &schema.SkipIf{EnvEquals: &schema.EnvEqualsCond{Var: "HOME", Value: "no-match-xyz"}}, false},
+		{"file_missing with existing file", &schema.SkipIf{FileMissing: "exists.txt"}, false},
+		{"file_missing with missing file", &schema.SkipIf{FileMissing: "nope.txt"}, true},
+		{"file_missing absolute path missing", &schema.SkipIf{FileMissing: "/tmp/definitely_missing_xyz"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := shouldSkip(tt.si, dir); got != tt.want {
+				t.Errorf("shouldSkip() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
