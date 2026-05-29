@@ -1,0 +1,5 @@
+{
+  "summary": "Added 6 test functions (24 sub-cases total) for collectUsedAssertions, hasHTTPServer, and hasPkgScript in internal/audit/audit_test.go. All tests pass.",
+  "files_changed": ["internal/audit/audit_test.go"],
+  "errors": []
+}

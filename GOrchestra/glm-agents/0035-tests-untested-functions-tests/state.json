@@ -1,0 +1,16 @@
+{
+  "id": "0035",
+  "pid": 33270,
+  "tmux_session": "glm-0035",
+  "worktree_path": "/Users/gabstudio/PROJECTS/SmokeSig-worktrees/_glm-agent-0035-tests-untested-functions-tests",
+  "branch": "_glm-agent-0035-tests-untested-functions-tests",
+  "base_branch": "master",
+  "status": "done",
+  "started_at": "2026-05-28T23:35:46.359195-03:00",
+  "task": "Add tests for untested functions in internal/audit/audit.go.\n\nThree functions need coverage:\n\n1. collectUsedAssertions (56.7% → target 90%): This function walks test\n   assertions and collects assertion type strings. Test with configs that use\n   various assertion types (http, exit_code, file_exists, json_field, etc).\n   Test edge cases: empty tests list, test with no assertions, test with\n   multiple assertion types.\n\n2. hasHTTPServer (39.3%): This function checks if a project directory has an\n   HTTP server. Read the function to understand its detection logic (checks\n   for routes, handlers, server setup patterns). Write tests with temp dirs\n   containing Go/Node/Python files with and without HTTP patterns.\n\n3. hasPkgScript (0%): This function checks package.json for a specific script.\n   Test with: valid package.json with the script, without the script, no\n   package.json, invalid JSON.\n\nAdd tests to internal/audit/audit_test.go. Follow existing test patterns in\nthat file — use table-driven tests with t.TempDir() for filesystem tests.\n\nVerify:\n  go test ./internal/audit/ -v -run \"TestCollectUsedAssertions|TestHasHTTPServer|TestHasPkgScript\"\n  go test -cover ./internal/audit/\n\nCommit via: ccs commit-batch --message \"test(audit): improve coverage for collectUsedAssertions, hasHTTPServer, hasPkgScript\"\n",
+  "exit_code": 0,
+  "idle_timeout": 120000000000,
+  "max_timeout": 1800000000000,
+  "on_done_executed": false,
+  "base_commit": "a8cb8e7728bb43246776b542a24f733a54202dc7"
+}
