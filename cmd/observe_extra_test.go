@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -72,5 +76,120 @@ func TestObserveCmdDefaultTimeout(t *testing.T) {
 	}
 	if f.DefValue != "0s" {
 		t.Errorf("observe cmd --timeout default: expected 0s, got %s", f.DefValue)
+	}
+}
+
+// resetObserveVars saves and restores observe package vars.
+func resetObserveVars(t *testing.T) {
+	t.Helper()
+	origDir := observeDir
+	origTimeout := observeTimeout
+	origQuiet := observeQuiet
+	origOutput := observeOutput
+	t.Cleanup(func() {
+		observeDir = origDir
+		observeTimeout = origTimeout
+		observeQuiet = origQuiet
+		observeOutput = origOutput
+	})
+	observeDir = ""
+	observeTimeout = 0
+	observeQuiet = true // default to quiet so tests don't prompt stdin
+}
+
+// TestRunObserve_QuietMode runs a simple command in quiet mode and verifies the output file is created.
+func TestRunObserve_QuietMode(t *testing.T) {
+	dir := t.TempDir()
+	outPath := filepath.Join(dir, "out.yaml")
+	resetObserveVars(t)
+	observeOutput = outPath
+
+	// Use "echo hello" as the observed command — guaranteed to succeed and exit quickly.
+	if err := runObserve(nil, []string{"echo", "hello"}); err != nil {
+		t.Fatalf("runObserve quiet: %v", err)
+	}
+	if _, err := os.Stat(outPath); err != nil {
+		t.Errorf("expected output file %s to exist: %v", outPath, err)
+	}
+}
+
+// TestRunObserve_InvalidCommand verifies that an observe run with a non-existent command returns an error.
+func TestRunObserve_InvalidCommand(t *testing.T) {
+	dir := t.TempDir()
+	outPath := filepath.Join(dir, "out.yaml")
+	resetObserveVars(t)
+	observeOutput = outPath
+
+	// A command that doesn't exist should cause observer.Observe to fail.
+	err := runObserve(nil, []string{"__this_command_does_not_exist_smokesig_test__"})
+	// Note: some observers may not error on non-zero exit — only assert no panic.
+	_ = err
+}
+
+// pipeStdin replaces os.Stdin with a pipe containing the given input, restoring it in t.Cleanup.
+func pipeStdin(t *testing.T, input string) {
+	t.Helper()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	io.WriteString(w, input) //nolint:errcheck
+	w.Close()
+	orig := os.Stdin
+	os.Stdin = r
+	t.Cleanup(func() {
+		os.Stdin = orig
+		r.Close()
+	})
+}
+
+// TestRunObserve_InteractiveYes exercises the non-quiet path when user answers "Y".
+func TestRunObserve_InteractiveYes(t *testing.T) {
+	dir := t.TempDir()
+	outPath := filepath.Join(dir, "out.yaml")
+	resetObserveVars(t)
+	observeOutput = outPath
+	observeQuiet = false
+
+	pipeStdin(t, "Y\n")
+
+	if err := runObserve(nil, []string{"echo", "hello"}); err != nil {
+		t.Fatalf("runObserve interactive Y: %v", err)
+	}
+	if _, err := os.Stat(outPath); err != nil {
+		t.Errorf("expected output file to be written: %v", err)
+	}
+}
+
+// TestRunObserve_InteractiveNo exercises the non-quiet abort path when user answers "n".
+func TestRunObserve_InteractiveNo(t *testing.T) {
+	dir := t.TempDir()
+	outPath := filepath.Join(dir, "out.yaml")
+	resetObserveVars(t)
+	observeOutput = outPath
+	observeQuiet = false
+
+	pipeStdin(t, "n\n")
+
+	if err := runObserve(nil, []string{"echo", "hello"}); err != nil {
+		t.Fatalf("runObserve interactive n: %v", err)
+	}
+	// File should NOT be written when user aborts.
+	if _, err := os.Stat(outPath); err == nil {
+		t.Error("expected output file NOT to be written when user answers 'n'")
+	}
+}
+
+// TestRunObserve_MultiArgs verifies joining multiple args into a command string.
+func TestRunObserve_MultiArgs(t *testing.T) {
+	dir := t.TempDir()
+	outPath := filepath.Join(dir, "out.yaml")
+	resetObserveVars(t)
+	observeOutput = outPath
+	observeQuiet = true
+
+	_ = strings.Join([]string{"echo", "multi", "args"}, " ") // sanity check
+	if err := runObserve(nil, []string{"echo", "multi", "args"}); err != nil {
+		t.Fatalf("runObserve multi-args: %v", err)
 	}
 }

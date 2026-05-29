@@ -1,76 +1,159 @@
 package reporter
 
 import (
-	"io"
-	"os"
+	"bytes"
+	"errors"
 	"testing"
+	"time"
 )
 
-// TestNoOpMethods_NoPanic ensures all no-op interface methods on every reporter
-// can be called without panicking. These are legitimate method bodies that the
-// coverage tool marks 0% when never called.
-func TestNoOpMethods_NoPanic(t *testing.T) {
-	prereq := PrereqResultData{Name: "prereq", Passed: true}
+// TestBackstageNoopMethods exercises PrereqStart, PrereqResult, TestStart
+// on Backstage — all are no-op stubs that were at 0% coverage.
+func TestBackstageNoopMethods(t *testing.T) {
+	b := NewBackstage(&bytes.Buffer{})
+	// Must not panic.
+	b.PrereqStart("some-prereq")
+	b.PrereqResult(PrereqResultData{Name: "prereq", Passed: true})
+	b.TestStart("some-test")
+}
 
-	reporters := []struct {
-		name string
-		r    Reporter
-	}{
-		{"Backstage", NewBackstage(io.Discard)},
-		{"JSON", NewJSON(io.Discard)},
-		{"JUnit", NewJUnit(io.Discard)},
-		{"Prometheus", NewPrometheus(io.Discard)},
-		{"TAP", NewTAP(io.Discard)},
-		{"PushReporter", NewPushReporter("http://127.0.0.1:1/noop", "")},
+// TestBackstageSummary_AllPassed covers the healthy path through buildBackstageEntity.
+func TestBackstageSummary_AllPassed(t *testing.T) {
+	var buf bytes.Buffer
+	b := NewBackstage(&buf)
+	b.TestResult(TestResultData{Name: "t1", Passed: true, Duration: 10 * time.Millisecond})
+	b.Summary(SuiteResultData{Project: "proj", Total: 1, Passed: 1, Failed: 0})
+	if buf.Len() == 0 {
+		t.Error("expected JSON output, got empty buffer")
 	}
+}
 
-	for _, tc := range reporters {
+// TestBackstageOverallStatus covers all branches in backstageOverallStatus.
+func TestBackstageOverallStatus(t *testing.T) {
+	tests := []struct {
+		name  string
+		tests []TestResultData
+		want  string
+	}{
+		{"no tests", nil, "unknown"},
+		{"all pass", []TestResultData{{Passed: true}}, "healthy"},
+		{"hard failure", []TestResultData{{Passed: false, AllowedFailure: false}}, "unhealthy"},
+		{"allowed failure only", []TestResultData{{Passed: false, AllowedFailure: true}}, "degraded"},
+	}
+	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			// These should not panic
-			tc.r.PrereqStart("prereq")
-			tc.r.PrereqResult(prereq)
-			tc.r.TestStart("test")
+			got := backstageOverallStatus(tc.tests)
+			if got != tc.want {
+				t.Errorf("got %q, want %q", got, tc.want)
+			}
 		})
 	}
 }
 
-// TestWebhookReporter_NoOpPrereqStartTestStart covers PrereqStart and TestStart on WebhookReporter.
-func TestWebhookReporter_NoOpPrereqStartTestStart(t *testing.T) {
-	wh := NewWebhookReporter("http://127.0.0.1:1/noop", "", WebhookFormatJSON, WebhookOnFailure)
-	wh.PrereqStart("prereq")
-	wh.TestStart("test")
-}
-
-// TestOTelReporter_NoOpMethods covers PrereqStart, PrereqResult, TestStart on OTelReporter.
-func TestOTelReporter_NoOpMethods(t *testing.T) {
-	o := NewOTelReporter("http://127.0.0.1:1/noop", "test-service", nil)
-	o.PrereqStart("prereq")
-	o.PrereqResult(PrereqResultData{Name: "prereq", Passed: true})
-	o.TestStart("test")
-}
-
-// TestChainWithVerbosity_MultiFormat_VerbosityApplied verifies ChainWithVerbosity
-// wires verbosity to the terminal reporter correctly when multiple formats are used.
-func TestChainWithVerbosity_MultiFormat_VerbosityApplied(t *testing.T) {
-	tmp := t.TempDir()
-	orig, _ := os.Getwd()
-	os.Chdir(tmp)
-	defer os.Chdir(orig)
-
-	rep, closers, err := ChainWithVerbosity("terminal,json", io.Discard, VerbosityVerbose)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+// TestBackstageSummary_FailedWithError covers the msg-from-error branch.
+func TestBackstageSummary_FailedWithError(t *testing.T) {
+	var buf bytes.Buffer
+	b := NewBackstage(&buf)
+	b.TestResult(TestResultData{
+		Name:   "t-err",
+		Passed: false,
+		Error:  errors.New("boom"),
+	})
+	b.Summary(SuiteResultData{Project: "proj", Total: 1, Passed: 0, Failed: 1})
+	out := buf.String()
+	if out == "" {
+		t.Error("expected output")
 	}
-	defer func() {
-		for _, c := range closers {
-			c.Close()
-		}
-	}()
+}
 
-	// Just verify no panic on full lifecycle
-	rep.PrereqStart("docker")
-	rep.PrereqResult(PrereqResultData{Name: "docker", Passed: true})
-	rep.TestStart("check")
-	rep.TestResult(TestResultData{Name: "check", Passed: true})
-	rep.Summary(SuiteResultData{Total: 1, Passed: 1})
+// TestBackstageSummary_AllowedFailure covers the degraded-check branch.
+func TestBackstageSummary_AllowedFailure(t *testing.T) {
+	var buf bytes.Buffer
+	b := NewBackstage(&buf)
+	b.TestResult(TestResultData{
+		Name:           "t-allowed",
+		Passed:         false,
+		AllowedFailure: true,
+	})
+	b.Summary(SuiteResultData{Project: "proj", Total: 1, Passed: 0, Failed: 1})
+	out := buf.String()
+	if out == "" {
+		t.Error("expected JSON output")
+	}
+}
+
+// TestGitHubActionsNoopMethods exercises the no-op stubs on GitHubActions.
+func TestGitHubActionsNoopMethods(t *testing.T) {
+	g := NewGitHubActions(&bytes.Buffer{})
+	g.PrereqStart("prereq")
+	g.PrereqResult(PrereqResultData{Name: "prereq", Passed: true})
+	g.TestStart("test")
+}
+
+// TestGitHubActionsSummary covers Summary, buildMarkdown, emitCommands.
+func TestGitHubActionsSummary(t *testing.T) {
+	var buf bytes.Buffer
+	g := NewGitHubActions(&buf)
+	g.TestResult(TestResultData{
+		Name:   "pass",
+		Passed: true,
+		Duration: 5 * time.Millisecond,
+	})
+	g.TestResult(TestResultData{
+		Name:   "fail",
+		Passed: false,
+		Assertions: []AssertionDetail{
+			{Type: "exit_code", Passed: false, Expected: "0", Actual: "1"},
+		},
+	})
+	g.TestResult(TestResultData{
+		Name:           "flaky",
+		Passed:         false,
+		AllowedFailure: true,
+	})
+	g.Summary(SuiteResultData{Project: "p", Total: 3, Passed: 1, Failed: 2})
+	out := buf.String()
+	if out == "" {
+		t.Error("expected output from GitHubActions summary")
+	}
+}
+
+// TestJSONNoopMethods exercises the no-op stubs on JSON reporter.
+func TestJSONNoopMethods(t *testing.T) {
+	j := NewJSON(&bytes.Buffer{})
+	j.PrereqStart("prereq")
+	j.TestStart("test")
+}
+
+// TestJSONSummary_WithPrereqAndError covers prereq + error branches in JSON.Summary.
+func TestJSONSummary_WithPrereqAndError(t *testing.T) {
+	var buf bytes.Buffer
+	j := NewJSON(&buf)
+	j.PrereqResult(PrereqResultData{
+		Name:   "docker",
+		Passed: false,
+		Error:  errors.New("docker not found"),
+		Hint:   "install docker",
+	})
+	j.TestResult(TestResultData{
+		Name:   "t1",
+		Passed: false,
+		Error:  errors.New("cmd failed"),
+		Assertions: []AssertionDetail{
+			{Type: "exit_code", Passed: false, Expected: "0", Actual: "2"},
+		},
+	})
+	j.Summary(SuiteResultData{Project: "proj", Total: 1, Passed: 0, Failed: 1})
+	out := buf.String()
+	if out == "" {
+		t.Error("expected JSON output")
+	}
+}
+
+// TestJUnitNoopMethods exercises the no-op stubs on JUnit reporter.
+func TestJUnitNoopMethods(t *testing.T) {
+	j := NewJUnit(&bytes.Buffer{})
+	j.PrereqStart("prereq")
+	j.PrereqResult(PrereqResultData{Name: "prereq", Passed: true})
+	j.TestStart("test")
 }

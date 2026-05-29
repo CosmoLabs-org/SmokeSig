@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
 	"github.com/spf13/cobra"
 )
 
@@ -398,4 +399,14 @@ tests:
 	if resp["error"] == "" {
 		t.Error("expected non-empty error field for runner error")
 	}
+}
+
+// TestNoopReporter_NoPanic verifies all noopReporter methods can be called without panic.
+func TestNoopReporter_NoPanic(t *testing.T) {
+	r := newNoopReporter()
+	r.PrereqStart("test")
+	r.PrereqResult(reporter.PrereqResultData{})
+	r.TestStart("test")
+	r.TestResult(reporter.TestResultData{})
+	r.Summary(reporter.SuiteResultData{})
 }

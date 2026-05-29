@@ -326,3 +326,103 @@ func TestGenerateFixTests_MultipleTypes(t *testing.T) {
 		t.Fatalf("expected 3 total tests from 3 findings, got %d", totalTests)
 	}
 }
+
+// ---------------------------------------------------------------------------
+// applyFixes tests
+// ---------------------------------------------------------------------------
+
+// TestApplyFixes_NoConfig returns 0 when report says config doesn't exist.
+func TestApplyFixes_NoConfig(t *testing.T) {
+	dir := t.TempDir()
+	report := &audit.Report{ConfigExists: false}
+	n, err := applyFixes(dir, filepath.Join(dir, ".smokesig.yaml"), report)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if n != 0 {
+		t.Errorf("expected 0 fixes, got %d", n)
+	}
+}
+
+// TestApplyFixes_NoRecommendations returns 0 when there are no fixable recommendations.
+func TestApplyFixes_NoRecommendations(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, ".smokesig.yaml")
+	cfg := `version: 1
+project: fix-test
+tests:
+  - name: basic
+    run: echo ok
+    expect:
+      exit_code: 0
+`
+	if err := os.WriteFile(cfgPath, []byte(cfg), 0644); err != nil {
+		t.Fatal(err)
+	}
+	report := &audit.Report{
+		ConfigExists:    true,
+		Recommendations: []audit.Recommendation{
+			{Type: "other", Message: "not a fixable type"},
+		},
+	}
+	n, err := applyFixes(dir, cfgPath, report)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if n != 0 {
+		t.Errorf("expected 0 fixes for non-fixable recs, got %d", n)
+	}
+}
+
+// TestApplyFixes_WithMissingAssertion applies a missing_assertion fix and writes updated config.
+func TestApplyFixes_WithMissingAssertion(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, ".smokesig.yaml")
+	cfg := `version: 1
+project: fix-test
+tests:
+  - name: basic
+    run: echo ok
+    expect:
+      exit_code: 0
+`
+	if err := os.WriteFile(cfgPath, []byte(cfg), 0644); err != nil {
+		t.Fatal(err)
+	}
+	report := &audit.Report{
+		ConfigExists: true,
+		Recommendations: []audit.Recommendation{
+			{Type: "missing_assertion", Message: "Add env_exists assertions — .env.example found"},
+		},
+	}
+	n, err := applyFixes(dir, cfgPath, report)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if n == 0 {
+		t.Error("expected at least 1 fix applied, got 0")
+	}
+	// Verify the file was rewritten.
+	data, err := os.ReadFile(cfgPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(data) == 0 {
+		t.Error("config file should not be empty after fix")
+	}
+}
+
+// TestApplyFixes_InvalidConfig returns an error when the config file is malformed.
+func TestApplyFixes_InvalidConfig(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, ".smokesig.yaml")
+	if err := os.WriteFile(cfgPath, []byte("{{not valid yaml"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	report := &audit.Report{ConfigExists: true}
+	_, err := applyFixes(dir, cfgPath, report)
+	if err == nil {
+		t.Fatal("expected error for invalid config, got nil")
+	}
+}
+

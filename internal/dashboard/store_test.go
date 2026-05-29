@@ -173,18 +173,7 @@ func TestNewStore_MaxRunsDefault(t *testing.T) {
 	}
 }
 
-// TestNewStore_NegativeMaxRuns verifies that negative maxRunsPerProject also defaults to 1000.
-func TestNewStore_NegativeMaxRuns(t *testing.T) {
-	s, err := NewStore(":memory:", -5)
-	if err != nil {
-		t.Fatalf("NewStore: %v", err)
-	}
-	defer s.Close()
-
-	if s.maxRunsPerProject != 1000 {
-		t.Errorf("maxRunsPerProject = %d, want 1000", s.maxRunsPerProject)
-	}
-}
+// TestNewStore_NegativeMaxRuns moved to coverage_test.go to avoid duplication.
 
 // TestGetProjectHistory_LimitZeroDefaults verifies that limit=0 defaults to 50.
 func TestGetProjectHistory_LimitZeroDefaults(t *testing.T) {
