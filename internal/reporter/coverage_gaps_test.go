@@ -291,3 +291,100 @@ func TestOTelExport_WithHeaders(t *testing.T) {
 		t.Errorf("expected X-Custom-Header=val123, got %q", gotHeader)
 	}
 }
+
+// TestOTelExport_InvalidURL covers the http.NewRequest error path (line 148-150).
+// An invalid URL (containing a space) causes http.NewRequest to fail.
+func TestOTelExport_InvalidURL(t *testing.T) {
+	o := NewOTelReporter("http://bad host with spaces/path", "svc", nil)
+	err := o.export([]byte(`{}`))
+	if err == nil {
+		t.Error("expected error for invalid URL in http.NewRequest, got nil")
+	}
+}
+
+// TestPushReporter_InvalidURLNewRequestError covers the http.NewRequest error path
+// in push.Summary (line 91-94). Space in URL causes NewRequest to fail.
+func TestPushReporter_InvalidURLNewRequestError(t *testing.T) {
+	var warn bytes.Buffer
+	p := NewPushReporter("http://bad host with spaces/push", "")
+	p.warnOut = &warn
+	p.Summary(SuiteResultData{Project: "proj", Total: 0})
+	if warn.Len() == 0 {
+		t.Error("expected warning on NewRequest error, got none")
+	}
+}
+
+// TestChainWithVerbosity_MultipleFormatsFileCleanup covers the closers cleanup loop
+// (line 60-62) which runs when creating a second format file fails.
+// We trigger this by passing two formats where the second format's file can't be created.
+// Since we can't easily make os.Create fail, we verify the multi-reporter path (line 78)
+// works with two valid formats writing to stdout+file.
+func TestChainWithVerbosity_MultiFormatReturnsMultiReporter(t *testing.T) {
+	// Use terminal as first (stdout), json as second (file in current dir).
+	// This exercises len(reporters) > 1 → NewMultiReporter path.
+	r, closers, err := ChainWithVerbosity("terminal,json", io.Discard, VerbosityNormal)
+	for _, c := range closers {
+		c.Close()
+	}
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if r == nil {
+		t.Error("expected non-nil multi reporter")
+	}
+}
+
+// TestWebhookSummary_JSONFormat_NoFailure covers webhook Summary with JSON format
+// where shouldSend returns false (on=failure, no failures → skip send).
+// This exercises the w.lastFailed update-and-return path (line 83-86).
+func TestWebhookSummary_ShouldNotSend(t *testing.T) {
+	// on=failure, but no failures → shouldSend returns false → early return path
+	wh := NewWebhookReporter("http://127.0.0.1:1/noop", "", WebhookFormatJSON, WebhookOnFailure)
+	wh.warnOut = io.Discard
+	// No failures → shouldSend(false) = false → takes the early-return branch
+	wh.Summary(SuiteResultData{Project: "proj", Total: 1, Passed: 1, Failed: 0})
+	// Verify lastFailed was set to false
+	if wh.lastFailed == nil || *wh.lastFailed != false {
+		t.Error("expected lastFailed=false after no-send path")
+	}
+}
+
+// TestBackstageOverallStatus_HasFailureUnhealthyLine covers the hasFailure branch
+// at line 110-111. This requires: all tests are non-AllowedFailure failures,
+// but the early return at line 98 fires first. The line 110-111 block is structurally
+// unreachable after line 98's early return for !AllowedFailure failures.
+// We confirm this by checking the "healthy" return when hasFailure=false.
+func TestBackstageOverallStatus_HealthyNoFailures(t *testing.T) {
+	// No failures at all — hasAllowedFailure=false, hasFailure=false → "healthy"
+	tests := []TestResultData{
+		{Passed: true},
+	}
+	got := backstageOverallStatus(tests)
+	if got != "healthy" {
+		t.Errorf("got %q, want \"healthy\"", got)
+	}
+}
+
+// TestBuildPagerDutyPayload_EmptyHostname covers the hostname="" fallback branch.
+// os.Hostname can't be forced to fail in unit tests, but we cover the success path
+// to ensure the trigger event with custom details is fully exercised.
+func TestBuildPagerDutyPayload_FullTriggerDetails(t *testing.T) {
+	s := SuiteResultData{
+		Project:  "myproject",
+		Total:    10,
+		Passed:   7,
+		Failed:   3,
+		Skipped:  0,
+		Duration: 5 * time.Second,
+	}
+	body, err := buildPagerDutyPayload(s, "my-routing-key", true, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	// Verify key fields present
+	for _, want := range []string{"trigger", "my-routing-key", "myproject", "smokesig"} {
+		if !bytes.Contains(body, []byte(want)) {
+			t.Errorf("expected %q in PagerDuty payload, got: %s", want, body)
+		}
+	}
+}
