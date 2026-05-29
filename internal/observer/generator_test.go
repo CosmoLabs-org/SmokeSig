@@ -306,3 +306,92 @@ func assertTest(t *testing.T, gt generatedTest, name string, exitCode *int, stdo
 }
 
 func intPtr(v int) *int { return &v }
+
+// TestDefaultStr_EmptyValUsesDefault verifies defaultStr returns def when val is empty.
+func TestDefaultStr_EmptyValUsesDefault(t *testing.T) {
+	got := defaultStr("", "fallback")
+	if got != "fallback" {
+		t.Errorf("defaultStr(%q,%q) = %q, want %q", "", "fallback", got, "fallback")
+	}
+}
+
+// TestDefaultStr_NonEmptyValUsesVal verifies defaultStr returns val when non-empty.
+func TestDefaultStr_NonEmptyValUsesVal(t *testing.T) {
+	got := defaultStr("actual", "fallback")
+	if got != "actual" {
+		t.Errorf("defaultStr(%q,%q) = %q, want %q", "actual", "fallback", got, "actual")
+	}
+}
+
+// TestFileTestName_PathWithDots verifies fileTestName converts dots in path to dashes.
+func TestFileTestName_PathWithDots(t *testing.T) {
+	cases := []struct {
+		path string
+		want string
+	}{
+		{"dist/app.min.js", "file-dist-app-min-js"},
+		{"build/Release/app.exe", "file-build-release-app-exe"},
+		{"file.with.many.dots", "file-file-with-many-dots"},
+		{"nodots", "file-nodots"},
+		// Only dots and slashes get replaced; leading/trailing dashes are trimmed.
+		{"./file.txt", "file-file-txt"},
+	}
+	for _, tt := range cases {
+		got := fileTestName(tt.path)
+		if got != tt.want {
+			t.Errorf("fileTestName(%q) = %q, want %q", tt.path, got, tt.want)
+		}
+	}
+}
+
+// TestSanitizeName_SpecialChars verifies sanitizeName converts special chars to dashes and deduplicates.
+func TestSanitizeName_SpecialChars(t *testing.T) {
+	cases := []struct {
+		input string
+		want  string
+	}{
+		{"hello world", "hello-world"},
+		{"api/v1/status", "api-v1-status"},
+		{"foo___bar", "foo-bar"},           // underscores → dashes, deduplicated
+		{"UPPER", "upper"},                 // uppercased
+		{"foo!@#bar", "foo-bar"},           // special chars → dashes, deduplicated
+		{"---leading", "leading"},          // leading dashes trimmed
+		{"trailing---", "trailing"},        // trailing dashes trimmed
+		{"!!!!", "endpoint"},              // all special → empty → fallback
+		{"mix3d-and-numb3rs", "mix3d-and-numb3rs"}, // digits and dashes preserved
+	}
+	for _, tt := range cases {
+		got := sanitizeName(tt.input)
+		if got != tt.want {
+			t.Errorf("sanitizeName(%q) = %q, want %q", tt.input, got, tt.want)
+		}
+	}
+}
+
+// TestGeneratePortWithEmptyProtocol verifies defaultStr fallback is used when protocol is empty.
+func TestGeneratePortWithEmptyProtocol(t *testing.T) {
+	obs := &Observation{
+		Command: "test",
+		Ports: []PortBinding{
+			{Port: 1234, Protocol: "", Host: "*"},
+		},
+	}
+	out, err := Generate(obs)
+	if err != nil {
+		t.Fatalf("Generate() error: %v", err)
+	}
+	var cfg generatedConfig
+	if err := unmarshalYAML(out, &cfg); err != nil {
+		t.Fatalf("YAML unmarshal error: %v", err)
+	}
+	// Find port test.
+	for _, tt := range cfg.Tests {
+		if tt.Expect.PortListening != nil && tt.Expect.PortListening.Port == 1234 {
+			if tt.Expect.PortListening.Protocol != "tcp" {
+				t.Errorf("protocol = %q, want %q (defaultStr fallback)", tt.Expect.PortListening.Protocol, "tcp")
+			}
+			return
+		}
+	}
+	t.Error("port-1234 test not found in output")
+}
