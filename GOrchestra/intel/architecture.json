@@ -1,36 +1,36 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-29T00:10:10.244797-03:00",
+  "generated_at": "2026-05-29T00:10:33.702024-03:00",
   "generated_by": "glm-5.1",
-  "expires_at": "2026-05-30T00:10:10.244797-03:00",
-  "last_analyzed_commit": "443438eb5ef10f48882ea4f7594cd46e62be0bbf",
-  "summary": "Go-based test orchestration framework with agent-driven validation, schema checking, and MCP handler support for automated test suite management",
-  "architecture": "monolith with modular internal packages",
+  "expires_at": "2026-05-30T00:10:33.702024-03:00",
+  "last_analyzed_commit": "5de65fa314785e733056da8653eefc79190b3f1c",
+  "summary": "Go-based test orchestration framework with modular runner, schema validation, reporting, and MCP integration, developed through a multi-agent workflow system",
+  "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
     "internal/runner/runner.go",
+    "internal/runner/runner_test.go",
     "internal/runner/assertion_test.go",
     "internal/schema/schema_extra_test.go",
-    "internal/mcp/handlers.go",
-    "cmd/run_extra_test.go"
+    "internal/mcp/handlers.go"
   ],
   "patterns": [
-    "agent-based orchestration with numbered test suites",
-    "internal package encapsulation (runner, schema, reporter, mcp)",
-    "assertion wiring for test validation",
-    "webhook-based reporting",
-    "MCP (Model Context Protocol) handler integration"
+    "standard Go project layout (cmd/internal separation)",
+    "test-driven development (extensive _test.go coverage)",
+    "agent-based orchestration (GOrchestra multi-agent system)",
+    "modular internal packages (runner, schema, reporter, mcp)"
   ],
   "concerns": [
-    "large number of agent directories (0005-0037+) suggests heavy test proliferation without clear organization",
-    "truncated directory names in agent folders indicate filesystem or naming constraints",
-    "test files appear to outnumber source files significantly",
-    "metadata commits interleaved with test commits suggest automated agent workflow generating noise"
+    "heavy test proliferation across many agent directories may indicate fragmented ownership",
+    "assertion_wire_test.go suggests test coupling or shared test infrastructure",
+    "multiple parallel test suites (connectivity, prometheus, schema, goss) could lead to maintenance burden",
+    "agent metadata commits interleaved with feature commits suggest automated workflow noise"
   ],
   "suggestions": [
-    "consolidate agent test directories into a structured test matrix rather than flat numbered folders",
-    "document the agent orchestration workflow and numbering scheme",
-    "review test-to-code ratio for coverage efficiency",
-    "consider grouping related agent tests by feature area instead of sequential numbering"
+    "consolidate overlapping test suites under unified test packages",
+    "document the GOrchestra agent orchestration strategy and naming conventions",
+    "add integration test coverage for MCP handlers",
+    "consider extracting shared assertion utilities to reduce duplication",
+    "establish commit conventions to separate metadata from functional changes"
   ]
 }
