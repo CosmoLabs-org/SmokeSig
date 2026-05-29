@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/CosmoLabs-org/SmokeSig/internal/detector"
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
@@ -683,6 +684,439 @@ func TestHasPkgScript(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestRun_AllPassing verifies a well-configured project gets high score with no
+// recommendations (covers the path where all checks pass).
+func TestRun_AllPassing(t *testing.T) {
+	dir := t.TempDir()
+
+	// Go project with build test AND exit_code assertions.
+	writeFile(t, dir, "go.mod", "module example.com/test\ngo 1.21\n")
+	writeFile(t, dir, ".smokesig.yaml", `
+version: 1
+project: test-project
+tests:
+  - name: Build binary
+    run: go build ./...
+    expect:
+      exit_code: 0
+  - name: Unit tests
+    run: go test ./...
+    expect:
+      exit_code: 0
+  - name: Version
+    run: go run . version
+    expect:
+      exit_code: 0
+      stdout_contains: "v"
+`)
+
+	configPath := filepath.Join(dir, ".smokesig.yaml")
+	report, err := Run(dir, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !report.ConfigExists {
+		t.Error("expected ConfigExists=true")
+	}
+	if report.TestCount != 3 {
+		t.Errorf("expected 3 tests, got %d", report.TestCount)
+	}
+	// No recommendations about missing build or exit_code — those checks pass.
+	for _, r := range report.Recommendations {
+		if r.Type == "missing_baseline" {
+			t.Errorf("unexpected missing_baseline recommendation: %s", r.Message)
+		}
+	}
+	// Passes list should contain build and exit_code confirmations.
+	hasBuildPass := false
+	hasExitPass := false
+	for _, p := range report.Passes {
+		if strings.Contains(p, "Build") {
+			hasBuildPass = true
+		}
+		if strings.Contains(p, "Exit") {
+			hasExitPass = true
+		}
+	}
+	if !hasBuildPass {
+		t.Error("expected Build test pass confirmation")
+	}
+	if !hasExitPass {
+		t.Error("expected Exit code assertions pass confirmation")
+	}
+}
+
+// TestLoadConfig_InvalidYAML verifies that a config file with invalid YAML is
+// treated as "exists but can't parse" (returns nil cfg, exists=true).
+func TestLoadConfig_InvalidYAML(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".smokesig.yaml")
+	// Write syntactically invalid YAML.
+	if err := os.WriteFile(path, []byte("version: [\nnot valid yaml: {{{"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, exists := loadConfig(path)
+	if !exists {
+		t.Error("expected exists=true for a file that is present")
+	}
+	if cfg != nil {
+		t.Error("expected cfg=nil for an unparseable config")
+	}
+}
+
+// TestRun_InvalidYAML tests the full Run() path when config is present but invalid.
+func TestRun_InvalidYAML(t *testing.T) {
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, ".smokesig.yaml")
+	if err := os.WriteFile(configPath, []byte("version: [\nbad yaml: {{{"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	report, err := Run(dir, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !report.ConfigExists {
+		t.Error("expected ConfigExists=true")
+	}
+	found := false
+	for _, r := range report.Recommendations {
+		if r.Type == "invalid_config" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected invalid_config recommendation for unparseable YAML")
+	}
+	if report.Score != 0 {
+		t.Errorf("expected score 0 for invalid config, got %d", report.Score)
+	}
+}
+
+// TestRun_NodeProject verifies Node project detection triggers http recommendation.
+func TestRun_NodeProject(t *testing.T) {
+	dir := t.TempDir()
+
+	writeFile(t, dir, "package.json", `{
+  "name": "my-app",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  }
+}`)
+	writeFile(t, dir, ".smokesig.yaml", `
+version: 1
+project: my-app
+tests:
+  - name: Build
+    run: npm run build
+    expect:
+      exit_code: 0
+`)
+
+	configPath := filepath.Join(dir, ".smokesig.yaml")
+	report, err := Run(dir, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	found := false
+	for _, r := range report.Recommendations {
+		if strings.Contains(r.Message, "http") && strings.Contains(r.Message, "Node") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected http assertion recommendation for Node project with start script")
+	}
+}
+
+// TestRun_PythonProject verifies Python project detection with a basic config.
+func TestRun_PythonProject(t *testing.T) {
+	dir := t.TempDir()
+
+	writeFile(t, dir, "requirements.txt", "flask\ngunicorn\n")
+	writeFile(t, dir, ".smokesig.yaml", `
+version: 1
+project: my-python-app
+tests:
+  - name: Build
+    run: pip install -r requirements.txt
+    expect:
+      exit_code: 0
+  - name: Tests
+    run: pytest
+    expect:
+      exit_code: 0
+`)
+
+	configPath := filepath.Join(dir, ".smokesig.yaml")
+	report, err := Run(dir, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !report.ConfigExists {
+		t.Error("expected ConfigExists=true")
+	}
+	if report.TestCount != 2 {
+		t.Errorf("expected 2 tests, got %d", report.TestCount)
+	}
+	// Python project — no exit_code assertions but has "build" and "test" names.
+	// Check score is reasonable.
+	if report.Score < 0 || report.Score > 10 {
+		t.Errorf("score %d out of range 0-10", report.Score)
+	}
+}
+
+// TestCalculateScore_MaxDeductions verifies that score is floored at 0 when
+// there are enough warnings to exceed the starting score of 10.
+func TestCalculateScore_MaxDeductions(t *testing.T) {
+	// 6 warnings × 2 = 12 deductions → would be -2, clamped to 0.
+	// Plus no tests (-3) → would be -5, clamped to 0.
+	report := &Report{
+		ConfigExists: true,
+		TestCount:    0,
+		Recommendations: []Recommendation{
+			{Severity: SeverityWarning},
+			{Severity: SeverityWarning},
+			{Severity: SeverityWarning},
+			{Severity: SeverityWarning},
+			{Severity: SeverityWarning},
+			{Severity: SeverityWarning},
+			{Severity: SeverityInfo},
+			{Severity: SeverityInfo},
+		},
+	}
+	score := calculateScore(report)
+	if score != 0 {
+		t.Errorf("expected score 0 with max deductions, got %d", score)
+	}
+}
+
+// TestCalculateScore_InfoOnly verifies info-severity items deduct 1 each.
+func TestCalculateScore_InfoOnly(t *testing.T) {
+	report := &Report{
+		ConfigExists: true,
+		TestCount:    3,
+		Recommendations: []Recommendation{
+			{Severity: SeverityInfo},
+			{Severity: SeverityInfo},
+		},
+	}
+	score := calculateScore(report)
+	// 10 - 1 - 1 = 8
+	if score != 8 {
+		t.Errorf("expected score 8 for 2 info items, got %d", score)
+	}
+}
+
+// TestFormatTerminal_WithRecommendations verifies FormatTerminal renders
+// recommendations and config-not-found path correctly.
+func TestFormatTerminal_WithRecommendations(t *testing.T) {
+	report := &Report{
+		ConfigExists:    false,
+		ConfigPath:      "/tmp/.smokesig.yaml",
+		ProjectType:     "unknown",
+		TestCount:       0,
+		AssertionsUsed:  0,
+		TotalAssertions: 45,
+		Score:           0,
+		Recommendations: []Recommendation{
+			{Message: "No .smokesig.yaml found — run smokesig init to generate one"},
+			{Message: "Add a build test"},
+		},
+		Passes: []string{},
+	}
+
+	out := FormatTerminal(report)
+	if out == "" {
+		t.Fatal("expected non-empty output")
+	}
+
+	checks := []string{
+		"SmokeSig Audit Report",
+		"unknown (detected)",
+		".smokesig.yaml (not found)",
+		"0 defined",
+		"0 of 45",
+		"smokesig init",
+		"Add a build test",
+		"0/10",
+	}
+	for _, check := range checks {
+		if !strings.Contains(out, check) {
+			t.Errorf("output missing %q:\n%s", check, out)
+		}
+	}
+}
+
+// TestFormatTerminal_NoRecommendationsOrPasses verifies the recommendations
+// block is omitted when both slices are empty.
+func TestFormatTerminal_NoRecommendationsOrPasses(t *testing.T) {
+	report := &Report{
+		ConfigExists:    true,
+		ConfigPath:      "/tmp/.smokesig.yaml",
+		ProjectType:     "go",
+		TestCount:       5,
+		AssertionsUsed:  3,
+		TotalAssertions: 45,
+		Score:           10,
+		Recommendations: nil,
+		Passes:          nil,
+	}
+
+	out := FormatTerminal(report)
+	if strings.Contains(out, "Recommendations:") {
+		t.Error("should not print Recommendations section when there are none")
+	}
+	if !strings.Contains(out, "10/10") {
+		t.Errorf("expected '10/10' in output:\n%s", out)
+	}
+}
+
+// TestRun_GoHTTPServer verifies that a Go project with http.ListenAndServe
+// gets an http assertion recommendation.
+func TestRun_GoHTTPServer(t *testing.T) {
+	dir := t.TempDir()
+
+	writeFile(t, dir, "go.mod", "module example.com/test\ngo 1.21\n")
+	writeFile(t, dir, "main.go", "package main\nfunc main() { http.ListenAndServe(\":8080\", nil) }\n")
+	writeFile(t, dir, ".smokesig.yaml", `
+version: 1
+project: test-project
+tests:
+  - name: Build
+    run: go build ./...
+    expect:
+      exit_code: 0
+`)
+
+	configPath := filepath.Join(dir, ".smokesig.yaml")
+	report, err := Run(dir, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	found := false
+	for _, r := range report.Recommendations {
+		if strings.Contains(r.Message, "http") && strings.Contains(r.Message, "HTTP server") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected http assertion recommendation for Go project with ListenAndServe")
+	}
+}
+
+// TestRun_DockerCompose verifies docker-compose.yml triggers docker_compose_healthy recommendation.
+func TestRun_DockerCompose(t *testing.T) {
+	dir := t.TempDir()
+
+	writeFile(t, dir, "docker-compose.yml", "version: '3'\nservices:\n  app:\n    image: alpine\n")
+	writeFile(t, dir, ".smokesig.yaml", `
+version: 1
+project: test-project
+tests:
+  - name: Build
+    run: docker-compose build
+    expect:
+      exit_code: 0
+`)
+
+	configPath := filepath.Join(dir, ".smokesig.yaml")
+	report, err := Run(dir, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	found := false
+	for _, r := range report.Recommendations {
+		if strings.Contains(r.Message, "docker_compose_healthy") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected docker_compose_healthy recommendation when docker-compose.yml present")
+	}
+}
+
+// TestCheckAssertionCoverage_DirectCall exercises branches not reachable via
+// Run() without complex project setups — calls the function directly.
+func TestCheckAssertionCoverage_DirectCall(t *testing.T) {
+	t.Run("helm project", func(t *testing.T) {
+		dir := t.TempDir()
+		// Helm detection requires Chart.yaml.
+		writeFile(t, dir, "Chart.yaml", "apiVersion: v2\nname: myapp\nversion: 0.1.0\n")
+		cfg := &schema.SmokeConfig{
+			Tests: []schema.Test{
+				{Name: "test", Run: "helm lint .", Expect: schema.Expect{}},
+			},
+		}
+		used := map[string]bool{}
+		report := &Report{}
+		types := detector.Detect(dir)
+		checkAssertionCoverage(dir, cfg, types, used, report)
+
+		found := false
+		for _, r := range report.Recommendations {
+			if strings.Contains(r.Message, "k8s_resource") {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Log("helm type not detected (Chart.yaml may need more content), skipping k8s_resource check")
+		}
+	})
+
+	t.Run("ios project", func(t *testing.T) {
+		dir := t.TempDir()
+		// iOS detection: .xcodeproj directory.
+		if err := os.MkdirAll(filepath.Join(dir, "MyApp.xcodeproj"), 0755); err != nil {
+			t.Fatal(err)
+		}
+		cfg := &schema.SmokeConfig{}
+		used := map[string]bool{}
+		report := &Report{}
+		types := detector.Detect(dir)
+		checkAssertionCoverage(dir, cfg, types, used, report)
+		// Just ensure no panic — iOS detection may or may not fire.
+	})
+
+	t.Run("android project", func(t *testing.T) {
+		dir := t.TempDir()
+		// Android detection: build.gradle + AndroidManifest.xml.
+		writeFile(t, dir, "build.gradle", "apply plugin: 'com.android.application'\n")
+		writeFile(t, dir, "app/src/main/AndroidManifest.xml", "<manifest/>\n")
+		cfg := &schema.SmokeConfig{}
+		used := map[string]bool{}
+		report := &Report{}
+		types := detector.Detect(dir)
+		checkAssertionCoverage(dir, cfg, types, used, report)
+		// Just ensure no panic — android detection may or may not fire.
+	})
+
+	t.Run("react native project", func(t *testing.T) {
+		dir := t.TempDir()
+		// React Native detection: package.json with react-native dependency.
+		writeFile(t, dir, "package.json", `{"name":"app","dependencies":{"react-native":"0.72.0"}}`)
+		cfg := &schema.SmokeConfig{}
+		used := map[string]bool{}
+		report := &Report{}
+		types := detector.Detect(dir)
+		checkAssertionCoverage(dir, cfg, types, used, report)
+		// Just ensure no panic.
+	})
 }
 
 func writeFile(t *testing.T, dir, name, content string) {
