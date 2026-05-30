@@ -1,0 +1,16 @@
+{
+  "id": "0049",
+  "pid": 74408,
+  "tmux_session": "glm-0049",
+  "worktree_path": "/Users/gabstudio/PROJECTS/SmokeSig-worktrees/_glm-agent-0049-authconfig-authproviderconfig",
+  "branch": "_glm-agent-0049-authconfig-authproviderconfig",
+  "base_branch": "master",
+  "status": "done",
+  "started_at": "2026-05-30T09:32:39.824005-03:00",
+  "task": "Add AuthConfig and AuthProviderConfig types to internal/schema/schema.go.\n\nAdd these types after the LifecycleConfig struct:\n\ntype AuthConfig struct {\n    Providers []AuthProviderConfig `yaml:\"providers\"`\n}\n\ntype AuthProviderConfig struct {\n    Type           string `yaml:\"type\"`\n    RoleARN        string `yaml:\"role_arn,omitempty\"`\n    Region         string `yaml:\"region,omitempty\"`\n    SessionName    string `yaml:\"session_name,omitempty\"`\n    ProjectNumber  string `yaml:\"project_number,omitempty\"`\n    PoolID         string `yaml:\"pool_id,omitempty\"`\n    ProviderID     string `yaml:\"provider_id,omitempty\"`\n    ServiceAccount string `yaml:\"service_account,omitempty\"`\n    TenantID       string `yaml:\"tenant_id,omitempty\"`\n    ClientID       string `yaml:\"client_id,omitempty\"`\n    SubscriptionID string `yaml:\"subscription_id,omitempty\"`\n}\n\nAdd field to SmokeConfig struct:\n    Auth *AuthConfig `yaml:\"auth,omitempty\"`\n\nVerify:\n  go test ./internal/schema/ -v\n  go build ./...\n\nCommit: ccs commit -m \"feat(schema): add AuthConfig types for OIDC providers (FEAT-049)\"\n",
+  "exit_code": 0,
+  "idle_timeout": 120000000000,
+  "max_timeout": 1800000000000,
+  "on_done_executed": false,
+  "base_commit": "79bffcb06d239fbe6176f7c1940a21a73695a934"
+}

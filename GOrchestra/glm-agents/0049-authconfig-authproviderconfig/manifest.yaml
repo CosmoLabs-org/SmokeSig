@@ -1,0 +1,12 @@
+id: "0049"
+task: "Add AuthConfig and AuthProviderConfig types to internal/schema/schema.go.  Add these types after the LifecycleConfig struct:  type AuthConfig struct {     Providers []AuthProviderConfig `yaml:\"providers\"` }  type AuthProviderConfig struct {     Type           string `yaml:\"type\"`     RoleARN        string `yaml:\"role_arn,omitempty\"`     Region         string `yaml:\"region,omitempty\"`     SessionName    string `yaml:\"session_name,omitempty\"`     ProjectNumber  string `yaml:\"project_number,omitempty\"`     PoolID         string `yaml:\"pool_id,omitempty\"`     ProviderID     string `yaml:\"provider_id,omitempty\"`     ServiceAccount string `yaml:\"service_account,omitempty\"`     TenantID       string `yaml:\"tenant_id,omitempty\"`     ClientID       string `yaml:\"client_id,omitempty\"`     SubscriptionID string `yaml:\"subscription_id,omitempty\"` }  Add field to SmokeConfig struct:     Auth *AuthConfig `yaml:\"auth,omitempty\"`  Verify:   go test ./internal/schema/ -v   go build ./...  Commit: ccs commit -m \"feat(schema): add AuthConfig types for OIDC providers (FEAT-049)\" "
+status: applied
+started: 2026-05-30T09:32:39-03:00
+completed: 2026-05-30T09:41:16-03:00
+duration: 8m36s
+exit_code: 0
+commit: d299fb9c7cf40c9e7621fa749c00a8053098f996
+branch: _glm-agent-0049-authconfig-authproviderconfig
+summary: "Added AuthConfig and AuthProviderConfig types to internal/schema/schema.go with OIDC provider fields (AWS, GCP, Azure), and added Auth field to SmokeConfig struct."
+files_changed:
+  - "internal/schema/schema.go"

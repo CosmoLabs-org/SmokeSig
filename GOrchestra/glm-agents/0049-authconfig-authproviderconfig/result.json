@@ -1,0 +1,5 @@
+{
+  "summary": "Added AuthConfig and AuthProviderConfig types to internal/schema/schema.go with OIDC provider fields (AWS, GCP, Azure), and added Auth field to SmokeConfig struct.",
+  "files_changed": ["internal/schema/schema.go"],
+  "errors": []
+}
