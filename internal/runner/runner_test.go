@@ -663,3 +663,38 @@ func TestRunner_NoRecursionGuardWithoutEnv(t *testing.T) {
 		t.Errorf("passed = %d, want 1", result.Passed)
 	}
 }
+
+func TestFilterByName(t *testing.T) {
+	tests := []schema.Test{
+		{Name: "alpha"}, {Name: "beta"}, {Name: "gamma"},
+	}
+
+	// Empty names = all tests
+	got := filterByName(tests, nil)
+	if len(got) != 3 {
+		t.Errorf("nil names: expected 3, got %d", len(got))
+	}
+
+	got = filterByName(tests, []string{})
+	if len(got) != 3 {
+		t.Errorf("empty names: expected 3, got %d", len(got))
+	}
+
+	// Specific name
+	got = filterByName(tests, []string{"beta"})
+	if len(got) != 1 || got[0].Name != "beta" {
+		t.Errorf("single name: expected [beta], got %v", got)
+	}
+
+	// Multiple names
+	got = filterByName(tests, []string{"alpha", "gamma"})
+	if len(got) != 2 {
+		t.Errorf("two names: expected 2, got %d", len(got))
+	}
+
+	// Non-existent name
+	got = filterByName(tests, []string{"delta"})
+	if len(got) != 0 {
+		t.Errorf("missing name: expected 0, got %d", len(got))
+	}
+}
