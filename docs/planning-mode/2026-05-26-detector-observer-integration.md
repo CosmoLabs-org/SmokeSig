@@ -1,6 +1,6 @@
 ---
 brainstorm: docs/brainstorming/2026-05-26-detector-observer-integration.md
-completed: "2026-05-27"
+completed: "2026-05-26"
 created: "2026-05-26T00:20:00-03:00"
 deliverables:
     - id: P-01

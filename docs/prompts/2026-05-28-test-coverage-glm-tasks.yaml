@@ -1,0 +1,162 @@
+# GLM Dispatch Manifest for: Test Coverage Improvements
+# Target: Raise coverage in audit (68.2%), detector (78.4%), runner (78.4%)
+# Usage: ccs glm-agent exec-batch docs/prompts/2026-05-28-test-coverage-glm-tasks.yaml --wave-size 3
+#
+# Current coverage: audit 68.2%, detector 78.4%, runner 78.4%, cmd 35.2%
+# Goal: Bring audit and detector above 80%, runner above 85%
+
+# All tasks are independent — can run in a single wave
+
+- task: |
+    Add tests for untested functions in internal/audit/audit.go.
+
+    Three functions need coverage:
+
+    1. collectUsedAssertions (56.7% → target 90%): This function walks test
+       assertions and collects assertion type strings. Test with configs that use
+       various assertion types (http, exit_code, file_exists, json_field, etc).
+       Test edge cases: empty tests list, test with no assertions, test with
+       multiple assertion types.
+
+    2. hasHTTPServer (39.3%): This function checks if a project directory has an
+       HTTP server. Read the function to understand its detection logic (checks
+       for routes, handlers, server setup patterns). Write tests with temp dirs
+       containing Go/Node/Python files with and without HTTP patterns.
+
+    3. hasPkgScript (0%): This function checks package.json for a specific script.
+       Test with: valid package.json with the script, without the script, no
+       package.json, invalid JSON.
+
+    Add tests to internal/audit/audit_test.go. Follow existing test patterns in
+    that file — use table-driven tests with t.TempDir() for filesystem tests.
+
+    Verify:
+      go test ./internal/audit/ -v -run "TestCollectUsedAssertions|TestHasHTTPServer|TestHasPkgScript"
+      go test -cover ./internal/audit/
+
+    Commit via: ccs commit-batch --message "test(audit): improve coverage for collectUsedAssertions, hasHTTPServer, hasPkgScript"
+  files:
+    - internal/audit/audit_test.go
+  context_files:
+    - internal/audit/audit.go
+    - internal/schema/schema.go
+  max_turns: 25
+  verify: "go test ./internal/audit/ -v -run 'TestCollectUsedAssertions|TestHasHTTPServer|TestHasPkgScript' && go test -cover ./internal/audit/"
+
+- task: |
+    Add tests for cmd/audit.go generateFixTests function (38.9% coverage).
+
+    generateFixTests takes audit findings and generates smoke test YAML that would
+    fix the gaps found by the audit. Read the function to understand what fix
+    types it handles (missing assertion types, missing tests for detected project
+    features).
+
+    Write table-driven tests in cmd/audit_test.go covering:
+    - Finding with a single missing assertion type → generates one test
+    - Finding with multiple missing types → generates multiple tests
+    - Edge: empty findings list → returns empty/nil
+    - Edge: finding type that generateFixTests doesn't handle → skipped gracefully
+
+    Follow existing patterns in cmd/audit_test.go.
+
+    Verify:
+      go test ./cmd/ -v -run TestGenerateFixTests
+      go test -cover ./cmd/
+
+    Commit via: ccs commit-batch --message "test(cmd): add tests for audit generateFixTests function"
+  files:
+    - cmd/audit_test.go
+  context_files:
+    - cmd/audit.go
+    - internal/audit/audit.go
+  max_turns: 20
+  verify: "go test ./cmd/ -v -run TestGenerateFixTests && go test -cover ./cmd/"
+
+- task: |
+    Add tests for cmd/run.go reporter construction functions.
+
+    These functions are at 0% coverage but are testable as pure functions:
+
+    1. withOTelExport(rep, cfg) — wraps reporter with OTel exporter when enabled.
+       Test cases:
+       - OTel disabled → returns original reporter unchanged
+       - OTel enabled with ExportURL → returns MultiReporter wrapping original + OTel
+       - OTel enabled with JaegerURL (no ExportURL) → auto-appends /v1/traces
+       - OTel enabled with invalid URL → returns original reporter (logs warning)
+
+    2. buildReporter(formatStr, cfg) — creates reporter chain from format string.
+       Test cases:
+       - "terminal" → returns Terminal reporter
+       - "json" → returns JSON reporter (writes to file)
+       - "terminal,json" → returns multi-reporter
+       - Invalid format → returns error
+
+    3. withPushReport(rep) — wraps reporter with push/webhook reporter when URL set.
+       This uses package-level vars (reportURL, webhookFormat, etc). Test by
+       temporarily setting those vars and calling the function.
+
+    Add tests in cmd/run_extra_test.go (which already exists). Follow existing
+    patterns in that file.
+
+    Verify:
+      go test ./cmd/ -v -run "TestWithOTelExport|TestBuildReporter|TestWithPushReport"
+      go test -cover ./cmd/
+
+    Commit via: ccs commit-batch --message "test(cmd): add tests for reporter construction functions"
+  files:
+    - cmd/run_extra_test.go
+  context_files:
+    - cmd/run.go
+    - internal/reporter/reporter.go
+    - internal/reporter/otel.go
+    - internal/reporter/chain.go
+  max_turns: 25
+  verify: "go test ./cmd/ -v -run 'TestWithOTelExport|TestBuildReporter|TestWithPushReport' && go test -cover ./cmd/"
+
+- task: |
+    Add tests for untested runner functions to improve coverage from 78.4% to 85%+.
+
+    Target functions:
+
+    1. runner.go shouldSkip (line ~882): Tests skip-if conditions. Test cases:
+       - skip_if with env var set → returns true
+       - skip_if with env var unset → returns false
+       - skip_if with file_exists pointing to existing file → true
+       - skip_if with file_exists pointing to missing file → false
+       - nil skip_if → false
+
+    2. runner.go runParallel (line ~247): The parallel test runner. Already has
+       runner_parallel_test.go — add edge cases:
+       - All tests pass in parallel
+       - Mix of pass/fail in parallel
+       - Single test (degenerate case)
+
+    3. trace_health.go NewTraceHealthTracker (66.7%): Test with windowSize=0 edge
+       case if not covered.
+
+    4. varstore.go findVarReferences (80%): Test edge cases — template with no
+       vars, template with nested vars, malformed template syntax.
+
+    5. stress.go testErrorMessage (50%): Test with error=nil case and non-nil error.
+
+    Add tests in the appropriate existing test files. Follow table-driven patterns.
+
+    Verify:
+      go test ./internal/runner/ -v -run "TestShouldSkip|TestRunParallel|TestTraceHealth|TestFindVarRef|TestErrorMessage"
+      go test -cover ./internal/runner/
+
+    Commit via: ccs commit-batch --message "test(runner): improve coverage for shouldSkip, parallel, traceHealth, varstore, stress"
+  files:
+    - internal/runner/runner_test.go
+    - internal/runner/runner_parallel_test.go
+    - internal/runner/trace_health_test.go
+    - internal/runner/varstore_test.go
+    - internal/runner/stress_test.go
+  context_files:
+    - internal/runner/runner.go
+    - internal/runner/trace_health.go
+    - internal/runner/varstore.go
+    - internal/runner/stress.go
+    - internal/schema/schema.go
+  max_turns: 25
+  verify: "go test ./internal/runner/ -v -count=1 && go test -cover ./internal/runner/"

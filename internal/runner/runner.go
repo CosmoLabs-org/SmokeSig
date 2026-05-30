@@ -324,6 +324,18 @@ func (r *Runner) RunMonorepo(opts RunOptions, subConfigs []monorepo.SubConfig) (
 	return suite, nil
 }
 
+// RunSingle executes a single named test and returns its result.
+// Used by the TUI for re-running individual failures.
+func (r *Runner) RunSingle(name string, opts RunOptions) (*TestResult, error) {
+	for _, t := range r.Config.Tests {
+		if t.Name == name {
+			result := r.runTestWithHooks(t, opts)
+			return &result, nil
+		}
+	}
+	return nil, fmt.Errorf("test %q not found", name)
+}
+
 func (r *Runner) runSequential(tests []schema.Test, opts RunOptions, suite *SuiteResult, failFast bool) {
 	stopped := false
 	for _, t := range tests {

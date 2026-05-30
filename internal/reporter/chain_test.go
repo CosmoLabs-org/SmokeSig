@@ -304,3 +304,92 @@ func TestMultiReporter_EmptyList_NoPanics(t *testing.T) {
 	multi.TestResult(TestResultData{Name: "noop", Passed: true})
 	multi.Summary(SuiteResultData{Project: "empty", Total: 0})
 }
+
+func TestChainWithVerbosity_UnknownFormat_ReturnsError(t *testing.T) {
+	_, _, err := ChainWithVerbosity("unknown-format", os.Stdout, VerbosityNormal)
+	if err == nil {
+		t.Fatal("expected error for unknown format")
+	}
+	if !strings.Contains(err.Error(), "unknown-format") {
+		t.Errorf("error should mention unknown format: %v", err)
+	}
+}
+
+func TestChainWithVerbosity_VerboseTerminal(t *testing.T) {
+	var buf bytes.Buffer
+	rep, closers, err := ChainWithVerbosity("terminal", &buf, VerbosityVerbose)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if rep == nil {
+		t.Fatal("expected non-nil reporter")
+	}
+	if len(closers) != 0 {
+		t.Fatalf("expected 0 closers, got %d", len(closers))
+	}
+	// Verify verbose mode propagated — verbose shows assertions for passing tests
+	rep.TestResult(TestResultData{
+		Name:   "test",
+		Passed: true,
+		Assertions: []AssertionDetail{
+			{Type: "exit_code", Expected: "0", Actual: "0", Passed: true},
+		},
+		Duration: 10 * time.Millisecond,
+	})
+	if !strings.Contains(buf.String(), "exit_code") {
+		t.Errorf("verbose terminal should show assertion details for passing tests, got %q", buf.String())
+	}
+}
+
+func TestChainWithVerbosity_QuietTerminal(t *testing.T) {
+	var buf bytes.Buffer
+	rep, closers, err := ChainWithVerbosity("terminal", &buf, VerbosityQuiet)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(closers) != 0 {
+		t.Fatalf("expected 0 closers, got %d", len(closers))
+	}
+	rep.TestResult(TestResultData{
+		Name:     "quiet-pass",
+		Passed:   true,
+		Duration: 10 * time.Millisecond,
+	})
+	if buf.String() != "" {
+		t.Errorf("quiet terminal should suppress passing tests, got %q", buf.String())
+	}
+}
+
+func TestChainWithVerbosity_EmptyFormat_ReturnsError(t *testing.T) {
+	_, _, err := ChainWithVerbosity("", os.Stdout, VerbosityNormal)
+	if err == nil {
+		t.Fatal("expected error for empty format")
+	}
+}
+
+func TestChainWithVerbosity_FileCreateError_CleansUpAndReturnsError(t *testing.T) {
+	// Use a read-only temp dir so os.Create fails for the second format
+	tmp := t.TempDir()
+	orig, _ := os.Getwd()
+	os.Chdir(tmp)
+	defer os.Chdir(orig)
+
+	// Make the dir read-only so file creation fails
+	if err := os.Chmod(tmp, 0555); err != nil {
+		t.Skip("cannot make dir read-only:", err)
+	}
+	defer os.Chmod(tmp, 0755)
+
+	// "terminal,json" — terminal goes to stdout (ok), json tries to create a file (fails)
+	_, closers, err := ChainWithVerbosity("terminal,json", os.Stdout, VerbosityNormal)
+	if err == nil {
+		// Close any opened files before failing
+		for _, c := range closers {
+			c.Close()
+		}
+		t.Fatal("expected error when file creation fails")
+	}
+	if len(closers) != 0 {
+		t.Errorf("expected 0 closers after error cleanup, got %d", len(closers))
+	}
+}

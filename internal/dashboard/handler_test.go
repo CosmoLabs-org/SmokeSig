@@ -345,6 +345,8 @@ func TestDashboardHandler_ServesIndex(t *testing.T) {
 	}
 }
 
+// Error path tests and edge cases moved to coverage_test.go to avoid duplication.
+
 // --- RegisterRoutes integration test ---
 
 func TestRegisterRoutes_AllEndpointsRegistered(t *testing.T) {

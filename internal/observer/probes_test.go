@@ -86,6 +86,15 @@ func TestProbeEndpointsStopsAfterFirstReachable(t *testing.T) {
 	}
 }
 
+// TestProbeEndpoints_DefaultTimeout exercises the timeout==0 branch that defaults to 2s.
+func TestProbeEndpoints_DefaultTimeout(t *testing.T) {
+	// Pass timeout=0 so the default branch is taken, with nil ports so it returns immediately.
+	results := ProbeEndpoints(nil, 0)
+	if len(results) != 0 {
+		t.Fatalf("expected 0 results, got %d", len(results))
+	}
+}
+
 func TestProbeEndpointsSkipsDuplicatePorts(t *testing.T) {
 	var count int
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

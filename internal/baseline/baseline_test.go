@@ -150,3 +150,68 @@ func TestSave_EmptyFile(t *testing.T) {
 		t.Error("expected empty file for empty content")
 	}
 }
+
+func TestLoad_CorruptedJSON(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "baseline.json")
+	if err := os.WriteFile(path, []byte("{not valid json!!!"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := Load(path)
+	if err == nil {
+		t.Error("expected error for corrupted JSON, got nil")
+	}
+}
+
+func TestLoad_ReadError(t *testing.T) {
+	// Use a path where the parent exists as a regular file — os.ReadFile will
+	// fail with a non-IsNotExist error (it's a directory entry conflict).
+	dir := t.TempDir()
+	// Create a regular file, then try to read a "child" of it.
+	blocker := filepath.Join(dir, "blocker")
+	if err := os.WriteFile(blocker, []byte("x"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	// blocker/baseline.json cannot be read because blocker is a file, not a dir.
+	path := filepath.Join(blocker, "baseline.json")
+	_, err := Load(path)
+	if err == nil {
+		t.Error("expected error when parent path is a file, got nil")
+	}
+}
+
+func TestSave_WriteError(t *testing.T) {
+	// Write to a path whose parent is a regular file — os.WriteFile will fail.
+	dir := t.TempDir()
+	blocker := filepath.Join(dir, "blocker")
+	if err := os.WriteFile(blocker, []byte("x"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(blocker, "baseline.json")
+	f := File{
+		"test_a": {DurationMs: 100, Timestamp: time.Now()},
+	}
+	err := f.Save(path)
+	if err == nil {
+		t.Error("expected error saving to invalid path, got nil")
+	}
+}
+
+func TestSave_EmptyMap(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "baseline.json")
+
+	f := File{}
+	if err := f.Save(path); err != nil {
+		t.Fatalf("unexpected error saving empty baseline: %v", err)
+	}
+
+	loaded, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(loaded) != 0 {
+		t.Errorf("expected empty map after save/load, got %d entries", len(loaded))
+	}
+}

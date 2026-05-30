@@ -134,6 +134,126 @@ func TestHashConsistency(t *testing.T) {
 	}
 }
 
+// TestHashFile_EmptyFile verifies hashFile works on a zero-byte file (io.EOF on first CopyN).
+func TestHashFile_EmptyFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "empty.txt")
+	if err := os.WriteFile(path, []byte{}, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h, err := hashFile(path)
+	if err != nil {
+		t.Fatalf("hashFile empty file: %v", err)
+	}
+	if len(h) != 16 {
+		t.Errorf("expected 16 hex chars, got %q", h)
+	}
+}
+
+// TestHashFile_LargeFile verifies hashFile handles files larger than 8 KB (partial read path).
+func TestHashFile_LargeFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "big.txt")
+	content := make([]byte, 16*1024) // 16 KB — larger than 8 KB cap
+	for i := range content {
+		content[i] = byte(i % 256)
+	}
+	if err := os.WriteFile(path, content, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h1, err := hashFile(path)
+	if err != nil {
+		t.Fatalf("hashFile large file: %v", err)
+	}
+	if len(h1) != 16 {
+		t.Errorf("expected 16 hex chars, got %q", h1)
+	}
+	// A different large file with different prefix should produce different hash.
+	path2 := filepath.Join(dir, "big2.txt")
+	content2 := make([]byte, 16*1024)
+	for i := range content2 {
+		content2[i] = byte((i + 1) % 256)
+	}
+	if err := os.WriteFile(path2, content2, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h2, err := hashFile(path2)
+	if err != nil {
+		t.Fatalf("hashFile large file2: %v", err)
+	}
+	if h1 == h2 {
+		t.Error("different large files should produce different hashes")
+	}
+}
+
+// TestHashFile_NonExistentFile verifies hashFile returns error for missing files.
+func TestHashFile_NonExistentFile(t *testing.T) {
+	_, err := hashFile("/nonexistent/path/to/file.txt")
+	if err == nil {
+		t.Error("expected error for non-existent file, got nil")
+	}
+}
+
+// TestTakeSnapshot_UnreadableFile verifies TakeSnapshot returns an error when a file cannot be
+// hashed due to permission denial (exercises the hashFile error path in WalkDir).
+func TestTakeSnapshot_UnreadableFile(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("running as root — permission tests are not meaningful")
+	}
+	dir := t.TempDir()
+	// Write a normal file first.
+	snapWriteFile(t, dir, "readable.txt", "ok")
+	// Write a file then make it unreadable.
+	unreadable := filepath.Join(dir, "secret.txt")
+	if err := os.WriteFile(unreadable, []byte("secret"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(unreadable, 0o000); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(unreadable, 0o644) // restore for cleanup
+
+	_, err := TakeSnapshot(dir)
+	// hashFile will fail to open the file → WalkDir propagates the error.
+	if err == nil {
+		t.Error("expected error for unreadable file, got nil")
+	}
+}
+
+// TestTakeSnapshot_InvalidDir verifies TakeSnapshot returns error for a non-existent directory.
+func TestTakeSnapshot_InvalidDir(t *testing.T) {
+	_, err := TakeSnapshot("/nonexistent/path/that/does/not/exist/abc123")
+	if err == nil {
+		t.Error("expected error for non-existent directory, got nil")
+	}
+}
+
+// TestTakeSnapshot_SymlinkFile verifies that symlinks to files are snapshotted via the target content.
+func TestTakeSnapshot_SymlinkFile(t *testing.T) {
+	dir := t.TempDir()
+	// Create real file.
+	real := filepath.Join(dir, "real.txt")
+	if err := os.WriteFile(real, []byte("symlink target content"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// Create symlink.
+	link := filepath.Join(dir, "link.txt")
+	if err := os.Symlink(real, link); err != nil {
+		t.Skip("symlinks not supported on this system")
+	}
+	snap, err := TakeSnapshot(dir)
+	if err != nil {
+		t.Fatalf("TakeSnapshot with symlink: %v", err)
+	}
+	// Both real.txt and link.txt should appear.
+	if _, ok := snap["real.txt"]; !ok {
+		t.Error("real.txt missing from snapshot")
+	}
+	if _, ok := snap["link.txt"]; !ok {
+		t.Error("link.txt (symlink) missing from snapshot")
+	}
+}
+
 func TestDiffSorted(t *testing.T) {
 	before := map[string]FileSnapshot{}
 	after := map[string]FileSnapshot{

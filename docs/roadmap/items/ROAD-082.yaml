@@ -1,21 +1,20 @@
 id: ROAD-082
 created_at: 2026-05-15T15:05:26.57121-03:00
-updated_at: 2026-05-30T06:55:30.159357-03:00
+updated_at: 2026-05-28T23:24:44.592375-03:00
 title: CCS dependency integration — rebuild, smoke passthrough, project registry
 description: |
     Wire SmokeSig as a first-class CCS external dependency (same tier as GoRalph).
     CCS smoke.go edited to delegate to `smokesig` binary, rebuild.go includes SmokeSig
     as external tool. Pending CCS review and commit. See FB-959 in CCS feedback inbox.
-status: in_progress
+status: promoted
 priority: 95
 tags:
     - source:cross-project
     - area:ecosystem
     - area:dx
-notes:
-    - 'FEAT-052: brainstorm + plan + prompt complete, dispatching implementation'
 refs:
     - type: issue
       path: docs/issues/FEAT-052.yaml
+promoted_to: FEAT-054
 origin:
     session: 2027

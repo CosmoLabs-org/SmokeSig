@@ -4,22 +4,7 @@
 
 version: pending
 entries:
-    added:
-        - description: |-
-            # FEAT-045: Auto-Add Generator — smokesig observe command (BR-13)
-
-            **Type**: feature
-            **Status**: closed
-            **Created**: 2026-04-30
-
-            ## Description
-
-            New command smokesig observe "cmd" [--dir] [--quiet]. io.MultiWriter stdout capture. Pre/post filesystem SHA-256 diffing. gopsutil port detection. Intelligent sanitization (ANSI, timestamps, UUIDs). Interactive mode via huh. ~1,080 lines.
-          source: manual
-          date: 2026-05-26T14:33:26.030067-03:00
-        - description: Stack-aware observation via detector integration — portless-first port detection, stack-specific HTTP probe paths (FEAT-046)
-          source: manual
-          date: 2026-05-27T15:32:43.348649-03:00
+    added: []
     fixed: []
     changed: []
     deprecated: []

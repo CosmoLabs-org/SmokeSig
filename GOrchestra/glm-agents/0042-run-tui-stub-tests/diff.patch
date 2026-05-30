@@ -1,0 +1,123 @@
+diff --git a/.gorchestra/fingerprint-cache.json b/.gorchestra/fingerprint-cache.json
+index 992311e..5967714 100644
+--- a/.gorchestra/fingerprint-cache.json
++++ b/.gorchestra/fingerprint-cache.json
+@@ -1,6 +1,6 @@
+ {
+-  "hash": "267d0291aa57f09b26223984aca8247434c4c0d19d5377298904f9d38207f165",
+-  "project_name": "SmokeSig",
++  "hash": "7343b4e2edbae0d181b894a578d1eb032332bb8547f75b9096a1cba8d650015c",
++  "project_name": "_glm-agent-0042-run-tui-stub-tests",
+   "language": "go",
+   "framework": "cli",
+   "directories": [
+@@ -27,5 +27,5 @@
+   ],
+   "has_tests": true,
+   "has_ci": true,
+-  "generated_at": "2026-05-29T00:10:48.997041-03:00"
++  "generated_at": "2026-05-29T00:21:48.02575-03:00"
+ }
+\ No newline at end of file
+diff --git a/.version-registry.json b/.version-registry.json
+index 715d776..f2538bd 100644
+--- a/.version-registry.json
++++ b/.version-registry.json
+@@ -1,13 +1,13 @@
+ {
+   "repository": {
+     "version": "0.23.0",
+-    "build": 611,
++    "build": 614,
+     "name": "SmokeSig",
+-    "lastUpdated": "2026-05-29T03:34:45Z",
++    "lastUpdated": "2026-05-29T03:32:01Z",
+     "derived_from": "git tag"
+   },
+   "metadata": {
+-    "last_synced": "2026-05-29T01:23:35Z",
++    "last_synced": "2026-05-29T03:21:53Z",
+     "sync_method": "git_history_analysis"
+   },
+   "releaseContext": {
+diff --git a/GOrchestra/intel/architecture.json b/GOrchestra/intel/architecture.json
+index 7071917..0f3e8e0 100644
+--- a/GOrchestra/intel/architecture.json
++++ b/GOrchestra/intel/architecture.json
+@@ -1,38 +1,38 @@
+ {
+   "version": "1.0",
+-  "generated_at": "2026-05-29T00:20:52.645932-03:00",
++  "generated_at": "2026-05-29T00:20:23.891843-03:00",
+   "generated_by": "glm-5.1",
+-  "expires_at": "2026-05-30T00:20:52.645933-03:00",
+-  "last_analyzed_commit": "af7e702578073eb9ec66e62629d27a4d1b341012",
+-  "summary": "A Go-based test orchestration framework using numbered agents to incrementally build and validate a testing infrastructure with TUI reporting and MCP handler support",
+-  "architecture": "modular monorepo with agent-based orchestration",
++  "expires_at": "2026-05-30T00:20:23.891843-03:00",
++  "last_analyzed_commit": "a8c86aef7af85ddd640af38e6de1855ca30e449e",
++  "summary": "A Go-based test orchestration framework with modular runners, schema validation, and agent-driven test execution via GOrchestra.",
++  "architecture": "monolith (Go monorepo with modular internal packages)",
+   "primary_language": "Go",
+   "hot_files": [
+     "internal/runner/runner.go",
+-    "internal/mcp/handlers.go",
++    "internal/runner/runner_test.go",
+     "internal/runner/assertion_test.go",
+     "internal/schema/schema_extra_test.go",
+-    "cmd/run_extra_test.go"
++    "internal/mcp/handlers.go"
+   ],
+   "patterns": [
+-    "agent-based orchestration with numbered agent directories",
+-    "test-driven development with extensive extra test coverage",
++    "test-driven development with extensive _test.go files",
+     "command pattern via cmd/ directory structure",
+     "internal package encapsulation",
+     "reporter pattern for output/webhook handling",
+-    "TUI (Terminal User Interface) with bubbletea framework"
++    "assertion wiring for test validation",
++    "agent-based orchestration (GOrchestra)"
+   ],
+   "concerns": [
+-    "large number of agent directories (40+) may indicate fragmented development or experimentation",
+-    "truncated directory names (e.g., internalschema-validatio) suggest filesystem limitations",
+-    "heavy test file presence could indicate test code mixed with orchestration metadata",
+-    "potential coupling between agent orchestration layer and core application logic"
++    "large number of agent directories (0005-0019) suggests heavy automated generation with potential duplication",
++    "truncated directory names (e.g., internalschema-validatio) indicate filesystem or tooling constraints",
++    "test files appear to outnumber implementation files, possible over-testing or missing source files in listing",
++    "staging commits suggest work-in-progress orchestration that may not be production-stable"
+   ],
+   "suggestions": [
+-    "consolidate or archive completed agent directories to reduce clutter",
+-    "document the agent numbering scheme and purpose of each agent wave",
+-    "ensure clear separation between orchestration metadata and application source code",
+-    "consider extracting the agent framework into a reusable tool",
+-    "add integration tests that validate agent outputs holistically"
++    "consolidate or document the GOrchestra agent directories to reduce clutter",
++    "review test coverage ratio to ensure implementation code is adequately represented",
++    "add integration tests to complement the extensive unit/extra tests",
++    "document the MCP handlers and webhook reporter interfaces for maintainability",
++    "consider extracting reporter and schema packages into separate modules if they grow"
+   ]
+ }
+\ No newline at end of file
+diff --git a/GOrchestra/intel/status.json b/GOrchestra/intel/status.json
+index fde0f47..a0ebfe8 100644
+--- a/GOrchestra/intel/status.json
++++ b/GOrchestra/intel/status.json
+@@ -1,8 +1,8 @@
+ {
+   "version": "1.0",
+-  "updated_at": "2026-05-28T22:23:34.148613-03:00",
+-  "expires_at": "2026-05-28T23:23:34.148613-03:00",
+-  "project_path": "~/PROJECTS/SmokeSig",
++  "updated_at": "2026-05-29T00:21:49.755222-03:00",
++  "expires_at": "2026-05-29T01:21:49.755222-03:00",
++  "project_path": "~/PROJECTS/SmokeSig-worktrees/_glm-agent-0042-run-tui-stub-tests",
+   "context": "",
+-  "glm_enhanced": true
++  "glm_enhanced": false
+ }
+\ No newline at end of file

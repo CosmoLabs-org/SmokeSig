@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-05-29
+
+### Added
+- # FEAT-045: Auto-Add Generator — smokesig observe command (BR-13)
+
+**Type**: feature
+**Status**: closed
+**Created**: 2026-04-30
+
+## Description
+
+New command smokesig observe "cmd" [--dir] [--quiet]. io.MultiWriter stdout capture. Pre/post filesystem SHA-256 diffing. gopsutil port detection. Intelligent sanitization (ANSI, timestamps, UUIDs). Interactive mode via huh. ~1,080 lines.
+- Stack-aware observation via detector integration — portless-first port detection and stack-specific HTTP probe paths (FEAT-046)
+- Interactive TUI mode with Bubbletea (--tui flag, -tags tui build tag)
+- Runner.RunSingle method for single-test re-execution
+- add lipgloss styles, key bindings, bubbletea deps (FEAT-051) (commit:d3f38629)
+- add RunSingle for single-test re-execution (FEAT-051) (commit:5de65fa3)
+- detector-observer integration with portless-first hints (FEAT-046) (commit:7aaad3e9)
+
+### Changed
+- Test coverage improved from 75% to 88.5% across all packages
+
 ## [0.23.0] - 2026-05-26
 
 ### Added

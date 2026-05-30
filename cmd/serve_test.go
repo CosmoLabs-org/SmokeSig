@@ -6,8 +6,10 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
 	"github.com/spf13/cobra"
 )
 
@@ -225,4 +227,186 @@ tests:
 	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
 		t.Errorf("Content-Type = %q, want application/json", ct)
 	}
+}
+
+// TestBuildHandler_InvalidYAML verifies that malformed YAML content triggers
+// a 500 error via schema.Load (not Validate).
+func TestBuildHandler_InvalidYAML(t *testing.T) {
+	cfgPath := writeTempConfig(t, `{{not valid yaml [[`)
+
+	handler := buildHandler(cfgPath)
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("status = %d, want 500 — body: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if resp["error"] == "" {
+		t.Error("expected non-empty error field for invalid YAML")
+	}
+}
+
+// TestBuildHandler_InvalidConfig verifies that valid YAML which fails
+// schema.Validate (wrong version, no project) returns 500.
+func TestBuildHandler_InvalidConfig(t *testing.T) {
+	cfgPath := writeTempConfig(t, `
+version: 2
+tests: []
+`)
+
+	handler := buildHandler(cfgPath)
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("status = %d, want 500 — body: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if resp["error"] == "" {
+		t.Error("expected non-empty error field for invalid config")
+	}
+}
+
+// TestBuildHandler_Healthy_JSONFields verifies the full JSON response shape:
+// Content-Type, status=healthy, passed > 0, and duration_ms > 0.
+func TestBuildHandler_Healthy_JSONFields(t *testing.T) {
+	cfgPath := writeTempConfig(t, `
+version: 1
+project: json-fields
+tests:
+  - name: pass
+    run: "true"
+    expect:
+      exit_code: 0
+`)
+
+	handler := buildHandler(cfgPath)
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 — body: %s", w.Code, w.Body.String())
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Errorf("Content-Type = %q, want application/json", ct)
+	}
+
+	body := w.Body.String()
+	// Verify response is valid JSON.
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(body), &raw); err != nil {
+		t.Fatalf("response is not valid JSON: %v", err)
+	}
+
+	var resp healthResponse
+	if err := json.NewDecoder(strings.NewReader(body)).Decode(&resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if resp.Status != "healthy" {
+		t.Errorf("status = %q, want healthy", resp.Status)
+	}
+	if resp.Tests.Passed == 0 {
+		t.Errorf("expected passed > 0, got %+v", resp.Tests)
+	}
+	if resp.DurationMs <= 0 {
+		t.Errorf("expected positive duration_ms, got %d", resp.DurationMs)
+	}
+}
+
+// TestBuildHandler_RelativeConfigPath exercises the relative-path branch
+// (filepath.IsAbs returns false) inside buildHandler.
+func TestBuildHandler_RelativeConfigPath(t *testing.T) {
+	// Create a subdirectory relative to cwd so filepath.Dir is relative.
+	subdir := filepath.Join(".", "testdata-serve-relative")
+	if err := os.MkdirAll(subdir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(subdir)
+
+	cfgPath := filepath.Join(subdir, ".smokesig.yaml")
+	cfgContent := []byte(`
+version: 1
+project: relative-path
+tests:
+  - name: pass
+    run: "true"
+    expect:
+      exit_code: 0
+`)
+	if err := os.WriteFile(cfgPath, cfgContent, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	handler := buildHandler(cfgPath)
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200 — body: %s", w.Code, w.Body.String())
+	}
+
+	var resp healthResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if resp.Status != "healthy" {
+		t.Errorf("status = %q, want healthy", resp.Status)
+	}
+}
+
+// TestBuildHandler_RunnerError triggers a runner.Run error via a failing
+// before_all lifecycle hook and verifies the 500 response.
+func TestBuildHandler_RunnerError(t *testing.T) {
+	cfgPath := writeTempConfig(t, `
+version: 1
+project: runner-error
+lifecycle:
+  before_all:
+    - command: "false"
+tests:
+  - name: should not run
+    run: "true"
+    expect:
+      exit_code: 0
+`)
+
+	handler := buildHandler(cfgPath)
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("status = %d, want 500 — body: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if resp["error"] == "" {
+		t.Error("expected non-empty error field for runner error")
+	}
+}
+
+// TestNoopReporter_NoPanic verifies all noopReporter methods can be called without panic.
+func TestNoopReporter_NoPanic(t *testing.T) {
+	r := newNoopReporter()
+	r.PrereqStart("test")
+	r.PrereqResult(reporter.PrereqResultData{})
+	r.TestStart("test")
+	r.TestResult(reporter.TestResultData{})
+	r.Summary(reporter.SuiteResultData{})
 }

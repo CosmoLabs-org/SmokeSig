@@ -1,0 +1,158 @@
+# GLM Dispatch Manifest: Test Coverage Round 2
+# Target: cmd 43% → 55%+, detector 78% → 85%+, runner assertion gaps
+# Usage: ccs glm-agent exec-batch docs/prompts/2026-05-29-test-coverage-round2-glm-tasks.yaml --wave-size 4
+
+- task: |
+    Add tests for cmd/stress.go functions: runStress, reportStressResult.
+
+    These are at 0% coverage. They are command-level functions that integrate
+    the runner's StressTest with reporter output.
+
+    Add tests in cmd/stress_test.go (which already exists — append to it).
+
+    Test reportStressResult:
+    Create a runner.StressResult with known data (TestName, TotalRuns, Passes,
+    Failures, PassRate). Create a test reporter that records calls. Call
+    reportStressResult and verify it calls TestResult for each pass/failure
+    and Summary with correct totals.
+
+    Test formatStressSummary (already at 100%, but add edge cases):
+    - 100% pass rate
+    - 0% pass rate
+    - With DedupedErrors populated
+
+    Test runStress indirectly by creating a temp .smokesig.yaml with a simple
+    test, setting the configFile package var, and calling runStress with a
+    cobra.Command and args. Check it doesn't error for valid input and errors
+    for missing test name.
+
+    Verify:
+      go test ./cmd/ -v -run "TestReportStressResult|TestRunStress"
+      go test -cover ./cmd/
+
+    Commit via: ccs commit-batch --message "test(cmd): add tests for stress command functions"
+  files:
+    - cmd/stress_test.go
+  context_files:
+    - cmd/stress.go
+    - internal/runner/stress.go
+    - internal/reporter/reporter.go
+  max_turns: 25
+  verify: "go test ./cmd/ -v -run 'TestReportStressResult|TestRunStress' && go test -cover ./cmd/"
+
+- task: |
+    Add tests for cmd/serve.go: buildHandler and runServe.
+
+    buildHandler (80.6% → 95%+): This function creates an HTTP handler that
+    loads a config, runs smoke tests, and returns JSON results. Test by:
+    1. Create a temp .smokesig.yaml with a simple test (echo ok, exit_code 0)
+    2. Call buildHandler(tempConfigPath) to get the handler
+    3. Use httptest.NewRecorder + httptest.NewRequest to call it
+    4. Verify response status 200 and JSON body contains "passed":true
+
+    Test edge cases:
+    - Missing config file → handler returns 500 with error JSON
+    - Invalid YAML → handler returns 500
+
+    Test writeHealthError: call with a recorder, verify status code and body.
+
+    Add tests to cmd/serve_test.go (which already exists — append to it).
+
+    Verify:
+      go test ./cmd/ -v -run "TestBuildHandler|TestWriteHealthError"
+      go test -cover ./cmd/
+
+    Commit via: ccs commit-batch --message "test(cmd): add tests for serve command handler"
+  files:
+    - cmd/serve_test.go
+  context_files:
+    - cmd/serve.go
+    - internal/reporter/reporter.go
+    - internal/schema/schema.go
+  max_turns: 25
+  verify: "go test ./cmd/ -v -run 'TestBuildHandler|TestWriteHealthError' && go test -cover ./cmd/"
+
+- task: |
+    Add tests for cmd/run.go: withConfigNotifications and handleBaseline.
+
+    withConfigNotifications (13.3%): This function wraps a reporter with
+    webhook notifications from config. Read the function to understand what
+    it does, then test:
+    - Config with no notifications → returns original reporter
+    - Config with one notification (format: json, on: always) → returns wrapped reporter
+    - Config with invalid URL → returns original reporter (handles gracefully)
+
+    handleBaseline (0%): This function compares test results against stored
+    baselines. Read the function signature and test:
+    - No baseline flag set → returns nil (no-op)
+    - Baseline flag set with no prior baseline → creates new baseline file
+    - Baseline flag set with existing baseline → compares and reports
+
+    Use t.TempDir() for baseline storage. Set the package-level vars
+    (baselineEnabled, baselineThreshold) before calling.
+
+    Add tests to cmd/run_extra_test.go (append to it).
+
+    Verify:
+      go test ./cmd/ -v -run "TestWithConfigNotifications|TestHandleBaseline"
+      go test -cover ./cmd/
+
+    Commit via: ccs commit-batch --message "test(cmd): add tests for withConfigNotifications and handleBaseline"
+  files:
+    - cmd/run_extra_test.go
+  context_files:
+    - cmd/run.go
+    - internal/reporter/webhook.go
+    - internal/baseline/baseline.go
+  max_turns: 25
+  verify: "go test ./cmd/ -v -run 'TestWithConfigNotifications|TestHandleBaseline' && go test -cover ./cmd/"
+
+- task: |
+    Add tests for internal/detector/container.go parse functions and port
+    detection helpers.
+
+    The parse* functions are already at 100% but the higher-level functions
+    that call exec.Command are at 0%. We can't test those directly (need Docker),
+    but we CAN test additional edge cases for the parsers and the helper logic.
+
+    Tests to add in a new file internal/detector/container_test.go (or append
+    to existing test file if one exists):
+
+    1. parseSSOutput edge cases:
+       - Empty output → empty result, no error
+       - Malformed line (no colon) → skipped gracefully
+       - IPv6 address format → parsed correctly
+       - Multiple ports → all returned
+
+    2. parseNetstatOutput edge cases:
+       - Empty output → empty result
+       - Line with non-numeric port → skipped
+       - Mix of TCP and UDP → both captured
+
+    3. parseDockerPortOutput edge cases:
+       - Empty output → empty result
+       - Multiple port mappings → all returned
+       - Port range format (e.g. "8080-8082->8080-8082/tcp") → handled
+
+    4. isHTTPPort:
+       - Common HTTP ports (80, 443, 8080, 3000, 5000) → true
+       - Non-HTTP ports (22, 3306, 5432, 6379) → false
+
+    5. checkContainer (testable part): The function calls `docker inspect`.
+       We can test error path by calling with empty container name if the
+       function validates that.
+
+    Follow table-driven test patterns used elsewhere in detector/ tests.
+
+    Verify:
+      go test ./internal/detector/ -v -run "TestParseSS|TestParseNetstat|TestParseDockerPort|TestIsHTTPPort|TestCheckContainer"
+      go test -cover ./internal/detector/
+
+    Commit via: ccs commit-batch --message "test(detector): add edge case tests for container parsing functions"
+  files:
+    - internal/detector/container_test.go
+  context_files:
+    - internal/detector/container.go
+    - internal/detector/detector.go
+  max_turns: 20
+  verify: "go test ./internal/detector/ -v -run 'TestParseSS|TestParseNetstat|TestParseDockerPort|TestIsHTTPPort' && go test -cover ./internal/detector/"

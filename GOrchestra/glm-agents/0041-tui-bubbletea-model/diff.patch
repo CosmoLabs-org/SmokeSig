@@ -1,0 +1,125 @@
+diff --git a/.gorchestra/fingerprint-cache.json b/.gorchestra/fingerprint-cache.json
+index 992311e..9819b1b 100644
+--- a/.gorchestra/fingerprint-cache.json
++++ b/.gorchestra/fingerprint-cache.json
+@@ -1,6 +1,6 @@
+ {
+-  "hash": "267d0291aa57f09b26223984aca8247434c4c0d19d5377298904f9d38207f165",
+-  "project_name": "SmokeSig",
++  "hash": "78686ef2f9e66f38ee446a41ab08e0def2c66a9708006d3936f86ac32bba5aac",
++  "project_name": "_glm-agent-0041-tui-bubbletea-model",
+   "language": "go",
+   "framework": "cli",
+   "directories": [
+@@ -27,5 +27,5 @@
+   ],
+   "has_tests": true,
+   "has_ci": true,
+-  "generated_at": "2026-05-29T00:10:48.997041-03:00"
++  "generated_at": "2026-05-29T00:13:44.449147-03:00"
+ }
+\ No newline at end of file
+diff --git a/.version-registry.json b/.version-registry.json
+index 8bc481d..976b539 100644
+--- a/.version-registry.json
++++ b/.version-registry.json
+@@ -1,13 +1,13 @@
+ {
+   "repository": {
+     "version": "0.23.0",
+-    "build": 609,
++    "build": 610,
+     "name": "SmokeSig",
+-    "lastUpdated": "2026-05-29T03:20:09Z",
++    "lastUpdated": "2026-05-29T03:12:12Z",
+     "derived_from": "git tag"
+   },
+   "metadata": {
+-    "last_synced": "2026-05-29T01:23:35Z",
++    "last_synced": "2026-05-29T03:13:51Z",
+     "sync_method": "git_history_analysis"
+   },
+   "releaseContext": {
+diff --git a/GOrchestra/intel/architecture.json b/GOrchestra/intel/architecture.json
+index 15bc4ab..227da5a 100644
+--- a/GOrchestra/intel/architecture.json
++++ b/GOrchestra/intel/architecture.json
+@@ -1,40 +1,35 @@
+ {
+   "version": "1.0",
+-  "generated_at": "2026-05-29T00:12:32.115691-03:00",
++  "generated_at": "2026-05-29T00:11:06.796538-03:00",
+   "generated_by": "glm-5.1",
+-  "expires_at": "2026-05-30T00:12:32.115692-03:00",
+-  "last_analyzed_commit": "486e8ef2d40e6d14175082b3e19b061add27db64",
+-  "summary": "Go-based test orchestration framework with agent-driven validation, TUI interface, and MCP integration for running and reporting structured test suites",
+-  "architecture": "modular monolith with agent-based orchestration",
++  "expires_at": "2026-05-30T00:11:06.796538-03:00",
++  "last_analyzed_commit": "d3f38629996da00a38f45aef85b97f235dc138e4",
++  "summary": "A Go-based test orchestration framework with a custom runner, assertion library, schema validation, webhook reporting, and MCP integration",
++  "architecture": "monolith",
+   "primary_language": "Go",
+   "hot_files": [
+     "internal/runner/runner.go",
+     "internal/runner/runner_test.go",
+-    "internal/runner/assertion_test.go",
+     "internal/schema/schema_extra_test.go",
+-    "internal/mcp/handlers.go"
++    "internal/mcp/handlers.go",
++    "cmd/run_extra_test.go"
+   ],
+   "patterns": [
+-    "test-driven development with extensive extra test suites",
+-    "command pattern via cmd/ directory structure",
+-    "agent-based orchestration (GOrchestra with numbered agent directories)",
+-    "internal package encapsulation",
+-    "reporter pattern for test output (webhook, push)",
+-    "MCP (Model Context Protocol) handler integration",
+-    "TUI with Bubble Tea framework"
++    "test runner pattern",
++    "assertion library",
++    "webhook reporter",
++    "MCP (Model Context Protocol) handlers",
++    "TUI with Bubble Tea"
+   ],
+   "concerns": [
+-    "large number of test agent directories (0005-0039+) suggests complex orchestration overhead",
+-    "truncated directory names indicate filesystem constraints or naming issues",
+-    "multiple extra test files may indicate incomplete base test coverage",
+-    "wave-based dispatch pattern could introduce synchronization complexity",
+-    "go.mod stub suggests dependency management may be in flux"
++    "heavy test file proliferation across multiple agent directories",
++    "fragmented test organization with many *extra_test.go files",
++    "agent metadata commits suggest automated generation without meaningful review"
+   ],
+   "suggestions": [
+-    "consolidate agent test directories into a unified test matrix",
+-    "document the GOrchestra orchestration workflow and agent lifecycle",
+-    "review assertion coverage gaps that require extra test files",
+-    "establish clear boundaries between internal packages (runner, schema, reporter, mcp)",
+-    "consider integration test deduplication across agent directories"
++    "consolidate scattered test files into a coherent test suite",
++    "investigate if agent-numbered directories are artifacts that should be cleaned up",
++    "add integration tests to complement the extensive unit test coverage",
++    "document the MCP handler responsibilities and API contract"
+   ]
+ }
+\ No newline at end of file
+diff --git a/GOrchestra/intel/status.json b/GOrchestra/intel/status.json
+index fde0f47..c823dd7 100644
+--- a/GOrchestra/intel/status.json
++++ b/GOrchestra/intel/status.json
+@@ -1,8 +1,8 @@
+ {
+   "version": "1.0",
+-  "updated_at": "2026-05-28T22:23:34.148613-03:00",
+-  "expires_at": "2026-05-28T23:23:34.148613-03:00",
+-  "project_path": "~/PROJECTS/SmokeSig",
++  "updated_at": "2026-05-29T00:13:46.294502-03:00",
++  "expires_at": "2026-05-29T01:13:46.294502-03:00",
++  "project_path": "~/PROJECTS/SmokeSig-worktrees/_glm-agent-0041-tui-bubbletea-model",
+   "context": "",
+-  "glm_enhanced": true
++  "glm_enhanced": false
+ }
+\ No newline at end of file

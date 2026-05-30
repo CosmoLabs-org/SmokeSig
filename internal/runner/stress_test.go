@@ -1,6 +1,8 @@
 package runner
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
@@ -59,6 +61,64 @@ func TestReliabilityStatus(t *testing.T) {
 			t.Errorf("ReliabilityStatus(%.1f) = %q, want %q", tt.rate, got, tt.expected)
 		}
 	}
+}
+
+func TestErrorMessage_NilError(t *testing.T) {
+	tr := TestResult{
+		Passed: true,
+		Assertions: []AssertionResult{
+			{Type: "exit_code", Passed: true},
+		},
+	}
+	got := testErrorMessage(tr)
+	if got != "" {
+		t.Errorf("testErrorMessage(passing result) = %q, want empty", got)
+	}
+}
+
+func TestErrorMessage_WithFailedAssertion(t *testing.T) {
+	tr := TestResult{
+		Passed: false,
+		Assertions: []AssertionResult{
+			{Type: "exit_code", Passed: false, Expected: "0", Actual: "1"},
+		},
+	}
+	got := testErrorMessage(tr)
+	if got == "" {
+		t.Error("expected non-empty error message for failed assertion")
+	}
+	if !strContains(got, "exit_code") {
+		t.Errorf("expected message to contain 'exit_code', got %q", got)
+	}
+}
+
+func TestErrorMessage_WithExecError(t *testing.T) {
+	tr := TestResult{
+		Passed: false,
+		Error:  fmt.Errorf("command not found: bogus_cmd"),
+		Assertions: []AssertionResult{
+			{Type: "exit_code", Passed: true},
+		},
+	}
+	got := testErrorMessage(tr)
+	if got == "" {
+		t.Error("expected non-empty error message for exec error")
+	}
+	if !strContains(got, "command not found") {
+		t.Errorf("expected message to contain 'command not found', got %q", got)
+	}
+}
+
+func TestErrorMessage_EmptyResult(t *testing.T) {
+	tr := TestResult{}
+	got := testErrorMessage(tr)
+	if got != "" {
+		t.Errorf("testErrorMessage(empty result) = %q, want empty", got)
+	}
+}
+
+func strContains(s, substr string) bool {
+	return strings.Contains(s, substr)
 }
 
 func TestStressTest_AllPass(t *testing.T) {

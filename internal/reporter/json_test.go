@@ -111,3 +111,24 @@ func TestJSON_PrereqHint(t *testing.T) {
 		t.Errorf("hint = %v", p["hint"])
 	}
 }
+
+func TestJSON_PrereqWithError(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewJSON(&buf)
+	r.PrereqResult(PrereqResultData{
+		Name:   "Docker",
+		Passed: false,
+		Error:  fmt.Errorf("docker daemon not running"),
+	})
+	r.Summary(SuiteResultData{Project: "test"})
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(buf.Bytes(), &result); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	prereqs := result["prerequisites"].([]interface{})
+	p := prereqs[0].(map[string]interface{})
+	if p["error"] != "docker daemon not running" {
+		t.Errorf("prereq error = %v, want 'docker daemon not running'", p["error"])
+	}
+}

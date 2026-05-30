@@ -1,33 +1,35 @@
 {
   "version": "1.0",
-  "generated_at": "2026-05-26T15:39:50.247577-03:00",
+  "generated_at": "2026-05-30T03:34:50.212897-03:00",
   "generated_by": "glm-5-turbo",
-  "expires_at": "2026-05-27T15:39:50.247577-03:00",
-  "last_analyzed_commit": "cf949d85e5e95ed1e2a7e96bc5aaa34f93e7b22d",
-  "summary": "A Go-based orchestration runner with MCP integration, heavily utilizing automated agent-driven test generation.",
+  "expires_at": "2026-05-31T03:34:50.212897-03:00",
+  "last_analyzed_commit": "2e3a0ea387d5226d6592a42dfb4bb1dfc50cdeb3",
+  "summary": "A Go CLI monolith currently undergoing aggressive, automated test coverage boosting across its runner, schema, and command packages.",
   "architecture": "monolith",
   "primary_language": "Go",
   "hot_files": [
-    "internal/runner/runner.go",
+    "internal/runner/coverage_boost_test.go",
     "internal/runner/assertion_test.go",
-    "internal/schema/schema_extra_test.go",
-    "internal/mcp/handlers.go",
-    "internal/reporter/webhook_test.go"
+    "cmd/coverage_boost_test.go",
+    "internal/runner/coverage_boost5_test.go",
+    "internal/schema/coverage_boost_test.go"
   ],
   "patterns": [
     "test-driven development",
-    "directory-based agent orchestration",
-    "model context protocol (MCP) integration",
-    "webhook reporting pattern"
+    "coverage-driven testing",
+    "cli command pattern",
+    "internal package encapsulation"
   ],
   "concerns": [
-    "high volume of auto-generated extra tests (GOrchestra/glm-agents) polluting the repository structure",
-    "potential test flakiness from extensive assertion wiring",
-    "unclear boundary between core logic and generated test scaffolding"
+    "over-optimization for test coverage metrics rather than meaningful tests",
+    "proliferation of artificially named test files (coverage_boost, coverage_boost5)",
+    "scattered agent-generated test directories (GOrchestra/glm-agents) polluting the repository structure",
+    "potential brittle tests focused on hitting lines rather than validating behavior"
   ],
   "suggestions": [
-    "move GOrchestra agent artifacts to a separate isolated directory or .gitignore",
-    "consolidate overlapping extra test files to reduce maintenance burden",
-    "document the MCP handler integration points"
+    "consolidate or clean up the GOrchestra/glm-agents generated test directories",
+    "refactor coverage_boost test files into logically named, behavior-focused test suites",
+    "shift focus from coverage percentage to mutation testing or integration test quality",
+    "resolve the untracked and modified files in the current git status"
   ]
 }

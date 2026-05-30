@@ -1,0 +1,30 @@
+# Task
+
+Add tests for untested functions in internal/audit/audit.go.
+
+Three functions need coverage:
+
+1. collectUsedAssertions (56.7% → target 90%): This function walks test
+   assertions and collects assertion type strings. Test with configs that use
+   various assertion types (http, exit_code, file_exists, json_field, etc).
+   Test edge cases: empty tests list, test with no assertions, test with
+   multiple assertion types.
+
+2. hasHTTPServer (39.3%): This function checks if a project directory has an
+   HTTP server. Read the function to understand its detection logic (checks
+   for routes, handlers, server setup patterns). Write tests with temp dirs
+   containing Go/Node/Python files with and without HTTP patterns.
+
+3. hasPkgScript (0%): This function checks package.json for a specific script.
+   Test with: valid package.json with the script, without the script, no
+   package.json, invalid JSON.
+
+Add tests to internal/audit/audit_test.go. Follow existing test patterns in
+that file — use table-driven tests with t.TempDir() for filesystem tests.
+
+Verify:
+  go test ./internal/audit/ -v -run "TestCollectUsedAssertions|TestHasHTTPServer|TestHasPkgScript"
+  go test -cover ./internal/audit/
+
+Commit via: ccs commit-batch --message "test(audit): improve coverage for collectUsedAssertions, hasHTTPServer, hasPkgScript"
+

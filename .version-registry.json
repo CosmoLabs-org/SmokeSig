@@ -1,39 +1,19 @@
 {
   "repository": {
-    "version": "0.23.0",
-    "build": 596,
+    "version": "0.24.0",
+    "build": 644,
     "name": "SmokeSig",
-    "lastUpdated": "2026-05-30T12:27:20Z",
+    "lastUpdated": "2026-05-30T10:10:24Z",
     "derived_from": "git tag"
   },
   "metadata": {
-    "last_synced": "2026-05-26T20:40:56Z",
+    "last_synced": "2026-05-29T08:02:32Z",
     "sync_method": "git_history_analysis"
   },
   "releaseContext": {
-    "pendingFeatures": [
-      {
-        "branch": "_glm-agent-0034-hints-tests",
-        "title": " glm agent 0034 hints tests",
-        "commits": 2,
-        "suggestedBump": "patch",
-        "mergedAt": "2026-05-26T15:40:07-03:00",
-        "files": [
-          ".gorchestra/fingerprint-cache.json",
-          ".review.json",
-          ".verify",
-          ".version-registry.json",
-          "GOrchestra/intel/status.json",
-          "internal/observer/hints.go",
-          "internal/observer/hints_test.go",
-          "internal/observer/observer.go",
-          "internal/observer/probes.go"
-        ]
-      }
-    ],
     "lastRelease": {
-      "version": "0.23.0",
-      "date": "2026-05-26T07:04:33.950771-03:00",
+      "version": "0.24.0",
+      "date": "2026-05-29T04:48:35.247376-03:00",
       "branch": "master"
     }
   }

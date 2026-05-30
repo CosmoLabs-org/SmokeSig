@@ -1,0 +1,5 @@
+{
+  "summary": "Created TUI reporter adapter and Bubbletea model in internal/tui/ with //go:build tui tag",
+  "files_changed": ["internal/tui/reporter.go", "internal/tui/model.go"],
+  "errors": []
+}

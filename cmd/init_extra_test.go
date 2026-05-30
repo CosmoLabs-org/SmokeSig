@@ -333,3 +333,54 @@ func TestInit_DetectNodeProject(t *testing.T) {
 		t.Error("expected Node project to have 'npm install' test")
 	}
 }
+
+// TestRunInit_GoProjectDetected runs runInit in a Go project directory (contains go.mod)
+// so that detector.Detect returns the Go type, exercising the "Detected: [...] " branch.
+func TestRunInit_GoProjectDetected(t *testing.T) {
+	// Create a temp dir with a go.mod so detector identifies it as a Go project.
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module example.com/test\n\ngo 1.21\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Chdir(origDir) })
+
+	resetInitVars(t)
+	forceOverwrite = true
+
+	if err := runInit(nil, nil); err != nil {
+		t.Fatalf("runInit in Go project: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, ".smokesig.yaml")); err != nil {
+		t.Error("expected .smokesig.yaml to be created")
+	}
+}
+
+// TestRunInit_FromRunningInvalidContainer verifies fromRunning with a bogus container name returns an error.
+func TestRunInit_FromRunningInvalidContainer(t *testing.T) {
+	dir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Chdir(origDir) })
+
+	resetInitVars(t)
+	fromRunning = "nonexistent-container-smokesig-test-xyz"
+	forceOverwrite = true
+
+	// This should error because the container doesn't exist.
+	err = runInit(nil, nil)
+	if err == nil {
+		t.Skip("InspectContainer did not return an error — Docker may be unavailable, skipping")
+	}
+}

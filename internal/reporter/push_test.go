@@ -229,6 +229,30 @@ func TestPushReporter_MalformedURL(t *testing.T) {
 	p.Summary(SuiteResultData{Project: "test", Total: 1, Passed: 1})
 }
 
+func TestPushReporter_PrereqWithError_Serialized(t *testing.T) {
+	var body jsonOutput
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		json.NewDecoder(r.Body).Decode(&body)
+		w.WriteHeader(http.StatusAccepted)
+	}))
+	defer srv.Close()
+
+	p := NewPushReporter(srv.URL, "")
+	p.PrereqResult(PrereqResultData{
+		Name:   "docker",
+		Passed: false,
+		Error:  &testError{"daemon not running"},
+	})
+	p.Summary(SuiteResultData{Project: "push-prereq-err", Total: 0})
+
+	if len(body.Prerequisites) != 1 {
+		t.Fatalf("prereqs = %d, want 1", len(body.Prerequisites))
+	}
+	if body.Prerequisites[0].Error != "daemon not running" {
+		t.Errorf("prereq error = %q, want 'daemon not running'", body.Prerequisites[0].Error)
+	}
+}
+
 var errTest = &testError{"test error"}
 
 type testError struct{ msg string }

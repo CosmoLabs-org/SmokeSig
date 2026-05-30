@@ -168,3 +168,91 @@ entries:
       started: 2026-04-30T18:01:20.075837-03:00
       completed: 2026-04-30T18:14:40.13937-03:00
       status: failed
+    - id: "0035"
+      task: |
+        Add tests for untested functions in internal/audit/audit.go.
+
+        Three functions need coverage:
+
+        1. collectUsedAssertions (56.7% → target 90%): This function walks test
+           assertions and collects assertion type strings. Test with configs that use
+           various assertion types (http, exit_code, file_exists, json_field, etc).
+           Test edge cases: empty tests list, test with no assertions, test with
+           multiple assertion types.
+
+        2. hasHTTPServer (39.3%): This function checks if a project directory has an
+           HTTP server. Read the function to understand its detection logic (checks
+           for routes, handlers, server setup patterns). Write tests with temp dirs
+           containing Go/Node/Python files with and without HTTP patterns.
+
+        3. hasPkgScript (0%): This function checks package.json for a specific script.
+           Test with: valid package.json with the script, without the script, no
+           package.json, invalid JSON.
+
+        Add tests to internal/audit/audit_test.go. Follow existing test patterns in
+        that file — use table-driven tests with t.TempDir() for filesystem tests.
+
+        Verify:
+          go test ./internal/audit/ -v -run "TestCollectUsedAssertions|TestHasHTTPServer|TestHasPkgScript"
+          go test -cover ./internal/audit/
+
+        Commit via: ccs commit-batch --message "test(audit): improve coverage for collectUsedAssertions, hasHTTPServer, hasPkgScript"
+      started: 2026-05-28T23:35:46.359195-03:00
+      completed: 2026-05-29T00:07:46.292386-03:00
+      status: applied
+      files_changed:
+        - internal/audit/audit_test.go
+      commit: 18d5992eb7ac1e204d30345a39e3fba8e771c6d0
+    - id: "0041"
+      task: Create TUI bubbletea model and reporter adapter in internal/tui/
+      started: 2026-05-29T00:13:49.338851-03:00
+      completed: 2026-05-29T00:20:10.340525-03:00
+      status: applied
+      files_changed:
+        - internal/tui/reporter.go
+        - internal/tui/model.go
+      commit: a8c86aef7af85ddd640af38e6de1855ca30e449e
+    - id: "0042"
+      task: Create TUI cmd wiring (run_tui.go, run_tui_stub.go) and model unit tests
+      started: 2026-05-29T00:21:52.817506-03:00
+      completed: 2026-05-29T00:34:45.831592-03:00
+      status: applied
+      files_changed:
+        - cmd/run_tui_stub.go
+        - cmd/run_tui.go
+        - cmd/run.go
+        - internal/tui/model_test.go
+      commit: bd9893e7577a09baab03f5552c41b5c88ac8051a
+    - id: "0045"
+      task: |
+        Add tests for cmd/run.go: withConfigNotifications and handleBaseline.
+
+        withConfigNotifications (13.3%): This function wraps a reporter with
+        webhook notifications from config. Read the function to understand what
+        it does, then test:
+        - Config with no notifications → returns original reporter
+        - Config with one notification (format: json, on: always) → returns wrapped reporter
+        - Config with invalid URL → returns original reporter (handles gracefully)
+
+        handleBaseline (0%): This function compares test results against stored
+        baselines. Read the function signature and test:
+        - No baseline flag set → returns nil (no-op)
+        - Baseline flag set with no prior baseline → creates new baseline file
+        - Baseline flag set with existing baseline → compares and reports
+
+        Use t.TempDir() for baseline storage. Set the package-level vars
+        (baselineEnabled, baselineThreshold) before calling.
+
+        Add tests to cmd/run_extra_test.go (append to it).
+
+        Verify:
+          go test ./cmd/ -v -run "TestWithConfigNotifications|TestHandleBaseline"
+          go test -cover ./cmd/
+
+        Commit via: ccs commit-batch --message "test(cmd): add tests for withConfigNotifications and handleBaseline"
+      started: 2026-05-29T03:48:11.888147-03:00
+      completed: 2026-05-29T03:53:26.341788-03:00
+      status: applied
+      files_changed:
+        - cmd/run_extra_test.go
+      commit: bc83f94ef419504ce92f3e07c4dbe3352eb8b145

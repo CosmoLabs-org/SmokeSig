@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -650,6 +651,36 @@ func TestRunner_RecursionGuardSkipsTestRunners(t *testing.T) {
 	}
 }
 
+func TestShouldSkip(t *testing.T) {
+	dir := t.TempDir()
+	existingFile := dir + "/exists.txt"
+	if err := os.WriteFile(existingFile, []byte("data"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name string
+		si   *schema.SkipIf
+		want bool
+	}{
+		{"nil skip_if", nil, false},
+		{"env_unset with var set", &schema.SkipIf{EnvUnset: "HOME"}, false},
+		{"env_unset with var unset", &schema.SkipIf{EnvUnset: "DEFINITELY_NOT_SET_XYZ"}, true},
+		{"env_equals matching value", &schema.SkipIf{EnvEquals: &schema.EnvEqualsCond{Var: "HOME", Value: os.Getenv("HOME")}}, true},
+		{"env_equals non-matching value", &schema.SkipIf{EnvEquals: &schema.EnvEqualsCond{Var: "HOME", Value: "no-match-xyz"}}, false},
+		{"file_missing with existing file", &schema.SkipIf{FileMissing: "exists.txt"}, false},
+		{"file_missing with missing file", &schema.SkipIf{FileMissing: "nope.txt"}, true},
+		{"file_missing absolute path missing", &schema.SkipIf{FileMissing: "/tmp/definitely_missing_xyz"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := shouldSkip(tt.si, dir); got != tt.want {
+				t.Errorf("shouldSkip() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestRunner_NoRecursionGuardWithoutEnv(t *testing.T) {
 	cfg := newConfig([]schema.Test{
 		{Name: "test-runner", Run: "echo simulated-test-pass", Expect: schema.Expect{ExitCode: intPtr(0)}},
@@ -696,5 +727,27 @@ func TestFilterByName(t *testing.T) {
 	got = filterByName(tests, []string{"delta"})
 	if len(got) != 0 {
 		t.Errorf("missing name: expected 0, got %d", len(got))
+	}
+}
+
+func TestRunSingle(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Tests: []schema.Test{
+			{Name: "echo-test", Run: "echo hello", Expect: schema.Expect{StdoutContains: "hello"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &noopReporter{}, ConfigDir: t.TempDir()}
+
+	result, err := r.RunSingle("echo-test", RunOptions{})
+	if err != nil {
+		t.Fatalf("RunSingle returned error: %v", err)
+	}
+	if !result.Passed {
+		t.Errorf("expected test to pass")
+	}
+
+	_, err = r.RunSingle("nonexistent", RunOptions{})
+	if err == nil {
+		t.Fatal("expected error for unknown test")
 	}
 }

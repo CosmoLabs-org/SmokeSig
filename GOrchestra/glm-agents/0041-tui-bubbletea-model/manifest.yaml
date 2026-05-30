@@ -1,0 +1,13 @@
+id: "0041"
+task: "Create TUI bubbletea model and reporter adapter in internal/tui/"
+status: applied
+started: 2026-05-29T00:13:49-03:00
+completed: 2026-05-29T00:20:10-03:00
+duration: 6m21s
+exit_code: 0
+commit: a8c86aef7af85ddd640af38e6de1855ca30e449e
+branch: _glm-agent-0041-tui-bubbletea-model
+summary: "Created TUI reporter adapter and Bubbletea model in internal/tui/ with //go:build tui tag"
+files_changed:
+  - "internal/tui/reporter.go"
+  - "internal/tui/model.go"
