@@ -19,10 +19,44 @@ type SmokeConfig struct {
 	Includes      []string         `yaml:"includes,omitempty"`
 	Settings      Settings         `yaml:"settings,omitempty"`
 	OTel          OTelConfig       `yaml:"otel,omitempty"`
+	Auth          AuthConfig       `yaml:"auth,omitempty"`
 	Notifications []Notification   `yaml:"notifications,omitempty"`
 	Prereqs       []Prerequisite   `yaml:"prerequisites,omitempty"`
-	Lifecycle     LifecycleConfig  `yaml:"lifecycle,omitempty"`
-	Tests         []Test           `yaml:"tests"`
+	Lifecycle     LifecycleConfig        `yaml:"lifecycle,omitempty"`
+	Plugins       map[string]PluginEntry `yaml:"plugins,omitempty"`
+	Tests         []Test                 `yaml:"tests"`
+}
+
+// PluginEntry defines a registered Wasm plugin in the top-level plugins: section.
+type PluginEntry struct {
+	Path         string   `yaml:"path"`
+	Version      string   `yaml:"version,omitempty"`
+	Timeout      Duration `yaml:"timeout,omitempty"`
+	Capabilities []string `yaml:"capabilities,omitempty"`
+}
+
+// AuthConfig defines OIDC-based cloud authentication for smoke tests.
+type AuthConfig struct {
+	Profiles []AuthProfile `yaml:"profiles"`
+	Fallback string        `yaml:"fallback,omitempty"` // "env" | "fail" (default: "fail")
+}
+
+// AuthProfile defines a single cloud auth provider configuration.
+type AuthProfile struct {
+	Name     string `yaml:"name,omitempty"`     // profile name (default: "default")
+	Provider string `yaml:"provider"`           // "aws" | "gcp"
+	RoleARN  string `yaml:"role_arn,omitempty"` // AWS: arn:aws:iam::ACCOUNT:role/ROLE
+	Audience string `yaml:"audience,omitempty"` // OIDC audience (AWS default: "sts.amazonaws.com")
+	Region   string `yaml:"region,omitempty"`   // AWS region for regional STS endpoint
+
+	// GCP-specific
+	WorkloadIdentityProvider string `yaml:"workload_identity_provider,omitempty"`
+	ServiceAccountEmail      string `yaml:"service_account_email,omitempty"`
+	GCPCredentialFormat      string `yaml:"gcp_credential_format,omitempty"` // "env" (default) | "keyfile"
+
+	// Advanced
+	TokenEnv        string `yaml:"token_env,omitempty"`        // custom env var containing OIDC token
+	SessionDuration string `yaml:"session_duration,omitempty"` // AWS: "1h" default, must be 15m-12h
 }
 
 // Notification configures a webhook notification destination.
@@ -40,6 +74,8 @@ type Settings struct {
 	Parallel        bool     `yaml:"parallel,omitempty"`
 	Monorepo        bool     `yaml:"monorepo,omitempty"`
 	MonorepoExclude []string `yaml:"monorepo_exclude,omitempty"`
+	AllowPluginExec bool     `yaml:"allow_plugin_exec,omitempty"`
+	PluginMemoryMB  int      `yaml:"plugin_memory_mb,omitempty"` // default 16
 }
 
 // OTelConfig configures OpenTelemetry trace context propagation and telemetry export.
@@ -95,6 +131,7 @@ type Test struct {
 	Cleanup      string       `yaml:"cleanup,omitempty"`
 	AllowFailure bool         `yaml:"allow_failure,omitempty"`
 	Retry        *RetryPolicy `yaml:"retry,omitempty"`
+	Auth         string       `yaml:"auth,omitempty"` // auth profile name override
 	SkipIf       *SkipIf      `yaml:"skip_if,omitempty"`
 }
 
@@ -156,6 +193,9 @@ type Expect struct {
 	IOSSimulator     *IOSSimulatorCheck     `yaml:"ios_simulator,omitempty"`
 	AndroidEmulator  *AndroidEmulatorCheck  `yaml:"android_emulator,omitempty"`
 	DocIntegrity     *DocIntegrityCheck     `yaml:"doc_integrity,omitempty"`
+	// Plugin holds plugin assertion configs, keyed by registered plugin name.
+	// Values are arbitrary YAML passed to the plugin as config JSON.
+	Plugin           map[string]interface{} `yaml:"plugin,omitempty"`
 	Extract          string                 `yaml:"extract,omitempty"` // Variable name to capture from stdout_matches
 }
 
@@ -491,17 +531,28 @@ func Parse(data []byte) (*SmokeConfig, error) {
 	return &cfg, nil
 }
 
-// LoadDefault finds and loads .smokesig.yaml from the current directory.
-// Falls back to .smoke.yaml with a deprecation warning for backward compat.
-func LoadDefault() (*SmokeConfig, error) {
+// LoadDefaultPath resolves the config filename without loading.
+// Returns ".smokesig.yaml" if it exists, falls back to ".smoke.yaml"
+// with a deprecation warning, or returns an error if neither exists.
+func LoadDefaultPath() (string, error) {
 	if _, err := os.Stat(".smokesig.yaml"); err == nil {
-		return Load(".smokesig.yaml")
+		return ".smokesig.yaml", nil
 	}
 	if _, err := os.Stat(".smoke.yaml"); err == nil {
 		fmt.Fprintln(os.Stderr, "⚠ Config file .smoke.yaml is deprecated, rename to .smokesig.yaml")
-		return Load(".smoke.yaml")
+		return ".smoke.yaml", nil
 	}
-	return nil, fmt.Errorf("no config file found: .smokesig.yaml or .smoke.yaml")
+	return "", fmt.Errorf("no config file found: .smokesig.yaml or .smoke.yaml")
+}
+
+// LoadDefault finds and loads .smokesig.yaml from the current directory.
+// Falls back to .smoke.yaml with a deprecation warning for backward compat.
+func LoadDefault() (*SmokeConfig, error) {
+	path, err := LoadDefaultPath()
+	if err != nil {
+		return nil, err
+	}
+	return Load(path)
 }
 
 // MergeEnv loads an environment-specific config and deep-merges it onto base.
@@ -528,6 +579,24 @@ func MergeEnv(base *SmokeConfig, envPath string) (*SmokeConfig, error) {
 
 	// Append env tests (they run after base tests)
 	base.Tests = append(base.Tests, envCfg.Tests...)
+
+	// Merge plugins (last-wins per name)
+	if len(envCfg.Plugins) > 0 {
+		if base.Plugins == nil {
+			base.Plugins = make(map[string]PluginEntry)
+		}
+		for name, entry := range envCfg.Plugins {
+			base.Plugins[name] = entry
+		}
+	}
+
+	// Plugin-related settings
+	if envCfg.Settings.AllowPluginExec {
+		base.Settings.AllowPluginExec = true
+	}
+	if envCfg.Settings.PluginMemoryMB > 0 {
+		base.Settings.PluginMemoryMB = envCfg.Settings.PluginMemoryMB
+	}
 
 	return base, nil
 }

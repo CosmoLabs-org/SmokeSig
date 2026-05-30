@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -118,6 +119,15 @@ var runCmd = &cobra.Command{
 	RunE:  runSmoke,
 }
 
+// runContext carries shared state for the interactive TUI entry point.
+type runContext struct {
+	cfg       *schema.SmokeConfig
+	configDir string
+	opts      runner.RunOptions
+	formatStr string
+	watch     bool
+}
+
 var (
 	configFile     string
 	tags           []string
@@ -131,6 +141,7 @@ var (
 	monorepoMode   bool
 	otelCollector  string
 	noOtel         bool
+	noAuth         bool
 	reportURL      string
 	reportAPIKey   string
 	webhookFormat  string
@@ -144,7 +155,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-	runCmd.Flags().StringVarP(&configFile, "file", "f", ".smokesig.yaml", "Config file path")
+	runCmd.Flags().StringVarP(&configFile, "file", "f", "", "Config file path (default: .smokesig.yaml, falls back to .smoke.yaml)")
 	runCmd.Flags().StringSliceVar(&tags, "tag", nil, "Include only tests with these tags")
 	runCmd.Flags().StringSliceVar(&excludeTags, "exclude-tag", nil, "Exclude tests with these tags")
 	runCmd.Flags().StringVar(&format, "format", "terminal", "Output format(s), comma-separated (terminal,json,junit,tap,prometheus,gha,backstage)")
@@ -156,6 +167,7 @@ func init() {
 	runCmd.Flags().BoolVar(&monorepoMode, "monorepo", false, "Auto-discover .smokesig.yaml in subdirectories")
 	runCmd.Flags().StringVar(&otelCollector, "otel-collector", "", "Override otel.jaeger_url and enable tracing")
 	runCmd.Flags().BoolVar(&noOtel, "no-otel", false, "Disable otel trace propagation for this run")
+	runCmd.Flags().BoolVar(&noAuth, "no-auth", false, "Disable OIDC auth for this run")
 	runCmd.Flags().StringVar(&reportURL, "report-url", "", "POST results to this URL after run")
 	runCmd.Flags().StringVar(&reportAPIKey, "report-api-key", "", "API key for report-url endpoint (X-API-Key header)")
 	runCmd.Flags().StringVar(&webhookFormat, "webhook-format", "", "Webhook payload format: slack, pagerduty, or json (requires --report-url)")
@@ -169,6 +181,15 @@ func init() {
 
 // loadConfig reads the config file, applies environment overrides and CLI flags.
 func loadConfig() (*schema.SmokeConfig, error) {
+	// Resolve config path: explicit -f flag takes priority, otherwise auto-detect
+	if configFile == "" {
+		resolved, err := schema.LoadDefaultPath()
+		if err != nil {
+			return nil, err
+		}
+		configFile = resolved // Assign back so configDir derivation works correctly
+	}
+
 	cfg, err := schema.Load(configFile)
 	if err != nil {
 		return nil, err
@@ -184,6 +205,9 @@ func loadConfig() (*schema.SmokeConfig, error) {
 	if noOtel {
 		cfg.OTel.Enabled = false
 	}
+	if noAuth {
+		cfg.Auth.Profiles = nil
+	}
 	if otelCollector != "" {
 		cfg.OTel.JaegerURL = otelCollector
 		cfg.OTel.Enabled = true
@@ -192,6 +216,18 @@ func loadConfig() (*schema.SmokeConfig, error) {
 		return nil, err
 	}
 	return cfg, nil
+}
+
+// wrapRunnerError maps runner-specific errors to typed exit code errors.
+func wrapRunnerError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var prereqErr *runner.ErrPrereqFailed
+	if errors.As(err, &prereqErr) {
+		return &PrereqError{Err: err}
+	}
+	return err
 }
 
 func runSmoke(cmd *cobra.Command, args []string) error {
@@ -205,13 +241,39 @@ func runSmoke(cmd *cobra.Command, args []string) error {
 
 	cfg, err := loadConfig()
 	if err != nil {
-		return fmt.Errorf("loading config: %w", err)
+		return &ConfigError{Err: fmt.Errorf("loading config: %w", err)}
 	}
 
 	configDir := filepath.Dir(configFile)
 	if !filepath.IsAbs(configDir) {
 		cwd, _ := os.Getwd()
 		configDir = filepath.Join(cwd, configDir)
+	}
+
+	// Parse timeout early (needed by both interactive and normal paths)
+	var timeoutDur time.Duration
+	if timeout != "" {
+		timeoutDur, err = time.ParseDuration(timeout)
+		if err != nil {
+			return fmt.Errorf("invalid timeout %q: %w", timeout, err)
+		}
+	}
+
+	// Interactive TUI mode (requires -tags tui)
+	if interactive {
+		return runInteractive(&runContext{
+			cfg:       cfg,
+			configDir: configDir,
+			opts: runner.RunOptions{
+				Tags:        tags,
+				ExcludeTags: excludeTags,
+				FailFast:    failFast,
+				DryRun:      dryRun,
+				Timeout:     timeoutDur,
+			},
+			formatStr: format,
+			watch:     watch,
+		})
 	}
 
 	// Check monorepo mode
@@ -222,15 +284,6 @@ func runSmoke(cmd *cobra.Command, args []string) error {
 		}
 		if len(configs) == 0 {
 			return fmt.Errorf("no smoke configs found in %s", configDir)
-		}
-
-		// Parse timeout
-		var timeoutDur time.Duration
-		if timeout != "" {
-			timeoutDur, err = time.ParseDuration(timeout)
-			if err != nil {
-				return fmt.Errorf("invalid timeout %q: %w", timeout, err)
-			}
 		}
 
 		if watch {
@@ -263,6 +316,7 @@ func runSmoke(cmd *cobra.Command, args []string) error {
 					FailFast:    failFast,
 					DryRun:      dryRun,
 					Timeout:     timeoutDur,
+					WatchMode:   true,
 				}, subConfigs)
 				if err != nil {
 					return err
@@ -285,22 +339,13 @@ func runSmoke(cmd *cobra.Command, args []string) error {
 			Timeout:     timeoutDur,
 		}, configs)
 		if err != nil {
-			return err
+			return wrapRunnerError(err)
 		}
 		handleBaseline(result, configDir)
 		if result.Failed > 0 {
-			os.Exit(1)
+			os.Exit(ExitFail)
 		}
 		return nil
-	}
-
-	// Parse timeout
-	var timeoutDur time.Duration
-	if timeout != "" {
-		timeoutDur, err = time.ParseDuration(timeout)
-		if err != nil {
-			return fmt.Errorf("invalid timeout %q: %w", timeout, err)
-		}
 	}
 
 	if watch {
@@ -324,6 +369,7 @@ func runSmoke(cmd *cobra.Command, args []string) error {
 				FailFast:    failFast,
 				DryRun:      dryRun,
 				Timeout:     timeoutDur,
+				WatchMode:   true,
 			})
 			if err != nil {
 				return err
@@ -348,11 +394,11 @@ func runSmoke(cmd *cobra.Command, args []string) error {
 		Timeout:     timeoutDur,
 	})
 	if err != nil {
-		return err
+		return wrapRunnerError(err)
 	}
 	handleBaseline(result, configDir)
 	if result.Failed > 0 {
-		os.Exit(1)
+		os.Exit(ExitFail)
 	}
 	return nil
 }

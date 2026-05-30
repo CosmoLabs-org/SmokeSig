@@ -13,14 +13,18 @@ var validateCmd = &cobra.Command{
 	Short: "Validate smoke test config without running tests",
 	Long:  "Load and validate .smokesig.yaml configuration. Reports all errors at once.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		configFile, _ := cmd.Flags().GetString("file")
-		if configFile == "" {
-			configFile = ".smokesig.yaml"
+		file, _ := cmd.Flags().GetString("file")
+		if file == "" {
+			resolved, err := schema.LoadDefaultPath()
+			if err != nil {
+				return &ConfigError{Err: err}
+			}
+			file = resolved
 		}
-		out, err := runValidate(configFile)
+		out, err := runValidate(file)
 		if err != nil {
 			fmt.Fprint(os.Stderr, out)
-			return err
+			return &ConfigError{Err: err}
 		}
 		fmt.Fprint(os.Stdout, out)
 		return nil
@@ -29,6 +33,7 @@ var validateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
+	validateCmd.Flags().StringP("file", "f", "", "Config file path (default: .smokesig.yaml, falls back to .smoke.yaml)")
 }
 
 func runValidate(path string) (string, error) {
