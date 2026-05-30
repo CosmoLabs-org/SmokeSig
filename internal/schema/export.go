@@ -2,12 +2,29 @@ package schema
 
 import (
 	"encoding/json"
+	"sort"
 )
 
 // SchemaOutput is the top-level structure exported by `smoke schema`.
 type SchemaOutput struct {
-	Version        string            `json:"version"`
-	AssertionTypes []AssertionSchema `json:"assertion_types"`
+	Version          string              `json:"version"`
+	AssertionTypes   []AssertionSchema   `json:"assertion_types"`
+	PluginAssertions []PluginSchemaEntry `json:"plugin_assertions,omitempty"`
+	Auth             *AuthSchemaOutput   `json:"auth,omitempty"`
+}
+
+// AuthSchemaOutput describes the auth config schema for tooling/editors.
+type AuthSchemaOutput struct {
+	Description    string      `json:"description"`
+	ProfileFields  []FieldInfo `json:"profile_fields"`
+	FallbackValues []string    `json:"fallback_values"`
+}
+
+// PluginSchemaEntry describes a registered plugin for schema export.
+type PluginSchemaEntry struct {
+	Name         string   `json:"name"`
+	Version      string   `json:"version,omitempty"`
+	Capabilities []string `json:"capabilities,omitempty"`
 }
 
 // AssertionSchema describes one assertion type's fields.
@@ -26,7 +43,7 @@ type FieldInfo struct {
 
 // ExportSchema returns a JSON-serializable description of all assertion types.
 func ExportSchema() *SchemaOutput {
-	return &SchemaOutput{
+	out := &SchemaOutput{
 		Version: "1",
 		AssertionTypes: []AssertionSchema{
 			{
@@ -340,6 +357,46 @@ func ExportSchema() *SchemaOutput {
 			},
 		},
 	}
+
+	out.Auth = &AuthSchemaOutput{
+		Description: "OIDC-based cloud authentication for CI-to-cloud role assumption",
+		ProfileFields: []FieldInfo{
+			{Name: "name", Type: "string", Required: false},
+			{Name: "provider", Type: "string (aws|gcp)", Required: true},
+			{Name: "role_arn", Type: "string", Required: false},
+			{Name: "audience", Type: "string", Required: false},
+			{Name: "region", Type: "string", Required: false},
+			{Name: "workload_identity_provider", Type: "string", Required: false},
+			{Name: "service_account_email", Type: "string", Required: false},
+			{Name: "gcp_credential_format", Type: "string (env|keyfile)", Required: false},
+			{Name: "token_env", Type: "string", Required: false},
+			{Name: "session_duration", Type: "duration", Required: false},
+		},
+		FallbackValues: []string{"env", "fail"},
+	}
+
+	return out
+}
+
+// ExportSchemaWithPlugins returns the schema with plugin metadata included.
+func ExportSchemaWithPlugins(plugins map[string]PluginEntry) *SchemaOutput {
+	out := ExportSchema()
+	if len(plugins) > 0 {
+		names := make([]string, 0, len(plugins))
+		for name := range plugins {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			entry := plugins[name]
+			out.PluginAssertions = append(out.PluginAssertions, PluginSchemaEntry{
+				Name:         name,
+				Version:      entry.Version,
+				Capabilities: entry.Capabilities,
+			})
+		}
+	}
+	return out
 }
 
 // ExportSchemaJSON returns the schema as formatted JSON.

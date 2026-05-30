@@ -447,3 +447,258 @@ func TestValidate_FileSize(t *testing.T) {
 		}
 	})
 }
+
+func TestValidate_Auth(t *testing.T) {
+	baseConfig := func(profiles []AuthProfile, fallback string, tests []Test) *SmokeConfig {
+		if tests == nil {
+			tests = []Test{{Name: "test1", Run: "echo ok", Expect: Expect{ExitCode: intPtr(0)}}}
+		}
+		return &SmokeConfig{
+			Version: 1,
+			Project: "myapp",
+			Auth:    AuthConfig{Profiles: profiles, Fallback: fallback},
+			Tests:   tests,
+		}
+	}
+
+	t.Run("valid aws profile", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/smoke-test"},
+		}, "", nil)
+		if err := Validate(cfg); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("valid gcp profile", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{
+				Provider:                 "gcp",
+				WorkloadIdentityProvider: "projects/123/locations/global/workloadIdentityPools/pool/providers/prov",
+				ServiceAccountEmail:      "sa@project.iam.gserviceaccount.com",
+			},
+		}, "", nil)
+		if err := Validate(cfg); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("unsupported provider", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "azure"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for unsupported provider")
+		}
+		if !strings.Contains(err.Error(), "unsupported provider") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("aws missing role_arn", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for missing role_arn")
+		}
+		if !strings.Contains(err.Error(), "aws provider requires role_arn") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("aws invalid role_arn format", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "not-an-arn"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for invalid role_arn")
+		}
+		if !strings.Contains(err.Error(), "invalid role_arn format") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("gcp missing workload_identity_provider", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "gcp", ServiceAccountEmail: "sa@project.iam.gserviceaccount.com"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for missing workload_identity_provider")
+		}
+		if !strings.Contains(err.Error(), "gcp provider requires workload_identity_provider") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("gcp missing service_account_email", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "gcp", WorkloadIdentityProvider: "projects/123/locations/global/workloadIdentityPools/pool/providers/prov"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for missing service_account_email")
+		}
+		if !strings.Contains(err.Error(), "gcp provider requires service_account_email") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("invalid gcp_credential_format", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{
+				Provider:                 "gcp",
+				WorkloadIdentityProvider: "projects/123/locations/global/workloadIdentityPools/pool/providers/prov",
+				ServiceAccountEmail:      "sa@project.iam.gserviceaccount.com",
+				GCPCredentialFormat:      "invalid",
+			},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for invalid gcp_credential_format")
+		}
+		if !strings.Contains(err.Error(), "gcp_credential_format must be env or keyfile") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("duplicate profile name", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Name: "prod", Provider: "aws", RoleARN: "arn:aws:iam::111:role/a"},
+			{Name: "prod", Provider: "aws", RoleARN: "arn:aws:iam::222:role/b"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for duplicate name")
+		}
+		if !strings.Contains(err.Error(), "duplicate name") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("duplicate implicit default name", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "arn:aws:iam::111:role/a"},
+			{Provider: "aws", RoleARN: "arn:aws:iam::222:role/b"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for duplicate implicit default names")
+		}
+		if !strings.Contains(err.Error(), "duplicate name") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("invalid fallback", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/test"},
+		}, "ignore", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for invalid fallback")
+		}
+		if !strings.Contains(err.Error(), "invalid value") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("valid fallback env", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/test"},
+		}, "env", nil)
+		if err := Validate(cfg); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("invalid session_duration", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/test", SessionDuration: "notaduration"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for invalid session_duration")
+		}
+		if !strings.Contains(err.Error(), "invalid session_duration") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("session_duration out of range for AWS", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/test", SessionDuration: "5m"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for duration < 15m")
+		}
+		if !strings.Contains(err.Error(), "between 15m and 12h") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("session_duration over 12h for AWS", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/test", SessionDuration: "13h"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for duration > 12h")
+		}
+		if !strings.Contains(err.Error(), "between 15m and 12h") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("test references missing profile", func(t *testing.T) {
+		cfg := baseConfig(
+			[]AuthProfile{
+				{Name: "staging", Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/test"},
+			},
+			"",
+			[]Test{
+				{Name: "test1", Run: "echo ok", Auth: "production", Expect: Expect{ExitCode: intPtr(0)}},
+			},
+		)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for missing profile reference")
+		}
+		if !strings.Contains(err.Error(), "auth profile") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("test references valid profile", func(t *testing.T) {
+		cfg := baseConfig(
+			[]AuthProfile{
+				{Name: "staging", Provider: "aws", RoleARN: "arn:aws:iam::123456789012:role/test"},
+			},
+			"",
+			[]Test{
+				{Name: "test1", Run: "echo ok", Auth: "staging", Expect: Expect{ExitCode: intPtr(0)}},
+			},
+		)
+		if err := Validate(cfg); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("no auth section is valid", func(t *testing.T) {
+		cfg := &SmokeConfig{
+			Version: 1,
+			Project: "myapp",
+			Tests:   []Test{{Name: "test1", Run: "echo ok", Expect: Expect{ExitCode: intPtr(0)}}},
+		}
+		if err := Validate(cfg); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+}
+
+func intPtr(i int) *int { return &i }

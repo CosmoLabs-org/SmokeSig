@@ -3,7 +3,9 @@ package schema
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
+	"time"
 )
 
 // ValidationError collects multiple validation failures.
@@ -196,6 +198,62 @@ func Validate(cfg *SmokeConfig) error {
 		errs = append(errs, "otel.jaeger_url must start with http:// or https://")
 	}
 
+	// --- Auth validation ---
+	if len(cfg.Auth.Profiles) > 0 {
+		if cfg.Auth.Fallback != "" && cfg.Auth.Fallback != "env" && cfg.Auth.Fallback != "fail" {
+			errs = append(errs, fmt.Sprintf("auth.fallback: invalid value %q (must be env or fail)", cfg.Auth.Fallback))
+		}
+		profileNames := make(map[string]bool)
+		for i, p := range cfg.Auth.Profiles {
+			prefix := fmt.Sprintf("auth.profiles[%d]", i)
+			name := p.Name
+			if name == "" {
+				name = "default"
+			}
+			if profileNames[name] {
+				errs = append(errs, fmt.Sprintf("auth.profiles: duplicate name %q", name))
+			}
+			profileNames[name] = true
+
+			if p.Provider != "aws" && p.Provider != "gcp" {
+				errs = append(errs, fmt.Sprintf("%s: unsupported provider %q (must be aws or gcp)", prefix, p.Provider))
+			}
+			if p.Provider == "aws" {
+				if p.RoleARN == "" {
+					errs = append(errs, fmt.Sprintf("%s: aws provider requires role_arn", prefix))
+				} else if matched, _ := regexp.MatchString(`^arn:aws:iam::\d+:role/.+$`, p.RoleARN); !matched {
+					errs = append(errs, fmt.Sprintf("%s: invalid role_arn format (expected arn:aws:iam::ACCOUNT:role/NAME)", prefix))
+				}
+			}
+			if p.Provider == "gcp" {
+				if p.WorkloadIdentityProvider == "" {
+					errs = append(errs, fmt.Sprintf("%s: gcp provider requires workload_identity_provider", prefix))
+				}
+				if p.ServiceAccountEmail == "" {
+					errs = append(errs, fmt.Sprintf("%s: gcp provider requires service_account_email", prefix))
+				}
+				if p.GCPCredentialFormat != "" && p.GCPCredentialFormat != "env" && p.GCPCredentialFormat != "keyfile" {
+					errs = append(errs, fmt.Sprintf("%s: gcp_credential_format must be env or keyfile", prefix))
+				}
+			}
+			if p.SessionDuration != "" {
+				d, err := time.ParseDuration(p.SessionDuration)
+				if err != nil {
+					errs = append(errs, fmt.Sprintf("%s: invalid session_duration %q", prefix, p.SessionDuration))
+				} else if p.Provider == "aws" && (d < 15*time.Minute || d > 12*time.Hour) {
+					errs = append(errs, fmt.Sprintf("%s: session_duration must be between 15m and 12h for AWS", prefix))
+				}
+			}
+		}
+
+		// Validate test auth profile references
+		for i, t := range cfg.Tests {
+			if t.Auth != "" && !profileNames[t.Auth] {
+				errs = append(errs, fmt.Sprintf("tests[%d]: auth profile %q not found", i, t.Auth))
+			}
+		}
+	}
+
 	for i, n := range cfg.Notifications {
 		prefix := fmt.Sprintf("notifications[%d]", i)
 		if n.URL == "" {
@@ -238,10 +296,59 @@ func Validate(cfg *SmokeConfig) error {
 		}
 	}
 
+	// Validate plugin assertions reference registered plugins
+	for i, t := range cfg.Tests {
+		for pluginName := range t.Expect.Plugin {
+			if _, ok := cfg.Plugins[pluginName]; !ok {
+				available := make([]string, 0, len(cfg.Plugins))
+				for name := range cfg.Plugins {
+					available = append(available, name)
+				}
+				sort.Strings(available)
+				errs = append(errs, fmt.Sprintf(
+					"tests[%d] %q: references unregistered plugin %q (available: %s)",
+					i, t.Name, pluginName, strings.Join(available, ", "),
+				))
+			}
+		}
+	}
+
+	// Validate plugin entries
+	for name, entry := range cfg.Plugins {
+		if entry.Path == "" {
+			errs = append(errs, fmt.Sprintf("plugins.%s: path is required", name))
+		}
+		for _, cap := range entry.Capabilities {
+			if !isValidPluginCapability(cap) {
+				errs = append(errs, fmt.Sprintf("plugins.%s: unknown capability %q (valid: network, env, time, fs_read, exec)", name, cap))
+			}
+		}
+		if hasPluginCapability(entry.Capabilities, "exec") && !cfg.Settings.AllowPluginExec {
+			errs = append(errs, fmt.Sprintf("plugins.%s: exec capability requires settings.allow_plugin_exec: true", name))
+		}
+	}
+
 	if len(errs) > 0 {
 		return &ValidationError{Errors: errs}
 	}
 	return nil
+}
+
+func isValidPluginCapability(cap string) bool {
+	switch cap {
+	case "network", "env", "time", "fs_read", "exec":
+		return true
+	}
+	return false
+}
+
+func hasPluginCapability(caps []string, target string) bool {
+	for _, c := range caps {
+		if c == target {
+			return true
+		}
+	}
+	return false
 }
 
 // hasStandaloneAssertions returns true if the test has assertions that don't
@@ -280,7 +387,8 @@ func hasStandaloneAssertions(e Expect) bool {
 		e.AndroidEmulator != nil ||
 		e.FileSize != nil ||
 		e.DeepLink != nil ||
-		e.DocIntegrity != nil
+		e.DocIntegrity != nil ||
+		len(e.Plugin) > 0
 }
 
 // validateBackgroundHook checks that background hooks have valid configuration.

@@ -32,6 +32,7 @@ internal/
 ├── observer/        # Auto-add generator — command wrapping, port detection, file snapshot, YAML generation
 ├── monorepo/        # Sub-config discovery for monorepo projects
 ├── dashboard/       # Portfolio dashboard (SQLite storage, API handlers, embedded UI)
+├── auth/            # OIDC cloud auth (AWS STS, GCP WIF) — CI token exchange, credential masking
 ├── detector/        # Project type detection (31 types) + template generation
 └── mcp/             # MCP server (7 tools) + suggestion engine
 ```
@@ -49,6 +50,7 @@ internal/
 - **Monorepo**: `--monorepo` flag auto-discovers `.smokesig.yaml` in subdirectories. Unlimited depth, configurable exclusions.
 - **WebSocket**: Stdlib-only WebSocket client. Connect-send-expect pattern with no external deps.
 - **gRPC opt-in**: gRPC health check excluded from default build. Use `-tags grpc` to include.
+- **OIDC auth**: `auth:` config section for CI-to-cloud role assumption. AWS STS + GCP Workload Identity Federation. No cloud SDK deps (raw HTTP via `net/http` + `encoding/xml` + `encoding/json`). Env var injection for `run:` commands + kubectl. Standalone HTTP assertions (e.g., `s3_bucket`) remain anonymous (no SigV4 in v1). `--no-auth` flag to disable.
 - **Recursion guard**: Runner sets `SMOKESIG_RUNNING=1` on child processes. If already set, test commands matching test runner patterns (`go test`, `npm test`, `pytest`, etc.) are auto-skipped to prevent fork bombs. See BUG-012.
 
 ## Build & Test
@@ -63,7 +65,7 @@ go build -ldflags "-s -w -X github.com/CosmoLabs-org/SmokeSig/cmd.Version=X.Y.Z"
 ## Commands
 
 ```bash
-smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha,backstage] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--report-url URL] [--report-api-key KEY] [--webhook-format slack|pagerduty|json] [--webhook-on failure|always|change] [--baseline] [--baseline-threshold 50]
+smokesig run [--tag X] [--exclude-tag X] [--format terminal,json,junit,tap,prometheus,gha,backstage] [--fail-fast] [--timeout 30s] [-f path] [--dry-run] [--watch] [--monorepo] [--otel-collector URL] [--no-otel] [--no-auth] [--report-url URL] [--report-api-key KEY] [--webhook-format slack|pagerduty|json] [--webhook-on failure|always|change] [--baseline] [--baseline-threshold 50]
 smokesig validate [-f path]
 smokesig audit [-f path] [--json] [--fix]
 smokesig schema
