@@ -7,17 +7,34 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/CosmoLabs-org/SmokeSig/internal/auth"
 	"github.com/CosmoLabs-org/SmokeSig/internal/monorepo"
+	"github.com/CosmoLabs-org/SmokeSig/internal/plugin"
 	"github.com/CosmoLabs-org/SmokeSig/internal/reporter"
 	"github.com/CosmoLabs-org/SmokeSig/internal/schema"
 )
 
 const recursionEnvVar = "SMOKESIG_RUNNING"
+
+// ErrPrereqFailed is returned when a prerequisite check fails.
+// Consumers can use errors.As to detect prerequisite failures.
+type ErrPrereqFailed struct {
+	Name string
+	Err  error
+}
+
+func (e *ErrPrereqFailed) Error() string {
+	return fmt.Sprintf("prerequisite %q failed: %v", e.Name, e.Err)
+}
+
+func (e *ErrPrereqFailed) Unwrap() error { return e.Err }
 
 var testRunnerPattern = regexp.MustCompile(
 	`(?i)\b(go\s+test|smokesig\s+run|smoke\s+run|npm\s+test|yarn\s+test|bun\s+test|pytest|cargo\s+test|dotnet\s+test|mvn\s+test|gradle\s+test|mix\s+test|swift\s+test)\b`,
@@ -33,9 +50,11 @@ func isRecursiveTestCommand(cmd string) bool {
 type RunOptions struct {
 	Tags        []string
 	ExcludeTags []string
+	TestNames   []string      // If non-empty, only run tests with these exact names
 	FailFast    bool
 	DryRun      bool
 	Timeout     time.Duration // per-test override (0 = use config)
+	WatchMode   bool          // true when running in --watch mode (uses cached auth)
 }
 
 // SuiteResult holds the aggregate outcome.
@@ -72,6 +91,8 @@ type Runner struct {
 	Vars          *VarStore
 	lifecycleEnv  map[string]string
 	lifecycleMu   sync.RWMutex
+	authCtx       *auth.AuthContext // OIDC credentials for cloud assertions
+	plugins       *plugin.PluginManager
 }
 
 // Run executes all tests per the options and returns the suite result.
@@ -119,13 +140,97 @@ func (r *Runner) Run(opts RunOptions) (*SuiteResult, error) {
 		// Check for prereq failures
 		for _, pr := range results {
 			if !pr.Passed {
-				return nil, fmt.Errorf("prerequisite %q failed: %v", pr.Name, pr.Error)
+				return nil, &ErrPrereqFailed{Name: pr.Name, Err: pr.Error}
+			}
+		}
+	}
+
+	// Perform OIDC auth exchange (after prereqs, before tests)
+	if len(r.Config.Auth.Profiles) > 0 {
+		var authCtx *auth.AuthContext
+		var err error
+		if opts.WatchMode {
+			authCtx, err = auth.ExchangeAllCached(r.Config.Auth)
+		} else {
+			authCtx, err = auth.ExchangeAll(r.Config.Auth)
+		}
+		if err != nil {
+			// Surface auth failure as a synthetic prerequisite failure
+			r.Reporter.PrereqStart("oidc-auth")
+			r.Reporter.PrereqResult(reporter.PrereqResultData{
+				Name:   "oidc-auth",
+				Passed: false,
+				Output: err.Error(),
+				Hint:   "Check auth: config, CI OIDC permissions, and cloud role trust policy",
+				Error:  err,
+			})
+			return nil, fmt.Errorf("OIDC auth exchange failed: %w", err)
+		}
+		if authCtx != nil {
+			// Inject credentials as env vars for run: commands
+			if active := authCtx.Active(); active != nil {
+				for k, v := range active.EnvVars() {
+					os.Setenv(k, v)
+				}
+			}
+			// Defer credential cleanup
+			defer func() {
+				// Unset env vars
+				if active := authCtx.Active(); active != nil {
+					for k := range active.EnvVars() {
+						os.Unsetenv(k)
+					}
+				}
+				// Remove GCP keyfiles
+				authCtx.CleanupKeyfiles()
+				// Zero all credentials
+				authCtx.ZeroAll()
+			}()
+		}
+		r.authCtx = authCtx
+	}
+
+	// Initialize plugin manager if plugins are configured
+	if len(r.Config.Plugins) > 0 {
+		cacheDir := ""
+		if home, err := os.UserCacheDir(); err == nil {
+			cacheDir = filepath.Join(home, "smokesig", "wasm")
+		}
+		memoryMB := r.Config.Settings.PluginMemoryMB
+		if memoryMB <= 0 {
+			memoryMB = plugin.DefaultMemoryLimitMB
+		}
+		pm, err := plugin.NewPluginManager(context.Background(), plugin.ManagerOptions{
+			ConfigDir:     r.ConfigDir,
+			CacheDir:      cacheDir,
+			MemoryLimitMB: memoryMB,
+			Debug:         os.Getenv("SMOKESIG_PLUGIN_DEBUG") == "1",
+		})
+		if err != nil {
+			return nil, fmt.Errorf("initializing plugin manager: %w", err)
+		}
+		defer pm.Close(context.Background())
+		r.plugins = pm
+
+		// Load all plugins — sorted for deterministic error ordering
+		pluginNames := make([]string, 0, len(r.Config.Plugins))
+		for name := range r.Config.Plugins {
+			pluginNames = append(pluginNames, name)
+		}
+		sort.Strings(pluginNames)
+		for _, name := range pluginNames {
+			entry := r.Config.Plugins[name]
+			if err := pm.LoadPlugin(context.Background(), name, entry, memoryMB); err != nil {
+				return nil, fmt.Errorf("loading plugin %q: %w", name, err)
 			}
 		}
 	}
 
 	// Filter tests by tags
 	tests := filterTests(r.Config.Tests, opts.Tags, opts.ExcludeTags)
+
+	// Filter by specific test names (for TUI re-run)
+	tests = filterByName(tests, opts.TestNames)
 
 	// Initialize trace context if otel is enabled
 	if r.Config.OTel.Enabled {
@@ -184,6 +289,10 @@ func (r *Runner) RunMonorepo(opts RunOptions, subConfigs []monorepo.SubConfig) (
 		cfg, err := schema.Load(sc.Path)
 		if err != nil {
 			return nil, fmt.Errorf("loading %s: %w", sc.Path, err)
+		}
+		// Inherit auth from root config if sub-config doesn't define its own
+		if len(cfg.Auth.Profiles) == 0 && len(r.Config.Auth.Profiles) > 0 {
+			cfg.Auth = r.Config.Auth
 		}
 		subRunner := &Runner{
 			Config:    cfg,
@@ -385,6 +494,31 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 			c.Dir = r.ConfigDir
 			c.Run()
 		}()
+	}
+
+	// Per-test auth profile override
+	if t.Auth != "" && r.authCtx != nil {
+		profileCreds := r.authCtx.Get(t.Auth)
+		if profileCreds != nil {
+			// Save current env vars
+			saved := make(map[string]string)
+			for k := range profileCreds.EnvVars() {
+				saved[k] = os.Getenv(k)
+			}
+			// Set profile-specific env vars
+			for k, v := range profileCreds.EnvVars() {
+				os.Setenv(k, v)
+			}
+			defer func() {
+				for k, v := range saved {
+					if v == "" {
+						os.Unsetenv(k)
+					} else {
+						os.Setenv(k, v)
+					}
+				}
+			}()
+		}
 	}
 
 	// Execute command (skip if no run command — standalone assertions only)
@@ -802,6 +936,68 @@ func (r *Runner) runTestOnce(t schema.Test, opts RunOptions) TestResult {
 		}
 	}
 
+	// Plugin assertions — sorted by name for deterministic output
+	if len(t.Expect.Plugin) > 0 && r.plugins != nil {
+		pluginNames := make([]string, 0, len(t.Expect.Plugin))
+		for name := range t.Expect.Plugin {
+			pluginNames = append(pluginNames, name)
+		}
+		sort.Strings(pluginNames)
+
+		for _, name := range pluginNames {
+			config := t.Expect.Plugin[name]
+			pluginInput := plugin.PluginInput{
+				AssertionName: name,
+				Config:        config,
+				Context: plugin.PluginContext{
+					TestName:   t.Name,
+					ExitCode:   exitCode,
+					Stdout:     stdout.String(),
+					Stderr:     stderr.String(),
+					DurationMs: int(time.Since(start).Milliseconds()),
+					Env:        map[string]string{}, // always empty — use host_env_get capability
+				},
+			}
+			result, err := r.plugins.Evaluate(context.Background(), name, pluginInput)
+			if err != nil {
+				// Plugin crash/timeout/ABI error/capability denial
+				errKind := "error"
+				if pe, ok := err.(*plugin.PluginError); ok {
+					errKind = string(pe.Kind)
+				}
+				assertions = append(assertions, AssertionResult{
+					Type:     fmt.Sprintf("plugin:%s:%s", name, errKind),
+					Expected: "plugin success",
+					Actual:   err.Error(),
+					Passed:   false,
+				})
+				allPassed = false
+			} else {
+				for _, detail := range result.Details {
+					assertions = append(assertions, AssertionResult{
+						Type:     fmt.Sprintf("plugin:%s", detail.Type),
+						Expected: detail.Expected,
+						Actual:   detail.Actual,
+						Passed:   detail.Pass,
+					})
+					if !detail.Pass {
+						allPassed = false
+					}
+				}
+				// If plugin returned pass=false but no details, create a single assertion
+				if !result.Pass && len(result.Details) == 0 {
+					assertions = append(assertions, AssertionResult{
+						Type:     fmt.Sprintf("plugin:%s", name),
+						Expected: "pass",
+						Actual:   result.Message,
+						Passed:   false,
+					})
+					allPassed = false
+				}
+			}
+		}
+	}
+
 	duration := time.Since(start)
 
 	if t.Expect.ResponseTimeMs != nil {
@@ -863,6 +1059,25 @@ func filterTests(tests []schema.Test, include, exclude []string) []schema.Test {
 			continue
 		}
 		filtered = append(filtered, t)
+	}
+	return filtered
+}
+
+// filterByName returns only tests whose names appear in the names slice.
+// If names is empty, all tests are returned.
+func filterByName(tests []schema.Test, names []string) []schema.Test {
+	if len(names) == 0 {
+		return tests
+	}
+	nameSet := make(map[string]struct{}, len(names))
+	for _, n := range names {
+		nameSet[n] = struct{}{}
+	}
+	var filtered []schema.Test
+	for _, t := range tests {
+		if _, ok := nameSet[t.Name]; ok {
+			filtered = append(filtered, t)
+		}
 	}
 	return filtered
 }

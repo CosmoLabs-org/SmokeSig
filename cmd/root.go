@@ -16,10 +16,15 @@ var rootCmd = &cobra.Command{
 	Long:  banner + "\n  Run lightweight smoke tests from .smokesig.yaml",
 }
 
+func init() {
+	// Prevent Cobra from printing errors itself -- we handle formatting and exit codes
+	rootCmd.SilenceErrors = true
+}
+
 // Execute runs the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		os.Exit(ExitCodeForError(err))
 	}
 }
