@@ -1,0 +1,8 @@
+id: ROAD-092
+created_at: 2026-05-30T06:55:35.166147-03:00
+updated_at: 2026-05-30T06:55:35.169236-03:00
+title: OIDC integration for cloud role assumption — AWS/GCP via raw HTTP, CI auto-detection
+status: in_progress
+priority: 60
+origin:
+    session: 3

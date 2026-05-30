@@ -1,8 +1,13 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-05-25T03:57:32.893158-03:00
-next_id: 92
+last_updated: 2026-05-30T06:55:35.170149-03:00
+next_id: 93
 items:
+    - id: ROAD-092
+      title: OIDC integration for cloud role assumption — AWS/GCP via raw HTTP, CI auto-detection
+      status: in_progress
+      priority: 60
+      created_at: 2026-05-30T06:55:35.166147-03:00
     - id: ROAD-091
       title: Doc-integrity assertion type for stale documentation detection
       status: completed
@@ -29,13 +34,13 @@ items:
       created_at: 2026-05-24T06:06:10.435584-03:00
     - id: ROAD-086
       title: Wasm plugin system for custom assertions via wazero
-      status: captured
+      status: in_progress
       priority: 25
       parent: ROAD-081
       created_at: 2026-05-15T15:06:30.856523-03:00
     - id: ROAD-085
       title: Interactive TUI with Bubbletea — real-time test results, filtering, scrollable output
-      status: captured
+      status: in_progress
       priority: 40
       parent: ROAD-081
       created_at: 2026-05-15T15:06:30.616382-03:00
@@ -52,7 +57,7 @@ items:
       created_at: 2026-05-15T15:06:15.300607-03:00
     - id: ROAD-082
       title: CCS dependency integration — rebuild, smoke passthrough, project registry
-      status: exploring
+      status: in_progress
       priority: 95
       created_at: 2026-05-15T15:05:26.57121-03:00
     - id: ROAD-081
