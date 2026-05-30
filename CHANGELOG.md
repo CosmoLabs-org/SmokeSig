@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-05-30
+
+### Added
+- OIDC cloud authentication for AWS, GCP, Azure CI role assumption (FEAT-049)
+- WebAssembly plugin system for custom assertions via wazero (FEAT-048)
+- Interactive TUI test runner with Bubbletea (FEAT-051)
+- Formalized exit code contract: 0=pass, 1=fail, 2=config, 3=prereq
+- add AuthConfig types for OIDC providers (FEAT-049) (commit:84b0ff55)
+- add WebAssembly plugin system for custom assertions (FEAT-048) (commit:02c2484a)
+- add OIDC cloud authentication for CI role assumption (FEAT-049) (commit:94d1d06f)
+- add interactive TUI test runner (FEAT-051) (commit:1609ca47)
+- formalize exit code contract (0=pass, 1=fail, 2=config, 3=prereq) (commit:8145295a)
+
+### Fixed
+- LoadDefault() fallback wired into run and validate commands
+- wire LoadDefault() fallback into run and validate commands (commit:5636e98b)
+
 ## [0.24.0] - 2026-05-29
 
 ### Added

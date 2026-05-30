@@ -4,23 +4,8 @@
 
 version: pending
 entries:
-    added:
-        - description: OIDC cloud authentication for AWS, GCP, Azure CI role assumption (FEAT-049)
-          source: manual
-          date: 2026-05-30T11:05:03.837387-03:00
-        - description: WebAssembly plugin system for custom assertions via wazero (FEAT-048)
-          source: manual
-          date: 2026-05-30T11:05:03.899514-03:00
-        - description: Interactive TUI test runner with Bubbletea (FEAT-051)
-          source: manual
-          date: 2026-05-30T11:05:03.940679-03:00
-        - description: 'Formalized exit code contract: 0=pass, 1=fail, 2=config, 3=prereq'
-          source: manual
-          date: 2026-05-30T11:05:03.993467-03:00
-    fixed:
-        - description: LoadDefault() fallback wired into run and validate commands
-          source: manual
-          date: 2026-05-30T11:05:04.033367-03:00
+    added: []
+    fixed: []
     changed: []
     deprecated: []
     removed: []
