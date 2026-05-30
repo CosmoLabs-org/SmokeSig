@@ -1,6 +1,7 @@
 ---
 brainstorm_ref: docs/brainstorming/2026-05-26-detector-observer-integration.md
 branch: master
+completed: "2026-05-29"
 covers_brainstorm_deliverables:
     - BR-01
     - BR-02
@@ -12,15 +13,19 @@ covers_plan_deliverables:
     - P-02
     - P-03
     - P-04
-created: "2026-05-26"
+created: "2026-05-26T12:00:00-03:00"
+goals_completed: 4
+goals_total: 4
 id: P-2026-05-26-detector-observer-integration
 plan_ref: docs/planning-mode/2026-05-26-detector-observer-integration.md
 priority: medium
+related_prompts: []
 requires_reading:
     - docs/brainstorming/2026-05-26-detector-observer-integration.md
     - docs/planning-mode/2026-05-26-detector-observer-integration.md
 schema_version: 1
-status: PENDING
+status: COMPLETED
+tags: []
 title: 'FEAT-046: Detector-Observer Integration'
 ---
 
@@ -55,16 +60,16 @@ agents:
 
 ## Goals
 
-### [ ] G-01 StackHints type and HintsFromDir with portless reader + stack table
+### [x] G-01 StackHints type and HintsFromDir with portless reader + stack table
 Covers P-01.
 
-### [ ] G-02 ProbeEndpoints accepts extra paths
+### [x] G-02 ProbeEndpoints accepts extra paths
 Covers P-02.
 
-### [ ] G-03 Observer wires hints into observation pipeline
+### [x] G-03 Observer wires hints into observation pipeline
 Covers P-03.
 
-### [ ] G-04 cmd/observe auto-detects and passes hints
+### [x] G-04 cmd/observe auto-detects and passes hints
 Covers P-04.
 
 ## Related
