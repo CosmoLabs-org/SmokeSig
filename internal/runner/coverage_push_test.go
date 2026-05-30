@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -2043,6 +2044,1072 @@ func TestCoveragePush_ParseSimctl_BootedWithMultipleRuntimes(t *testing.T) {
 	}
 	if strings.Contains(actual, "BBB") || strings.Contains(actual, "CCC") {
 		t.Errorf("should not contain BBB or CCC, got: %s", actual)
+	}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 20. runTestOnce — cover failing assertion branches
+// ═══════════════════════════════════════════════════════════════════════
+
+func TestCoveragePush_RunTestOnce_StdoutMatchesFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "stdout-match-fail", Run: "echo hello", Expect: schema.Expect{StdoutMatches: "^goodbye$"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_StderrContainsFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "stderr-fail", Run: "echo nope >&2", Expect: schema.Expect{StderrContains: "expected_error"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_StderrMatchesFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "stderr-match-fail", Run: "echo nope >&2", Expect: schema.Expect{StderrMatches: "^fatal:"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_EnvExistsFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "env-fail", Run: "echo ok", Expect: schema.Expect{EnvExists: "SMOKESIG_NONEXISTENT_XYZ_99"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_FileExistsFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "file-fail", Run: "echo ok", Expect: schema.Expect{FileExists: "/tmp/smokesig_nonexistent_xyz_file"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_FileSizeFail(t *testing.T) {
+	tmpDir := t.TempDir()
+	f := filepath.Join(tmpDir, "empty.txt")
+	os.WriteFile(f, []byte(""), 0644)
+	minBytes := int64(100)
+
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "fsize-fail", Run: "echo ok", Expect: schema.Expect{
+				FileSize: &schema.FileSizeCheck{Path: f, MinBytes: &minBytes},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}, ConfigDir: tmpDir}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_PortListeningFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "port-fail", Run: "echo ok", Expect: schema.Expect{
+				PortListening: &schema.PortCheck{Port: 59994},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_ProcessRunningFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "proc-fail", Run: "echo ok", Expect: schema.Expect{ProcessRunning: "nonexistent_proc_xyz"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_HTTPFail(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(500)
+	}))
+	defer srv.Close()
+
+	status := 200
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "http-fail", Run: "echo ok", Expect: schema.Expect{
+				HTTP: &schema.HTTPCheck{URL: srv.URL, StatusCode: &status},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_JSONFieldFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "json-fail", Run: `echo '{"name":"bob"}'`, Expect: schema.Expect{
+				JSONField: &schema.JSONFieldCheck{Path: "name", Equals: "alice"},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_ExitCodeFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "exitcode-fail", Run: "exit 2", Expect: schema.Expect{ExitCode: intP(0)}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_StdoutContainsFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "stdout-fail", Run: "echo hello", Expect: schema.Expect{StdoutContains: "goodbye"}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 21. CheckWebSocket — mock WebSocket server
+// ═══════════════════════════════════════════════════════════════════════
+
+func startMockWSServer(t *testing.T, handler func(conn net.Conn)) string {
+	t.Helper()
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { listener.Close() })
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			go handler(conn)
+		}
+	}()
+	return fmt.Sprintf("ws://127.0.0.1:%d", listener.Addr().(*net.TCPAddr).Port)
+}
+
+func wsHandshakeAndUpgrade(conn net.Conn) error {
+	buf := make([]byte, 4096)
+	n, err := conn.Read(buf)
+	if err != nil {
+		return err
+	}
+	req := string(buf[:n])
+
+	// Extract Sec-WebSocket-Key
+	var clientKey string
+	for _, line := range strings.Split(req, "\r\n") {
+		if strings.HasPrefix(line, "Sec-WebSocket-Key:") {
+			clientKey = strings.TrimSpace(strings.TrimPrefix(line, "Sec-WebSocket-Key:"))
+		}
+	}
+	acceptKey := computeAcceptKey(clientKey)
+
+	resp := fmt.Sprintf("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: %s\r\n\r\n", acceptKey)
+	_, err = conn.Write([]byte(resp))
+	return err
+}
+
+func TestCoveragePush_CheckWebSocket_ConnectOnly(t *testing.T) {
+	url := startMockWSServer(t, func(conn net.Conn) {
+		defer conn.Close()
+		wsHandshakeAndUpgrade(conn)
+		time.Sleep(1 * time.Second)
+	})
+
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:     url,
+		Timeout: schema.Duration{Duration: 3 * time.Second},
+	})
+	if !result.Passed {
+		t.Errorf("expected connect-only pass, got: %s", result.Actual)
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_SendAndReceive(t *testing.T) {
+	url := startMockWSServer(t, func(conn net.Conn) {
+		defer conn.Close()
+		if err := wsHandshakeAndUpgrade(conn); err != nil {
+			return
+		}
+		// Read incoming frame (client masked)
+		header := make([]byte, 2)
+		if _, err := io.ReadFull(conn, header); err != nil {
+			return
+		}
+		payloadLen := int(header[1] & 0x7F)
+		maskAndPayload := make([]byte, 4+payloadLen)
+		io.ReadFull(conn, maskAndPayload)
+
+		// Send back a text frame with "echo:hello"
+		msg := []byte("echo:hello")
+		frame := []byte{0x81, byte(len(msg))}
+		frame = append(frame, msg...)
+		conn.Write(frame)
+		time.Sleep(2 * time.Second)
+	})
+
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:            url,
+		Send:           "hello",
+		ExpectContains: "echo:",
+		Timeout:        schema.Duration{Duration: 3 * time.Second},
+	})
+	if !result.Passed {
+		t.Errorf("expected pass for send+receive, got: %s", result.Actual)
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_ExpectContainsFail(t *testing.T) {
+	url := startMockWSServer(t, func(conn net.Conn) {
+		defer conn.Close()
+		if err := wsHandshakeAndUpgrade(conn); err != nil {
+			return
+		}
+		time.Sleep(50 * time.Millisecond)
+		// Send a response that doesn't match
+		msg := []byte("wrong response")
+		frame := []byte{0x81, byte(len(msg))}
+		frame = append(frame, msg...)
+		conn.Write(frame)
+		time.Sleep(2 * time.Second)
+	})
+
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:            url,
+		ExpectContains: "expected_string",
+		Timeout:        schema.Duration{Duration: 2 * time.Second},
+	})
+	if result.Passed {
+		t.Error("expected failure when response doesn't contain expected string")
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_ExpectMatchesPass(t *testing.T) {
+	url := startMockWSServer(t, func(conn net.Conn) {
+		defer conn.Close()
+		if err := wsHandshakeAndUpgrade(conn); err != nil {
+			return
+		}
+		// Small delay to ensure client is ready to read frames
+		time.Sleep(50 * time.Millisecond)
+		msg := []byte("version:1.2.3")
+		frame := []byte{0x81, byte(len(msg))}
+		frame = append(frame, msg...)
+		conn.Write(frame)
+		// Keep connection alive so client can read before EOF
+		time.Sleep(2 * time.Second)
+	})
+
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:           url,
+		ExpectMatches: `version:\d+\.\d+\.\d+`,
+		Timeout:       schema.Duration{Duration: 5 * time.Second},
+	})
+	if !result.Passed {
+		t.Errorf("expected regex match pass, got: %s", result.Actual)
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_UpgradeFail(t *testing.T) {
+	url := startMockWSServer(t, func(conn net.Conn) {
+		defer conn.Close()
+		buf := make([]byte, 4096)
+		conn.Read(buf)
+		conn.Write([]byte("HTTP/1.1 403 Forbidden\r\n\r\n"))
+	})
+
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:     url,
+		Timeout: schema.Duration{Duration: 2 * time.Second},
+	})
+	if result.Passed {
+		t.Error("expected failure for 403 upgrade")
+	}
+	if !strings.Contains(result.Actual, "upgrade failed") {
+		t.Errorf("actual = %q, want 'upgrade failed'", result.Actual)
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_ConnectionRefused(t *testing.T) {
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:     "ws://127.0.0.1:59993/ws",
+		Timeout: schema.Duration{Duration: 500 * time.Millisecond},
+	})
+	if result.Passed {
+		t.Error("expected failure for refused connection")
+	}
+	if !strings.Contains(result.Actual, "connection failed") {
+		t.Errorf("actual = %q, want 'connection failed'", result.Actual)
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_ServerClose(t *testing.T) {
+	url := startMockWSServer(t, func(conn net.Conn) {
+		defer conn.Close()
+		if err := wsHandshakeAndUpgrade(conn); err != nil {
+			return
+		}
+		// Small delay to ensure client is ready to read frames
+		time.Sleep(50 * time.Millisecond)
+		// Send close frame
+		conn.Write([]byte{0x88, 0x02, 0x03, 0xE8}) // close with code 1000
+		// Keep connection alive so client can read the close frame
+		time.Sleep(2 * time.Second)
+	})
+
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:            url,
+		ExpectContains: "something",
+		Timeout:        schema.Duration{Duration: 2 * time.Second},
+	})
+	if result.Passed {
+		t.Error("expected failure when server closes before expected message")
+	}
+	if !strings.Contains(result.Actual, "server closed") {
+		t.Errorf("actual = %q, want 'server closed'", result.Actual)
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_DefaultPort(t *testing.T) {
+	// URL without port — should add :80
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:     "ws://127.0.0.1/ws",
+		Timeout: schema.Duration{Duration: 200 * time.Millisecond},
+	})
+	// Will fail (nothing on port 80), but covers the port-defaulting branch
+	if result.Passed {
+		t.Error("expected failure for default port 80")
+	}
+}
+
+func TestCoveragePush_CheckWebSocket_WithHeaders(t *testing.T) {
+	url := startMockWSServer(t, func(conn net.Conn) {
+		defer conn.Close()
+		wsHandshakeAndUpgrade(conn)
+		time.Sleep(500 * time.Millisecond)
+	})
+
+	result := CheckWebSocket(&schema.WebSocketCheck{
+		URL:     url,
+		Headers: map[string]string{"Authorization": "Bearer test"},
+		Timeout: schema.Duration{Duration: 2 * time.Second},
+	})
+	if !result.Passed {
+		t.Errorf("expected pass with headers, got: %s", result.Actual)
+	}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 22. CheckHTTP — cover body, method, headers
+// ═══════════════════════════════════════════════════════════════════════
+
+func TestCoveragePush_CheckHTTP_BodyContainsFail(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		fmt.Fprintln(w, "actual body text")
+	}))
+	defer srv.Close()
+
+	status := 200
+	results := CheckHTTP(&schema.HTTPCheck{
+		URL:          srv.URL,
+		StatusCode:   &status,
+		BodyContains: "not present",
+	})
+	bodyFailed := false
+	for _, r := range results {
+		if r.Type == "http_body_contains" && !r.Passed {
+			bodyFailed = true
+		}
+	}
+	if !bodyFailed {
+		t.Error("expected body_contains failure")
+	}
+}
+
+func TestCoveragePush_CheckHTTP_PostWithBody(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			w.WriteHeader(405)
+			return
+		}
+		w.WriteHeader(201)
+		fmt.Fprintln(w, "created")
+	}))
+	defer srv.Close()
+
+	status := 201
+	results := CheckHTTP(&schema.HTTPCheck{
+		URL:        srv.URL,
+		Method:     "POST",
+		Body:       `{"name":"test"}`,
+		StatusCode: &status,
+	})
+	for _, r := range results {
+		if !r.Passed {
+			t.Errorf("expected all pass, got failure: %s = %s", r.Type, r.Actual)
+		}
+	}
+}
+
+func TestCoveragePush_CheckHTTP_WithHeaders(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-Custom") != "test" {
+			w.WriteHeader(400)
+			return
+		}
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+
+	status := 200
+	results := CheckHTTP(&schema.HTTPCheck{
+		URL:        srv.URL,
+		StatusCode: &status,
+		Headers:    map[string]string{"X-Custom": "test"},
+	})
+	for _, r := range results {
+		if !r.Passed {
+			t.Errorf("expected pass, got: %s = %s", r.Type, r.Actual)
+		}
+	}
+}
+
+func TestCoveragePush_CheckHTTP_HeaderCheckFail(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Response", "wrong")
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+
+	results := CheckHTTP(&schema.HTTPCheck{
+		URL:            srv.URL,
+		HeaderContains:  map[string]string{"X-Response": "expected"},
+	})
+	headerFailed := false
+	for _, r := range results {
+		if r.Type == "http_header_contains" && !r.Passed {
+			headerFailed = true
+		}
+	}
+	if !headerFailed {
+		t.Error("expected header check failure")
+	}
+}
+
+func TestCoveragePush_CheckHTTP_ConnectionRefused(t *testing.T) {
+	results := CheckHTTP(&schema.HTTPCheck{
+		URL: "http://127.0.0.1:59992/health",
+	})
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Passed {
+		t.Error("expected failure for connection refused")
+	}
+}
+
+func TestCoveragePush_CheckHTTP_CustomTimeout(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+
+	results := CheckHTTP(&schema.HTTPCheck{
+		URL:     srv.URL,
+		Timeout: schema.Duration{Duration: 1 * time.Second},
+	})
+	// Just covers the timeout > 0 branch
+	_ = results
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 23. retryOnTraceOnly branch in runTest
+// ═══════════════════════════════════════════════════════════════════════
+
+func TestCoveragePush_RunTest_RetryOnTraceOnly(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{
+				Name:   "trace-retry",
+				Run:    "exit 1",
+				Expect: schema.Expect{ExitCode: intP(0)},
+				Retry:  &schema.RetryPolicy{Count: 2, Backoff: schema.Duration{Duration: 10 * time.Millisecond}, RetryOnTraceOnly: true},
+			},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Tests[0].Attempts != 2 {
+		t.Errorf("expected 2 attempts with retryOnTraceOnly, got %d", suite.Tests[0].Attempts)
+	}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 24. CheckHTTP — response header pass
+// ═══════════════════════════════════════════════════════════════════════
+
+func TestCoveragePush_CheckHTTP_HeaderCheckPass(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+	}))
+	defer srv.Close()
+
+	results := CheckHTTP(&schema.HTTPCheck{
+		URL:           srv.URL,
+		HeaderContains: map[string]string{"Content-Type": "application/json"},
+	})
+	headerPassed := false
+	for _, r := range results {
+		if r.Type == "http_header_contains" && r.Passed {
+			headerPassed = true
+		}
+	}
+	if !headerPassed {
+		t.Error("expected header check pass")
+	}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 25. wsReadFrame — cover ping and close frame paths
+// ═══════════════════════════════════════════════════════════════════════
+
+func TestCoveragePush_WsReadFrame_CloseFrame(t *testing.T) {
+	// Create a pipe to simulate connection
+	server, client := net.Pipe()
+	defer client.Close()
+
+	go func() {
+		defer server.Close()
+		// Send close frame: opcode 8, no payload
+		server.Write([]byte{0x88, 0x00})
+	}()
+
+	client.SetDeadline(time.Now().Add(2 * time.Second))
+	msg, closed, err := wsReadFrame(client)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !closed {
+		t.Error("expected closed=true for close frame")
+	}
+	if msg != "" {
+		t.Errorf("expected empty msg for close with no payload, got: %q", msg)
+	}
+}
+
+func TestCoveragePush_WsReadFrame_CloseFrameWithPayload(t *testing.T) {
+	server, client := net.Pipe()
+	defer client.Close()
+
+	go func() {
+		defer server.Close()
+		// Close frame with 2-byte status code + reason
+		payload := []byte{0x03, 0xE8} // code 1000
+		payload = append(payload, []byte("goodbye")...)
+		server.Write([]byte{0x88, byte(len(payload))})
+		server.Write(payload)
+	}()
+
+	client.SetDeadline(time.Now().Add(2 * time.Second))
+	msg, closed, err := wsReadFrame(client)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !closed {
+		t.Error("expected closed=true")
+	}
+	if !strings.Contains(msg, "goodbye") {
+		t.Errorf("expected msg to contain 'goodbye', got: %q", msg)
+	}
+}
+
+func TestCoveragePush_WsReadFrame_PingFrame(t *testing.T) {
+	server, client := net.Pipe()
+	defer client.Close()
+
+	go func() {
+		defer server.Close()
+		// Ping frame with payload
+		payload := []byte("ping data")
+		server.Write([]byte{0x89, byte(len(payload))})
+		server.Write(payload)
+		// Then a text frame so wsReadFrame returns
+		msg := []byte("actual message")
+		server.Write([]byte{0x81, byte(len(msg))})
+		server.Write(msg)
+	}()
+
+	client.SetDeadline(time.Now().Add(2 * time.Second))
+	// First read: ping frame, should return empty msg, not closed
+	msg, closed, err := wsReadFrame(client)
+	if err != nil {
+		t.Fatalf("unexpected error on ping: %v", err)
+	}
+	if closed {
+		t.Error("ping frame should not set closed")
+	}
+	if msg != "" {
+		t.Errorf("ping should return empty msg, got: %q", msg)
+	}
+}
+
+func TestCoveragePush_WsReadFrame_TextFrame(t *testing.T) {
+	server, client := net.Pipe()
+	defer client.Close()
+
+	go func() {
+		defer server.Close()
+		msg := []byte("hello world")
+		server.Write([]byte{0x81, byte(len(msg))})
+		server.Write(msg)
+	}()
+
+	client.SetDeadline(time.Now().Add(2 * time.Second))
+	msg, closed, err := wsReadFrame(client)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if closed {
+		t.Error("text frame should not set closed")
+	}
+	if msg != "hello world" {
+		t.Errorf("expected 'hello world', got: %q", msg)
+	}
+}
+
+func TestCoveragePush_WsReadFrame_EmptyPayload(t *testing.T) {
+	server, client := net.Pipe()
+	defer client.Close()
+
+	go func() {
+		defer server.Close()
+		// Text frame with 0-length payload
+		server.Write([]byte{0x81, 0x00})
+	}()
+
+	client.SetDeadline(time.Now().Add(2 * time.Second))
+	msg, closed, err := wsReadFrame(client)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if closed {
+		t.Error("should not be closed")
+	}
+	if msg != "" {
+		t.Errorf("expected empty msg for zero-length payload, got: %q", msg)
+	}
+}
+
+func TestCoveragePush_WsReadFrame_ReadError(t *testing.T) {
+	server, client := net.Pipe()
+	server.Close() // close immediately so read fails
+
+	_, _, err := wsReadFrame(client)
+	client.Close()
+	if err == nil {
+		t.Error("expected error when connection is closed")
+	}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 26. wsSendMessage — cover different payload sizes
+// ═══════════════════════════════════════════════════════════════════════
+
+func TestCoveragePush_WsSendMessage_Short(t *testing.T) {
+	server, client := net.Pipe()
+	defer server.Close()
+	defer client.Close()
+
+	go func() {
+		buf := make([]byte, 256)
+		server.Read(buf) // consume the frame
+	}()
+
+	err := wsSendMessage(client, "hi")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestCoveragePush_WsSendMessage_Medium(t *testing.T) {
+	server, client := net.Pipe()
+	defer server.Close()
+	defer client.Close()
+
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			_, err := server.Read(buf)
+			if err != nil {
+				return
+			}
+		}
+	}()
+
+	// 126-byte payload triggers the 16-bit length encoding
+	msg := strings.Repeat("x", 200)
+	err := wsSendMessage(client, msg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 27. runTestOnce — cover remaining !a.Passed branches for assertion types
+//     Each test exercises the assertion-dispatch + failure path inside runTestOnce
+// ═══════════════════════════════════════════════════════════════════════
+
+func TestCoveragePush_RunTestOnce_SSLCertFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "ssl-fail", Run: "echo ok", Expect: schema.Expect{
+				SSLCert: &schema.SSLCertCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_RedisFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "redis-fail", Run: "echo ok", Expect: schema.Expect{
+				Redis: &schema.RedisCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_MemcachedFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "mc-fail", Run: "echo ok", Expect: schema.Expect{
+				Memcached: &schema.MemcachedCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_PostgresFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "pg-fail", Run: "echo ok", Expect: schema.Expect{
+				Postgres: &schema.PostgresCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_MySQLFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "mysql-fail", Run: "echo ok", Expect: schema.Expect{
+				MySQL: &schema.MySQLCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_GRPCFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "grpc-fail", Run: "echo ok", Expect: schema.Expect{
+				GRPCHealth: &schema.GRPCHealthCheck{Address: "127.0.0.1:1"},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_URLReachableFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "url-fail", Run: "echo ok", Expect: schema.Expect{
+				URLReachable: &schema.URLReachableCheck{URL: "http://127.0.0.1:1/nope", Timeout: schema.Duration{Duration: 200 * time.Millisecond}},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_ServiceReachableFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "svc-fail", Run: "echo ok", Expect: schema.Expect{
+				ServiceReachable: &schema.ServiceReachableCheck{URL: "http://127.0.0.1:1/nope"},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_WebSocketFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "ws-fail", Run: "echo ok", Expect: schema.Expect{
+				WebSocket: &schema.WebSocketCheck{URL: "ws://127.0.0.1:1/ws", Timeout: schema.Duration{Duration: 200 * time.Millisecond}},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_DeepLinkFail(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+	}))
+	defer srv.Close()
+
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "dl-fail", Run: "echo ok", Expect: schema.Expect{
+				DeepLink: &schema.DeepLinkCheck{URL: srv.URL + "/path", Tier: "config-only"},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_GraphQLFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "gql-fail", Run: "echo ok", Expect: schema.Expect{
+				GraphQL: &schema.GraphQLCheck{URL: "http://127.0.0.1:1/graphql", Query: "{ __typename }"},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_CredentialFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "cred-fail", Run: "echo ok", Expect: schema.Expect{
+				Credential: &schema.CredentialCheck{Source: "env", Name: "SMOKESIG_NONEXISTENT_CRED_XYZ"},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_LDAPFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "ldap-fail", Run: "echo ok", Expect: schema.Expect{
+				LDAP: &schema.LDAPCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_MQTTFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "mqtt-fail", Run: "echo ok", Expect: schema.Expect{
+				MQTT: &schema.MQTTCheck{Broker: "tcp://127.0.0.1:1"},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_SMTPFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "smtp-fail", Run: "echo ok", Expect: schema.Expect{
+				SMTP: &schema.SMTPCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_MongoFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "mongo-fail", Run: "echo ok", Expect: schema.Expect{
+				Mongo: &schema.MongoCheck{Host: "127.0.0.1", Port: 1},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
+	}
+}
+
+func TestCoveragePush_RunTestOnce_KafkaFail(t *testing.T) {
+	cfg := &schema.SmokeConfig{
+		Version: 1, Project: "test",
+		Tests: []schema.Test{
+			{Name: "kafka-fail", Run: "echo ok", Expect: schema.Expect{
+				Kafka: &schema.KafkaCheck{Brokers: []string{"127.0.0.1:1"}},
+			}},
+		},
+	}
+	r := &Runner{Config: cfg, Reporter: &cpNoopReporter{}}
+	suite, _ := r.Run(RunOptions{})
+	if suite.Failed != 1 {
+		t.Errorf("expected 1 failed, got %d", suite.Failed)
 	}
 }
 
