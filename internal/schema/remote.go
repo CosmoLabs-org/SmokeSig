@@ -247,6 +247,24 @@ func MergeConfigs(base, overlay SmokeConfig) SmokeConfig {
 		merged.Tests = append(merged.Tests, overlay.Tests...)
 	}
 
+	// Plugins: last-wins per plugin name (overlay replaces base by key)
+	if len(overlay.Plugins) > 0 {
+		if merged.Plugins == nil {
+			merged.Plugins = make(map[string]PluginEntry)
+		}
+		for name, entry := range overlay.Plugins {
+			merged.Plugins[name] = entry
+		}
+	}
+
+	// Plugin-related settings
+	if overlay.Settings.AllowPluginExec {
+		merged.Settings.AllowPluginExec = true
+	}
+	if overlay.Settings.PluginMemoryMB > 0 {
+		merged.Settings.PluginMemoryMB = overlay.Settings.PluginMemoryMB
+	}
+
 	return merged
 }
 
