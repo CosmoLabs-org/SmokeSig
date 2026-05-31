@@ -1,6 +1,7 @@
 ---
 brainstorm_ref: docs/brainstorming/2026-05-29-interactive-tui-runner.md
 branch: master
+completed: "2026-05-30"
 covers_brainstorm_deliverables:
     - BR-01
     - BR-02
@@ -18,17 +19,22 @@ covers_plan_deliverables:
     - P-05
     - P-06
     - P-07
-created: "2026-05-29"
+created: "2026-05-29T12:00:00-03:00"
+goals_completed: 7
+goals_total: 7
 id: P-2026-05-29-interactive-tui-runner
 plan_ref: docs/planning-mode/2026-05-29-interactive-tui-runner.md
 priority: medium
+related_prompts: []
 requires_reading:
     - docs/brainstorming/2026-05-29-interactive-tui-runner.md
     - docs/planning-mode/2026-05-29-interactive-tui-runner.md
 schema_version: 1
-status: PENDING
+status: COMPLETED
+tags: []
 title: 'FEAT-051: Interactive TUI Test Runner'
 ---
+
 # FEAT-051: Interactive TUI Test Runner
 
 ## BEFORE Starting — Required Reading
@@ -56,25 +62,25 @@ Goals are grouped for parallel dispatch where possible:
 
 ## Goals
 
-### [ ] G-01 Build tag setup and Bubbletea dependency
+### [x] G-01 Build tag setup and Bubbletea dependency
 Covers P-01.
 
-### [ ] G-02 TUI Model, state machine, and key bindings
+### [x] G-02 TUI Model, state machine, and key bindings
 Covers P-02.
 
-### [ ] G-03 TUI Reporter implementing reporter.Reporter
+### [x] G-03 TUI Reporter implementing reporter.Reporter
 Covers P-03.
 
-### [ ] G-04 Runner TestNames filter for re-run support
+### [x] G-04 Runner TestNames filter for re-run support
 Covers P-04.
 
-### [ ] G-05 cmd/run_tui.go integration with --interactive flag
+### [x] G-05 cmd/run_tui.go integration with --interactive flag
 Covers P-05.
 
-### [ ] G-06 Watch mode integration
+### [x] G-06 Watch mode integration
 Covers P-06.
 
-### [ ] G-07 Tests and build verification
+### [x] G-07 Tests and build verification
 Covers P-07.
 
 ## Related

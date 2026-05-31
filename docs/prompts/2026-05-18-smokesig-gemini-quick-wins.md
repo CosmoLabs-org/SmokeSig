@@ -1,23 +1,28 @@
 ---
 branch: master
+completed: "2026-05-30"
 created: "2026-05-18T12:00:00-03:00"
-goals_completed: 0
+goals_completed: 3
 goals_total: 3
 priority: high
 related_prompts:
-  - docs/prompts/2026-04-30-gemini-phase1-continuation.md
-  - docs/prompts/2026-05-05-smokesig-docs.md
+    - docs/prompts/2026-04-30-gemini-phase1-continuation.md
+    - docs/prompts/2026-05-05-smokesig-docs.md
 requires_reading:
-  - CLAUDE.md
-  - internal/runner/assertion_file.go
-  - internal/runner/assertion_file_size_test.go
-  - internal/reporter/github.go
-  - internal/reporter/push.go
-  - internal/runner/runner.go
-  - internal/schema/schema.go
+    - CLAUDE.md
+    - internal/runner/assertion_file.go
+    - internal/runner/assertion_file_size_test.go
+    - internal/reporter/github.go
+    - internal/reporter/push.go
+    - internal/runner/runner.go
+    - internal/schema/schema.go
 schema_version: 1
-status: PENDING
-tags: [gemini, phase1, quick-wins, implementation]
+status: COMPLETED
+tags:
+    - gemini
+    - phase1
+    - quick-wins
+    - implementation
 title: SmokeSig Gemini Phase 1 Quick Wins — Next Implementation Session
 ---
 
@@ -46,7 +51,7 @@ SmokeSig is post-rename (cosmo-smoke -> SmokeSig), post-v0.20.1, and post-Backst
 
 ## Goals
 
-### [ ] 1. Verify Gemini Phase 1 Completion and Polish
+### [x] 1. Verify Gemini Phase 1 Completion and Polish
 **Model:** `sonnet` | **Files:** `internal/runner/assertion_file.go`, `internal/reporter/github.go`, `internal/runner/runner.go`, `internal/schema/schema.go`
 
 ROAD-077 is in `exploring` status but all three child issues (FEAT-037 file_size, FEAT-038 test chaining, FEAT-039 GHA reporter) are marked done/closed. This discrepancy needs investigation:
@@ -61,7 +66,7 @@ If any feature is incomplete or has gaps, create specific goals below for the mi
 
 **Acceptance:** `go test ./internal/... -count=1` passes. ROAD-077 status is either `completed` or has concrete remaining-work goals filed.
 
-### [ ] 2. Push Reporter Verification and Enhancement (ROAD-084)
+### [x] 2. Push Reporter Verification and Enhancement (ROAD-084)
 **Model:** `glm-turbo` | **Files:** `internal/reporter/push.go`, `internal/reporter/push_test.go`, `cmd/run.go`
 
 The push reporter scaffolding already exists in `internal/reporter/push.go` with tests in `push_test.go`. ROAD-084 is in `captured` status. Verify what's already built and determine what's missing:
@@ -75,7 +80,7 @@ The push reporter scaffolding already exists in `internal/reporter/push.go` with
 
 **Acceptance:** `go test ./internal/reporter/ -run TestPush -v` passes. ROAD-084 status updated based on findings.
 
-### [ ] 3. ROAD-078 Exploration — Gemini Phase 2 Lifecycle Hooks
+### [x] 3. ROAD-078 Exploration — Gemini Phase 2 Lifecycle Hooks
 **Model:** `sonnet` | **Files:** `internal/schema/schema.go`, `internal/runner/runner.go`
 
 If Goals 1 and 2 are complete, begin exploring Phase 2 (ROAD-078). The two Phase 2 items from the Gemini brainstorm are:

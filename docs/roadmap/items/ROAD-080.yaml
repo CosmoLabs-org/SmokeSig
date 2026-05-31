@@ -1,9 +1,9 @@
 id: ROAD-080
 created_at: 2026-04-30T02:49:19.959804-03:00
-updated_at: 2026-04-30T02:51:53.303995-03:00
+updated_at: 2026-05-30T23:50:34.019682-03:00
 title: 'Gemini Ecosystem Feedback — Phase 4: DX Features'
 description: Auto-Add generator (smoke observe), detector-observer integration, simulator/emulator health assertions. ~1,380 lines.
-status: captured
+status: completed
 priority: 45
 tags:
     - area:dx
@@ -15,5 +15,7 @@ tags:
 refs:
     - type: brainstorm
       path: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+completed_in: v0.25.0
+completed_at: 2026-05-30T23:50:34.019674-03:00
 origin:
     session: 2027

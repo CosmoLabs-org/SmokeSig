@@ -1,6 +1,7 @@
 ---
 brainstorm_ref: docs/brainstorming/2026-05-29-wasm-plugin-system.md
 branch: master
+completed: "2026-05-30"
 covers_brainstorm_deliverables:
     - BR-01
     - BR-02
@@ -27,17 +28,22 @@ covers_plan_deliverables:
     - P-10
     - P-11
     - P-12
-created: "2026-05-29"
+created: "2026-05-29T12:00:00-03:00"
+goals_completed: 12
+goals_total: 12
 id: P-2026-05-29-wasm-plugin-system
 plan_ref: docs/planning-mode/2026-05-29-wasm-plugin-system.md
 priority: medium
+related_prompts: []
 requires_reading:
     - docs/brainstorming/2026-05-29-wasm-plugin-system.md
     - docs/planning-mode/2026-05-29-wasm-plugin-system.md
 schema_version: 1
-status: PENDING
+status: COMPLETED
+tags: []
 title: 'FEAT-048: Wasm Plugin System'
 ---
+
 # FEAT-048: Wasm Plugin System
 
 ## BEFORE Starting — Required Reading
@@ -66,40 +72,40 @@ Two parallel tracks merge at runner integration:
 
 ## Goals
 
-### [ ] G-01 Plugin types and schema integration (PluginEntry, Expect.Plugin, Settings additions)
+### [x] G-01 Plugin types and schema integration (PluginEntry, Expect.Plugin, Settings additions)
 Covers P-01.
 
-### [ ] G-02 PluginManager core: compile, cache, instantiate, evaluate, close
+### [x] G-02 PluginManager core: compile, cache, instantiate, evaluate, close
 Covers P-02.
 
-### [ ] G-03 ABI layer: memory protocol (v1) and WASI stdin/stdout fallback (v2)
+### [x] G-03 ABI layer: memory protocol (v1) and WASI stdin/stdout fallback (v2)
 Covers P-03.
 
-### [ ] G-04 Host functions: HTTP, env, time with capability gating
+### [x] G-04 Host functions: HTTP, env, time with capability gating
 Covers P-04.
 
-### [ ] G-05 Sandbox: capability enforcement, memory limits, timeout
+### [x] G-05 Sandbox: capability enforcement, memory limits, timeout
 Covers P-05.
 
-### [ ] G-06 Runner integration: plugin evaluation in assertion block with sorted iteration
+### [x] G-06 Runner integration: plugin evaluation in assertion block with sorted iteration
 Covers P-06.
 
-### [ ] G-07 Validation integration: plugin references, file existence, export probing
+### [x] G-07 Validation integration: plugin references, file existence, export probing
 Covers P-07.
 
-### [ ] G-08 Config merge semantics: includes last-wins for plugins, monorepo path resolution
+### [x] G-08 Config merge semantics: includes last-wins for plugins, monorepo path resolution
 Covers P-08.
 
-### [ ] G-09 Schema export: plugin metadata in smokesig schema output
+### [x] G-09 Schema export: plugin metadata in smokesig schema output
 Covers P-09.
 
-### [ ] G-10 Test fixtures: .wasm binaries in testdata/ with build script
+### [x] G-10 Test fixtures: .wasm binaries in testdata/ with build script
 Covers P-10.
 
-### [ ] G-11 Debug mode: SMOKESIG_PLUGIN_DEBUG=1 logging
+### [x] G-11 Debug mode: SMOKESIG_PLUGIN_DEBUG=1 logging
 Covers P-11.
 
-### [ ] G-12 Documentation: plugin authoring guide, ABI reference
+### [x] G-12 Documentation: plugin authoring guide, ABI reference
 Covers P-12.
 
 ## Related

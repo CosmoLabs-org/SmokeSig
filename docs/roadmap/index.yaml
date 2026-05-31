@@ -1,6 +1,6 @@
 version: "1.0"
 project: cosmo-smoke
-last_updated: 2026-05-29T01:07:00.2678-03:00
+last_updated: 2026-05-30T23:50:34.101044-03:00
 next_id: 92
 items:
     - id: ROAD-091
@@ -29,16 +29,18 @@ items:
       created_at: 2026-05-24T06:06:10.435584-03:00
     - id: ROAD-086
       title: Wasm plugin system for custom assertions via wazero
-      status: captured
+      status: completed
       priority: 25
       parent: ROAD-081
+      completed_in: v0.25.0
       created_at: 2026-05-15T15:06:30.856523-03:00
     - id: ROAD-085
       title: Interactive TUI with Bubbletea — real-time test results, filtering, scrollable output
-      status: promoted
+      status: completed
       priority: 40
       parent: ROAD-081
       has_plan: true
+      completed_in: v0.25.0
       created_at: 2026-05-15T15:06:30.616382-03:00
     - id: ROAD-084
       title: Push reporter — send results to webhook/Slack/PagerDuty on failure
@@ -53,29 +55,35 @@ items:
       created_at: 2026-05-15T15:06:15.300607-03:00
     - id: ROAD-082
       title: CCS dependency integration — rebuild, smoke passthrough, project registry
-      status: promoted
+      status: completed
       priority: 95
       promoted_to: FEAT-054
+      completed_in: v0.25.0
       created_at: 2026-05-15T15:05:26.57121-03:00
     - id: ROAD-081
       title: 'Gemini Ecosystem Feedback — Phase 5: Ecosystem & Enterprise'
-      status: captured
+      status: completed
+      completed_in: v0.25.0
       created_at: 2026-04-30T02:49:20.233662-03:00
     - id: ROAD-080
       title: 'Gemini Ecosystem Feedback — Phase 4: DX Features'
-      status: captured
+      status: completed
+      completed_in: v0.25.0
       created_at: 2026-04-30T02:49:19.959804-03:00
     - id: ROAD-079
       title: 'Gemini Ecosystem Feedback — Phase 3: Quality Tooling'
-      status: captured
+      status: completed
+      completed_in: v0.25.0
       created_at: 2026-04-30T02:49:19.68491-03:00
     - id: ROAD-078
       title: 'Gemini Ecosystem Feedback — Phase 2: Lifecycle & Orchestration'
-      status: captured
+      status: completed
+      completed_in: v0.25.0
       created_at: 2026-04-30T02:49:19.438118-03:00
     - id: ROAD-077
       title: 'Gemini Ecosystem Feedback — Phase 1: Quick Wins'
-      status: promoted
+      status: completed
+      completed_in: v0.25.0
       created_at: 2026-04-30T02:49:19.251599-03:00
     - id: ROAD-076
       title: Kubernetes resource assertion

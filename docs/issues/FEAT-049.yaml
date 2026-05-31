@@ -1,11 +1,14 @@
 id: FEAT-049
 type: feature
 created_at: 2026-04-30T02:51:30.546948-03:00
-updated_at: 2026-04-30T02:52:04.335287-03:00
+updated_at: 2026-05-30T23:38:20.061593-03:00
 source: local
-status: open
+status: done
 origin:
     session: 2027
 title: OIDC integration for cloud role assumption (BR-04)
 description: 'Allow smoke tests to assume AWS/GCP roles via OIDC tokens from CI providers. New auth: config section. Auto-detect CI environment. Opt-in build tag. ~500 lines.'
 brainstorm_ref: docs/brainstorming/2026-04-29-gemini-ecosystem-feedback.md
+revisions:
+    - date: "2026-05-30"
+      action: closed

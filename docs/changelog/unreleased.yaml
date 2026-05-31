@@ -4,7 +4,16 @@
 
 version: pending
 entries:
-    added: []
+    added:
+        - description: Azure AD OIDC federated token exchange — complete three-cloud auth support (AWS + GCP + Azure) (FEAT-049)
+          source: manual
+          date: 2026-05-30T23:38:26.899648-03:00
+        - description: Wasm plugin system for custom assertions via wazero — WASI ABI, capability sandbox, sorted iteration (FEAT-048)
+          source: manual
+          date: 2026-05-30T23:47:53.329308-03:00
+        - description: CCS wiring — LoadDefault() config fallback, exit code contract 0/1/2/3 (FEAT-052)
+          source: manual
+          date: 2026-05-30T23:47:53.37723-03:00
     fixed: []
     changed: []
     deprecated: []

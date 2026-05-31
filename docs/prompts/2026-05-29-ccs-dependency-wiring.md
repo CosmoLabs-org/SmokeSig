@@ -1,6 +1,7 @@
 ---
 brainstorm_ref: docs/brainstorming/2026-05-29-ccs-dependency-wiring.md
 branch: master
+completed: "2026-05-30"
 covers_brainstorm_deliverables:
     - BR-01
     - BR-02
@@ -16,17 +17,22 @@ covers_plan_deliverables:
     - P-04
     - P-05
     - P-06
-created: "2026-05-29"
+created: "2026-05-29T12:00:00-03:00"
+goals_completed: 6
+goals_total: 6
 id: P-2026-05-29-ccs-dependency-wiring
 plan_ref: docs/planning-mode/2026-05-29-ccs-dependency-wiring.md
 priority: medium
+related_prompts: []
 requires_reading:
     - docs/brainstorming/2026-05-29-ccs-dependency-wiring.md
     - docs/planning-mode/2026-05-29-ccs-dependency-wiring.md
 schema_version: 1
-status: PENDING
+status: COMPLETED
+tags: []
 title: 'FEAT-052: CCS Dependency Wiring'
 ---
+
 # FEAT-052: CCS Dependency Wiring
 
 ## BEFORE Starting — Required Reading
@@ -53,22 +59,22 @@ Wire SmokeSig as an external CCS dependency. Fix the dead `LoadDefault()` code s
 
 ## Goals
 
-### [ ] G-01 Wire LoadDefault() fallback into run/validate commands
+### [x] G-01 Wire LoadDefault() fallback into run/validate commands
 Covers P-01.
 
-### [ ] G-02 Formalize exit code contract
+### [x] G-02 Formalize exit code contract
 Covers P-02.
 
-### [ ] G-03 CCS smoke.go passthrough command
+### [x] G-03 CCS smoke.go passthrough command
 Covers P-03.
 
-### [ ] G-04 CCS rebuild.go SmokeSig entry
+### [x] G-04 CCS rebuild.go SmokeSig entry
 Covers P-04.
 
-### [ ] G-05 CCS .binary-registry.json entry + sync check
+### [x] G-05 CCS .binary-registry.json entry + sync check
 Covers P-05.
 
-### [ ] G-06 Documentation sweep and migration guide
+### [x] G-06 Documentation sweep and migration guide
 Covers P-06.
 
 ## Related
