@@ -215,8 +215,8 @@ func Validate(cfg *SmokeConfig) error {
 			}
 			profileNames[name] = true
 
-			if p.Provider != "aws" && p.Provider != "gcp" {
-				errs = append(errs, fmt.Sprintf("%s: unsupported provider %q (must be aws or gcp)", prefix, p.Provider))
+			if p.Provider != "aws" && p.Provider != "gcp" && p.Provider != "azure" {
+				errs = append(errs, fmt.Sprintf("%s: unsupported provider %q (must be aws, gcp, or azure)", prefix, p.Provider))
 			}
 			if p.Provider == "aws" {
 				if p.RoleARN == "" {
@@ -234,6 +234,14 @@ func Validate(cfg *SmokeConfig) error {
 				}
 				if p.GCPCredentialFormat != "" && p.GCPCredentialFormat != "env" && p.GCPCredentialFormat != "keyfile" {
 					errs = append(errs, fmt.Sprintf("%s: gcp_credential_format must be env or keyfile", prefix))
+				}
+			}
+			if p.Provider == "azure" {
+				if p.TenantID == "" {
+					errs = append(errs, fmt.Sprintf("%s: azure provider requires tenant_id", prefix))
+				}
+				if p.AzureClientID == "" {
+					errs = append(errs, fmt.Sprintf("%s: azure provider requires client_id", prefix))
 				}
 			}
 			if p.SessionDuration != "" {

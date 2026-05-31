@@ -485,13 +485,39 @@ func TestValidate_Auth(t *testing.T) {
 
 	t.Run("unsupported provider", func(t *testing.T) {
 		cfg := baseConfig([]AuthProfile{
-			{Provider: "azure"},
+			{Provider: "digitalocean"},
 		}, "", nil)
 		err := Validate(cfg)
 		if err == nil {
 			t.Fatal("expected error for unsupported provider")
 		}
 		if !strings.Contains(err.Error(), "unsupported provider") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("azure missing tenant_id", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "azure", AzureClientID: "client-123"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for missing tenant_id")
+		}
+		if !strings.Contains(err.Error(), "tenant_id") {
+			t.Errorf("wrong error: %v", err)
+		}
+	})
+
+	t.Run("azure missing client_id", func(t *testing.T) {
+		cfg := baseConfig([]AuthProfile{
+			{Provider: "azure", TenantID: "tenant-123"},
+		}, "", nil)
+		err := Validate(cfg)
+		if err == nil {
+			t.Fatal("expected error for missing client_id")
+		}
+		if !strings.Contains(err.Error(), "client_id") {
 			t.Errorf("wrong error: %v", err)
 		}
 	})

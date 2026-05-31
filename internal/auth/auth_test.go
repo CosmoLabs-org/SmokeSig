@@ -69,8 +69,16 @@ func TestCredentials_String_GCP(t *testing.T) {
 	}
 }
 
+func TestCredentials_String_Azure(t *testing.T) {
+	creds := &Credentials{Provider: ProviderAzure, AccessToken: []byte("eyJhbGciOiJSUzI1NiJ9")}
+	got := creds.String()
+	if got != "azure:eyJh***" {
+		t.Errorf("String() = %q, want azure:eyJh***", got)
+	}
+}
+
 func TestCredentials_String_Unknown(t *testing.T) {
-	creds := &Credentials{Provider: "azure"}
+	creds := &Credentials{Provider: "digitalocean"}
 	got := creds.String()
 	want := "unknown"
 	if got != want {

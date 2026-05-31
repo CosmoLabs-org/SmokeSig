@@ -123,6 +123,14 @@ func exchangeProfile(profile schema.AuthProfile) (*Credentials, error) {
 			format,
 			"", "", // production endpoints
 		)
+	case ProviderAzure:
+		return ExchangeAzure(
+			profile.TenantID,
+			profile.AzureClientID,
+			profile.SubscriptionID,
+			result.Token,
+			"", // production endpoint
+		)
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", profile.Provider)
 	}

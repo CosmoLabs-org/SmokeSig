@@ -30,8 +30,9 @@ import (
 type Provider string
 
 const (
-	ProviderAWS Provider = "aws"
-	ProviderGCP Provider = "gcp"
+	ProviderAWS   Provider = "aws"
+	ProviderGCP   Provider = "gcp"
+	ProviderAzure Provider = "azure"
 )
 
 // Credentials holds temporary cloud credentials obtained via OIDC exchange.
@@ -42,10 +43,14 @@ type Credentials struct {
 	AccessKeyID    []byte // AWS
 	SecretAccessKey []byte // AWS
 	SessionToken   []byte // AWS
-	AccessToken    []byte // GCP
+	AccessToken    []byte // GCP, Azure
 	Expiration     time.Time
 	// GCP keyfile path (only when gcp_credential_format=keyfile)
 	KeyfilePath string
+	// Azure-specific
+	TenantID       string
+	ClientID       string
+	SubscriptionID string
 }
 
 // Expired returns true if credentials have expired or are within the skew window.
@@ -88,6 +93,12 @@ func (c *Credentials) String() string {
 			tok = tok[:4] + "***"
 		}
 		return fmt.Sprintf("gcp:%s", tok)
+	case ProviderAzure:
+		tok := string(c.AccessToken)
+		if len(tok) > 4 {
+			tok = tok[:4] + "***"
+		}
+		return fmt.Sprintf("azure:%s", tok)
 	default:
 		return "unknown"
 	}
@@ -105,6 +116,13 @@ func (c *Credentials) EnvVars() map[string]string {
 		vars["CLOUDSDK_AUTH_ACCESS_TOKEN"] = string(c.AccessToken)
 		if c.KeyfilePath != "" {
 			vars["GOOGLE_APPLICATION_CREDENTIALS"] = c.KeyfilePath
+		}
+	case ProviderAzure:
+		vars["AZURE_CLIENT_ID"] = c.ClientID
+		vars["AZURE_TENANT_ID"] = c.TenantID
+		vars["AZURE_FEDERATED_TOKEN"] = string(c.AccessToken)
+		if c.SubscriptionID != "" {
+			vars["AZURE_SUBSCRIPTION_ID"] = c.SubscriptionID
 		}
 	}
 	return vars

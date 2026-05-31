@@ -44,7 +44,7 @@ type AuthConfig struct {
 // AuthProfile defines a single cloud auth provider configuration.
 type AuthProfile struct {
 	Name     string `yaml:"name,omitempty"`     // profile name (default: "default")
-	Provider string `yaml:"provider"`           // "aws" | "gcp"
+	Provider string `yaml:"provider"`           // "aws" | "gcp" | "azure"
 	RoleARN  string `yaml:"role_arn,omitempty"` // AWS: arn:aws:iam::ACCOUNT:role/ROLE
 	Audience string `yaml:"audience,omitempty"` // OIDC audience (AWS default: "sts.amazonaws.com")
 	Region   string `yaml:"region,omitempty"`   // AWS region for regional STS endpoint
@@ -53,6 +53,11 @@ type AuthProfile struct {
 	WorkloadIdentityProvider string `yaml:"workload_identity_provider,omitempty"`
 	ServiceAccountEmail      string `yaml:"service_account_email,omitempty"`
 	GCPCredentialFormat      string `yaml:"gcp_credential_format,omitempty"` // "env" (default) | "keyfile"
+
+	// Azure-specific
+	TenantID       string `yaml:"tenant_id,omitempty"`
+	AzureClientID  string `yaml:"client_id,omitempty"`
+	SubscriptionID string `yaml:"subscription_id,omitempty"`
 
 	// Advanced
 	TokenEnv        string `yaml:"token_env,omitempty"`        // custom env var containing OIDC token
